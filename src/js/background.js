@@ -59,7 +59,7 @@ function setContextMenus() {
     var capturePageContextMenuItem = chrome.contextMenus.create({
         "title": "capture page", "contexts": ["page"],
         "onclick": function (obj) {
-        	UTILS.Tab.toImage({ format: "jpeg", quality: 100 }, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+        	UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
                 var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
                 evt.type = "capture";
                 uploadDelegate(evt);
@@ -113,7 +113,7 @@ function setContextMenus() {
             chrome.contextMenus.create({
                 "title": "- this computer -", "contexts": ["page"],
                 "onclick": function (obj) {
-                	UTILS.Tab.toImage({ format: "jpeg", quality: 100 }, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+                	UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
                         var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
                         evt.type = "capture";
                         uploadDelegate(evt);
@@ -126,7 +126,7 @@ function setContextMenus() {
             chrome.contextMenus.create({
                 "title": model.authenticated.getAccount().url, "contexts": ["page"],
                 "onclick": function (obj) {
-                	UTILS.Tab.toImage({ format: "jpeg", quality: 100 }, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+                	UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
                         var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
                         evt.type = "capture";
                         uploadDelegate(evt);
@@ -213,7 +213,7 @@ function setContextMenus() {
                         chrome.contextMenus.create({
                             "title": album.title, "contexts": ["page"],
                             "onclick": function (obj) {
-                            	UTILS.Tab.toImage({ format: "jpeg", quality: 100 }, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+                            	UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
                                     var evt = model.authenticated.sendImage(album.id, img.split(',')[1]);
                                     evt.type = "capture";
                                     uploadDelegate(evt);
