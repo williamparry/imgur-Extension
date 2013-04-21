@@ -150,7 +150,6 @@ function makeURLItem(URL) {
 
 function deleteImage(image) {
 
-
 	var elem = document.getElementById(image.id);
 
     progress = UTILS.DOM.create('progress');
@@ -162,7 +161,7 @@ function deleteImage(image) {
 
     elem.classList.add('loading');
     if (CurrentAlbum == "_thisComputer") {
-    	model.unsorted.deleteImage(image.deletehash).addEventListener('EVENT_SUCCESS', function (e) {
+    	model.unsorted.deleteImage(image.getAttribute('data-deletehash')).addEventListener('EVENT_SUCCESS', function (e) {
             if (elem) {
                 elem.parentNode.removeChild(elem);
             }
@@ -280,6 +279,7 @@ function makeAlbumItem(imageItem) {
     img.src = imageItem.link + 't';
 
     li.id = imageItem.id;
+    li.setAttribute('data-deletehash', imageItem.deletehash);
 
     edit.href = "#";
     edit.innerHTML = "edit copy";
