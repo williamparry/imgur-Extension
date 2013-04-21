@@ -166,58 +166,69 @@ function Model() {
 
     this.requestManager = new function () {
 
+		// May set this in DAL to prevent Background requests conflicting
+    	this.reauthenticating = false;
+
+    	var self = this;
     	var CurrentlyProcessing = 0;
-    	var test = 0;
     	var pending = [];
 
     	this.queue = function (req) {
     		pending.push(req);
-    		processQueue();
     	};
 
     	function requeue (req) {
     		pending.unshift(req);
-    		test++;
-    		processQueue();
     	};
 
     	function processQueue() {
     		
-    		if (CurrentlyProcessing < root.preferences.get('connections')) {
+    		if (pending.length > 0) {
 
-    			CurrentlyProcessing++;
+    			if (CurrentlyProcessing < root.preferences.get('connections')) {
 
-    			var item = pending.shift();
+    				CurrentlyProcessing++;
 
-    			// Listen to the item's events
-    			item.evtD.addEventListener('EVENT_REAUTH', function () {
+    				var item = pending.shift();
 
-    				CurrentlyProcessing--;
+    				// Listen to the item's events
+    				item.evtD.addEventListener('EVENT_REAUTH', function () {
 
-    				root.authenticated.oAuthManager.refreshToken();
+    					CurrentlyProcessing--;
 
-					// Getting requeued so remove all manager listeners (they'll get added again)
-    				item.evtD.removeEventListenersByHandler('EVENT_REAUTH', 'manager');
+    					// Getting requeued so remove all manager listeners (they'll get added again)
+    					item.evtD.removeEventListenersByHandler('EVENT_REAUTH', 'manager');
+    					console.log("reauthentication status is", self.reauthenticating);
+    					if (!self.reauthenticating) {
+							
+    						self.reauthenticating = true;
+    						root.authenticated.oAuthManager.refreshToken().addEventListener("EVENT_COMPLETE", function () {
+    							console.log('finished');
+    							self.reauthenticating = false;
+    							console.log('finished reauthenticating so requeue', item);
+    							requeue(item);
+    						});
+    						
+    					} else {
+    						console.log('reauthenticating so requeue', item);
+    						requeue(item);
+    					}
 
-    				requeue(item);
+    				}, 'manager');
 
-    			}, 'manager');
+    				item.evtD.addEventListener(['EVENT_COMPLETE', 'EVENT_ERROR', 'EVENT_PROGRESS'], function (e) {
 
-    			item.evtD.addEventListener(['EVENT_COMPLETE', 'EVENT_ERROR', 'EVENT_PROGRESS'], function (e) {
+    					CurrentlyProcessing--;
 
-    				CurrentlyProcessing--;
-    				
-    				if (pending.length !== 0) {
+    				}, 'manager');
+    				console.log('-- start request');
+    				item.handler.call(item, item.argsObj, item.evtD);
 
-    					processQueue();
-    				}
-
-    			}, 'manager');
-
-    			item.handler.call(item, item.argsObj, item.evtD);
-
+    			}
     		}
     	}
+
+    	setInterval(processQueue, 500);
 
     };
 
@@ -230,8 +241,6 @@ function Model() {
     	var authenticated = this;
 
     	this.oAuthManager = new function () {
-
-    		var refreshingToken = false;
 
     		this.reset = function () {
     			DAL.set('OAuth2.access_token', null);
@@ -247,6 +256,7 @@ function Model() {
 
     		this.invalidateToken = function () {
     			DAL.set('OAuth2.access_token', 123);
+    			return DAL.get('OAuth2.access_token');
     		};
 
     		this.getAuthStatus = function () {
@@ -273,31 +283,32 @@ function Model() {
 
     		this.refreshToken = function () {
 
-    			// Some other request is taking care of it
-    			// Return (expecting to requeue anyway)
-    			
-    			if (!refreshingToken) {
-    				console.log('refreshingToken');
-    				refreshingToken = true;
+    			var evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE']),
+					xhr = new XMLHttpRequest();
 
-    				var xhr = new XMLHttpRequest();
+    			xhr.open("POST", "https://api.imgur.com/oauth2/token", true);
+    			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-    				// No async
-    				xhr.open("POST", "https://api.imgur.com/oauth2/token", false);
-    				xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    				xhr.send("client_id=e5642c924b26904&client_secret=182e1f36ca3fa519df464bb0004d478cdab734d8&grant_type=refresh_token&refresh_token=" + DAL.get('OAuth2.refresh_token'));
+    			xhr.onreadystatechange = function () {
 
-    				if (xhr.status === 200) {
-    					var resp = JSON.parse(xhr.responseText);
-    					authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
-    					console.log('done', resp);
-    					refreshingToken = false;
+    				if (xhr.readyState == 4) {
+
+    					if (xhr.status === 200) {
+    						var resp = JSON.parse(xhr.responseText);
+    						authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
+    						console.log("new refresh token", resp.refresh_token);
+    						evtD.dispatchEvent(evtD.EVENT_COMPLETE);
+    					}
 
     				}
+
     			}
 
-    			
-    		};
+    			xhr.send("client_id=e5642c924b26904&client_secret=182e1f36ca3fa519df464bb0004d478cdab734d8&grant_type=refresh_token&refresh_token=" + DAL.get('OAuth2.refresh_token'));
+
+    			return evtD;
+
+    		}
 
     	}
 
