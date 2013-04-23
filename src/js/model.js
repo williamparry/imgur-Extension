@@ -90,7 +90,7 @@ function Model() {
     	}
     	DAL.set('unsorted', upgradedUnsorted);
 
-    	DAL.set('OAuth2', { access_token: null, refresh_token: null, account_username: null });
+    	DAL.set('OAuth2', { access_token: null, refresh_token: null, account_username: null, refreshing: false });
     };
 
 	function encode(str) {
@@ -166,9 +166,6 @@ function Model() {
 
     this.requestManager = new function () {
 
-		// May set this in DAL to prevent Background requests conflicting
-    	this.reauthenticating = false;
-
     	var self = this;
     	var CurrentlyProcessing = 0;
     	var pending = [];
@@ -183,7 +180,7 @@ function Model() {
 
     	function processQueue() {
     		
-    		if (pending.length > 0 && !self.reauthenticating) {
+    		if (pending.length > 0 && !!!DAL.get('OAuth2.refreshing')) {
 
     			if (CurrentlyProcessing < root.preferences.get('connections')) {
 
@@ -207,11 +204,11 @@ function Model() {
 						// Would be good to get a getListenersByHandle(handle)
     					console.log('Auth listeners count = ', item.evtD.getListeners('EVENT_REAUTH'), 'Pending = ', pending);
 
-    					console.log("reauthentication status is", self.reauthenticating);
+    					console.log("reauthentication status is", !!DAL.get('OAuth2.refreshing'));
 
-    					if (!self.reauthenticating) {
+    					if (!!!DAL.get('OAuth2.refreshing')) {
 							
-    						self.reauthenticating = true;
+    						DAL.set('OAuth2.refreshing', true);
 
     						CurrentlyProcessing++;
 
@@ -223,7 +220,7 @@ function Model() {
 
     							console.log("decrement auth finish", CurrentlyProcessing);
 
-    							self.reauthenticating = false;
+    							DAL.set('OAuth2.refreshing', false);
 
     							console.log('Token refreshed. Requeue ', item);
 
@@ -284,6 +281,7 @@ function Model() {
     		};
 
     		this.invalidateToken = function () {
+    			DAL.set('OAuth2.refreshing', false);
     			DAL.set('OAuth2.access_token', 123);
     			return DAL.get('OAuth2.access_token');
     		};
