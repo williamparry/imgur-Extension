@@ -197,20 +197,38 @@ function Model() {
     					CurrentlyProcessing--;
 
     					// Getting requeued so remove all manager listeners (they'll get added again)
+						// Limitation in utils-1.3 that you can't pass an array in
     					item.evtD.removeEventListenersByHandler('EVENT_REAUTH', 'manager');
+    					item.evtD.removeEventListenersByHandler('EVENT_COMPLETE', 'manager');
+    					item.evtD.removeEventListenersByHandler('EVENT_ERROR', 'manager');
+    					item.evtD.removeEventListenersByHandler('EVENT_PROGRESS', 'manager');
+
+						// Would be good to get a getListenersByHandle(handle)
+    					console.log('Auth listeners count = ', item.evtD.getListeners('EVENT_REAUTH'), 'Pending = ', pending);
+
     					console.log("reauthentication status is", self.reauthenticating);
+
     					if (!self.reauthenticating) {
 							
     						self.reauthenticating = true;
+
+    						CurrentlyProcessing++;
+
     						root.authenticated.oAuthManager.refreshToken().addEventListener("EVENT_COMPLETE", function () {
-    							console.log('finished');
+
+    							CurrentlyProcessing--;
+
     							self.reauthenticating = false;
-    							console.log('finished reauthenticating so requeue', item);
+
+    							console.log('Token refreshed. Requeue ', item);
+
     							requeue(item);
     						});
     						
     					} else {
-    						console.log('reauthenticating so requeue', item);
+
+    						console.log('Reauthentication running, requeue ', item);
+
     						requeue(item);
     					}
 
@@ -220,8 +238,12 @@ function Model() {
 
     					CurrentlyProcessing--;
 
+    					console.log('Complete. Currently processing = ', CurrentlyProcessing, 'Pending = ', pending);
+
     				}, 'manager');
-    				console.log('-- start request');
+
+    				console.log('-- start request', item);
+
     				item.handler.call(item, item.argsObj, item.evtD);
 
     			}
@@ -323,7 +345,7 @@ function Model() {
 
     			var xhr = new XMLHttpRequest();
 
-    			xhr.open(method, url, true);
+    			xhr.open(method, url + (!!~url.indexOf('?') ? "&" : "?") + "r=" + Math.random()*9999999, true);
     			xhr.setRequestHeader('Authorization', 'Bearer ' + DAL.get('OAuth2.access_token'));
 
     			if (postStr) {
@@ -341,10 +363,12 @@ function Model() {
 
     				if (xhr.readyState === 4) {
 
+    					console.log('xhr status', xhr.status);
+
     					if (xhr.status === 200) {
 
     						var resp = JSON.parse(xhr.responseText);
-							
+    						console.log(resp);
     						self.evtD.dispatchEvent('EVENT_COMPLETE', resp.data);
 
     						if (resp.success) {
@@ -413,7 +437,7 @@ function Model() {
 
     		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/albums");
     		root.requestManager.queue(req);
-
+    		console.log('fetch albums');
     		req.evtD.addEventListener("EVENT_SUCCESS", function (albums) {
     			DAL.set('albums', albums);
     		});

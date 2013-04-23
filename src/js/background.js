@@ -24,7 +24,7 @@ function setContextMenus() {
     chrome.contextMenus.removeAll();
 
     function handleCapture() {
-        var evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE']);
+    	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS']);
         chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
         	chrome.tabs.getSelected(null, function (tab) {
                 requestMessenger.addEventListener("got_area", function (e) {
@@ -79,7 +79,7 @@ function setContextMenus() {
 
     var captureAreaContextMenuItem = chrome.contextMenus.create({ "title": "capture area", "contexts": ["page"],
         "onclick": function (obj) {
-            handleCapture().addEventListener('EVENT_COMPLETE', function (img) {
+        	handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
                 var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
                 evt.type = "capture";
                 uploadDelegate(evt);
@@ -161,7 +161,7 @@ function setContextMenus() {
             chrome.contextMenus.create({
                 "title": "- this computer -", "contexts": ["page"],
                 "onclick": function (obj) {
-                    handleCapture().addEventListener('EVENT_COMPLETE', function (img) {
+                	handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
                         var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
                         evt.type = "capture";
                         uploadDelegate(evt);
@@ -173,7 +173,7 @@ function setContextMenus() {
             chrome.contextMenus.create({
                 "title": model.authenticated.getAccount().url, "contexts": ["page"],
                 "onclick": function (obj) {
-                    handleCapture().addEventListener('EVENT_COMPLETE', function (img) {
+                	handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
                         var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
                         evt.type = "capture";
                         uploadDelegate(evt);
@@ -239,7 +239,7 @@ function setContextMenus() {
                         chrome.contextMenus.create({
                             "title": album.title, "contexts": ["page"],
                             "onclick": function (obj) {
-                                handleCapture().addEventListener('EVENT_COMPLETE', function (img) {
+                                handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
                                     var evt = model.authenticated.sendImage(album.id, img.split(',')[1]);
                                     evt.type = "capture";
                                     uploadDelegate(evt);
@@ -391,9 +391,9 @@ portMessenger.addEventListener("main.get_user", function () {
 
     		chrome.tabs.remove(tab.id);
 
-    		model.authenticated.oAuthManager.getToken(verifier.Data).addEventListener('EVENT_COMPLETE', function () {
-    			model.authenticated.fetchUser().addEventListener('EVENT_COMPLETE', function () {
-    				model.authenticated.fetchAlbums().addEventListener('EVENT_COMPLETE', function () {
+    		model.authenticated.oAuthManager.getToken(verifier.Data).addEventListener('EVENT_SUCCESS', function () {
+    			model.authenticated.fetchUser().addEventListener('EVENT_SUCCESS', function () {
+    				model.authenticated.fetchAlbums().addEventListener('EVENT_SUCCESS', function () {
     					setContextMenus();
     					authTab = -1;
     					chrome.tabs.onRemoved.removeListener(sendAuthAbortedMessage);
@@ -423,7 +423,7 @@ var ContextMenuSchedule = new function () {
 
     function send() {
         if (model.authenticated.oAuthManager.getAuthStatus()) {
-            model.authenticated.fetchAlbums().addEventListener('EVENT_COMPLETE', setContextMenus);
+            model.authenticated.fetchAlbums().addEventListener('EVENT_SUCCESS', setContextMenus);
         } else {
             setContextMenus();
         }
