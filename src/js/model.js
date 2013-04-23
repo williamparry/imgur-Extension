@@ -183,25 +183,26 @@ function Model() {
 
     	function processQueue() {
     		
-    		if (pending.length > 0) {
+    		if (pending.length > 0 && !self.reauthenticating) {
 
     			if (CurrentlyProcessing < root.preferences.get('connections')) {
 
     				CurrentlyProcessing++;
-
+    				console.log("increment start request", CurrentlyProcessing);
     				var item = pending.shift();
+
+    				// Getting requeued so remove all manager listeners (they'll get added again)
+    				// Limitation in utils-1.3 that you can't pass an array in
+    				item.evtD.removeEventListenersByHandler('EVENT_REAUTH', 'manager');
+    				item.evtD.removeEventListenersByHandler('EVENT_COMPLETE', 'manager');
+    				item.evtD.removeEventListenersByHandler('EVENT_ERROR', 'manager');
 
     				// Listen to the item's events
     				item.evtD.addEventListener('EVENT_REAUTH', function () {
 
     					CurrentlyProcessing--;
 
-    					// Getting requeued so remove all manager listeners (they'll get added again)
-						// Limitation in utils-1.3 that you can't pass an array in
-    					item.evtD.removeEventListenersByHandler('EVENT_REAUTH', 'manager');
-    					item.evtD.removeEventListenersByHandler('EVENT_COMPLETE', 'manager');
-    					item.evtD.removeEventListenersByHandler('EVENT_ERROR', 'manager');
-    					item.evtD.removeEventListenersByHandler('EVENT_PROGRESS', 'manager');
+    					console.log("decrement reauth event", CurrentlyProcessing);
 
 						// Would be good to get a getListenersByHandle(handle)
     					console.log('Auth listeners count = ', item.evtD.getListeners('EVENT_REAUTH'), 'Pending = ', pending);
@@ -214,9 +215,13 @@ function Model() {
 
     						CurrentlyProcessing++;
 
+    						console.log("increment auth start", CurrentlyProcessing);
+
     						root.authenticated.oAuthManager.refreshToken().addEventListener("EVENT_COMPLETE", function () {
 
     							CurrentlyProcessing--;
+
+    							console.log("decrement auth finish", CurrentlyProcessing);
 
     							self.reauthenticating = false;
 
@@ -234,9 +239,11 @@ function Model() {
 
     				}, 'manager');
 
-    				item.evtD.addEventListener(['EVENT_COMPLETE', 'EVENT_ERROR', 'EVENT_PROGRESS'], function (e) {
+    				item.evtD.addEventListener(['EVENT_COMPLETE', 'EVENT_ERROR'], function (e) {
 
     					CurrentlyProcessing--;
+
+    					console.log("decrement finished event", CurrentlyProcessing, e);
 
     					console.log('Complete. Currently processing = ', CurrentlyProcessing, 'Pending = ', pending);
 
