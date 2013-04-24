@@ -83,6 +83,8 @@ function makeImage(fileData) {
 
 }
 
+function friendlyNumber(n,d){x=(''+n).length,p=Math.pow,d=p(10,d);x-=x%3;return Math.round(n*d/p(10,x))/d+" kMGTPE"[x/3]}
+
 function makeItem(fileData) {
     var ul = ECurrentAlbum.querySelectorAll('ul')[0],
         img = makeImage(fileData);
@@ -206,6 +208,7 @@ function makeAlbumItem(imageItem) {
         del = UTILS.DOM.create('a'),
         copy = UTILS.DOM.create('a'),
         edit = UTILS.DOM.create('a'),
+		views = UTILS.DOM.create('span'),
 		reddit = UTILS.DOM.create('a'),
 		download = UTILS.DOM.create('a'),
         copyInput = UTILS.DOM.create('input');
@@ -317,11 +320,14 @@ function makeAlbumItem(imageItem) {
     	chrome.tabs.create({ url: "http://www.reddit.com/submit?url=" + imageItem.link });
     };
 
+    views.classList.add('image-views');
+    views.innerHTML = friendlyNumber(imageItem.views, 1) + " view" + (imageItem.views !== 1 ? "s" : "");
 
     li.appendChild(copyInput);
     li.appendChild(img);
     li.appendChild(del);
     li.appendChild(copy);
+    li.appendChild(views);
     li.appendChild(edit);
     li.appendChild(download);
     li.appendChild(reddit);
@@ -503,7 +509,6 @@ window.onload = function () {
 	ENavDelete = UTILS.DOM.id('nav-delete');
 	ENavSelect = UTILS.DOM.id('nav-albums');
 	ENavOptions = UTILS.DOM.id('nav-options');
-	ENavAbout = UTILS.DOM.id('nav-about');
 	EStatusBar = UTILS.DOM.id('status-bar');
 	EStatusBarLink = EStatusBar.querySelectorAll('span')[0];
 
@@ -596,14 +601,6 @@ window.onload = function () {
 		
 
 	}
-
-	ENavAbout.onclick = function () {
-		if (document.querySelectorAll('.loading').length > 0) {
-			chrome.tabs.create({ "url": "about.html", "selected": true });
-		} else {
-			window.location = "about.html";
-		}
-	};
 
 	EStatusBarLink.addEventListener('click', function (e) {
 		hideStatusBar();

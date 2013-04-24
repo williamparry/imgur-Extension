@@ -257,14 +257,40 @@ hgroup
     background: rgba(33, 33, 33, 0.9);
     padding: 5px 10px;
     -webkit-transition: opacity 0.25s linear;
+	width: 65px;
+	box-sizing: border-box;
+	text-align: center;
 }
 
 .album ul li iframe {
 	display: none;
 }
 
+.album ul li span.image-views {
+	position: absolute;
+	 -webkit-transition: opacity 0.25s linear;
+	opacity: 0;
+	top: 0;
+    left: 0;
+	width: 100%;
+	text-align: center;
+	font-size: 11px;
+	color: #ddd;
+	text-shadow: 0 0 2px #000;
+	z-index: 0;
+	padding: 5px 0;
+}
+
+
+.album ul li:hover span.image-views 
+{
+	opacity: 1;
+	
+}
+
 .album ul li:hover a {
     opacity: 100;
+	z-index: 1;
 }
 
 .album ul li a:hover {
