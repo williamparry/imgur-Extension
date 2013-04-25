@@ -26,6 +26,10 @@ Some bugs may cascade and break other functionality, so when something is logged
 
 Thanks heaps!
 
+### Current testers ###
+
+* https://github.com/Jobeanie123
+
 ## Partners ##
 
 Lloyd from [glyphlibrary 4](http://www.glyphlibrary.com/) will be supplying the icons and screens for the extension.
