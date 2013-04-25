@@ -2,6 +2,15 @@
 /// <reference path="/vsdoc/chrome-vsdoc.js" />
 /// <reference path="model.js" />
 
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-249743-23']);
+
+(function () {
+	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	ga.src = 'https://ssl.google-analytics.com/ga.js';
+	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
 var model = new Model(),
     portMessenger = new UTILS.PortMessenger(),
     requestMessenger = new UTILS.RequestMessenger();
@@ -103,7 +112,7 @@ function setContextMenus() {
     });
 
     var addImageContextMenuItem = chrome.contextMenus.create({
-    	"title": "rehost image", "contexts": ["image"], parentId: parentId,
+    	"title": "rehost image", "contexts": ["image"],
         "onclick": function (obj) {
             var evt = model.unsorted.sendImageURL(obj.srcUrl);
             evt.type = "rehost";
@@ -366,6 +375,7 @@ function syncViews() {
 // options page can clear authentication, which needs a sync
 // main page can only sync when it's the result of getting a user
 portMessenger.addEventListener("options.sync", function () {
+	setContextMenus();
     syncViews();
 });
 

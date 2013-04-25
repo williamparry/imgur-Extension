@@ -579,10 +579,10 @@ function Model() {
 
     						}
 
-    					} else if (xhr.status === 429) {
+    					}  else {
 
-    						console.warn('rate limited');
-    						self.evtD.dispatchEvent("ERROR_RATE_LIMITED");
+    						console.warn('other error', xhr.status);
+    						self.evtD.dispatchEvent("EVENT_ERROR");
 
     					}
 
