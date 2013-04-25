@@ -6,6 +6,8 @@ This is the new repository for the [imgur Chrome Extension](https://chrome.googl
 
 There are no major User Interface differences in the 1.2 release - this release being an update to handle new Chrome and imgur APIs.
 
+Any questions flick me an [email](mailto:williamparry@gmail.com) or [tweet](https://twitter.com/williamparry)
+
 ## Testers ##
 
 Version 1.2 brings with it some major changes to the data models (new imgur API), so it's important that the user's images are upgraded seemlessly. Users will also need to reauthenticate with imgur as their existing tokens will be invalidated.
