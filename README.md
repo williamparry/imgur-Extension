@@ -2,7 +2,7 @@
 
 **Licensed under BSD License**
 
-This is the new repository for the [imgur Chrome Extension](https://chrome.google.com/webstore/detail/imgur/ehoopddfhgaehhmphfcooacjdpmbjlao) and will be supported into the future. The name has changed to make it even clearer that this is not an official extension written by or supported by imgur. Metronomik is the parent entity where I'm putting all my Chrome Extensions (such as Pinafore and Status Snapper) and will serve as the go-to place for more information and support.
+This is the new repository for the [imgur Chrome Extension](https://chrome.google.com/webstore/detail/imgur/ehoopddfhgaehhmphfcooacjdpmbjlao) and will be supported into the future. The name has changed to make it even clearer that this is not an official extension written by or supported by imgur (I wrote the original). Metronomik is the parent entity where I'm putting all my Chrome Extensions (such as Pinafore and Status Snapper) and will serve as the go-to place for more information and support.
 
 There are no major User Interface differences in the 1.2 release - this release being an update to handle new Chrome and imgur APIs.
 
