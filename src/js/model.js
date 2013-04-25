@@ -208,7 +208,7 @@ function Model() {
 
     						console.log("increment auth start", CurrentlyProcessing);
 
-    						root.authenticated.oAuthManager.refreshToken().addEventListener("EVENT_COMPLETE", function () {
+    						root.authenticated.oAuthManager.refreshToken().addEventListener("EVENT_SUCCESS", function () {
 
     							CurrentlyProcessing--;
 
@@ -291,7 +291,7 @@ function Model() {
 
     		this.getToken = function (pin) {
 
-    			var evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE']),
+    			var evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE', 'EVENT_SUCCESS']),
 					xhr = new XMLHttpRequest();
 
     			xhr.open("POST", "https://api.imgur.com/oauth2/token", true);
@@ -300,7 +300,7 @@ function Model() {
     				if (xhr.readyState == 4) {
     					var resp = JSON.parse(xhr.responseText);
     					authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
-    					evtD.dispatchEvent(evtD.EVENT_COMPLETE);
+    					evtD.dispatchEvent(evtD.EVENT_SUCCESS);
     				}
     			};
     			xhr.send("client_id=e5642c924b26904&client_secret=182e1f36ca3fa519df464bb0004d478cdab734d8&grant_type=pin&pin=" + pin);
@@ -309,7 +309,7 @@ function Model() {
 
     		this.refreshToken = function () {
 
-    			var evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE']),
+    			var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS']),
 					xhr = new XMLHttpRequest();
 
     			xhr.open("POST", "https://api.imgur.com/oauth2/token", true);
@@ -323,7 +323,7 @@ function Model() {
     						var resp = JSON.parse(xhr.responseText);
     						authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
     						console.log("new refresh token", resp.refresh_token);
-    						evtD.dispatchEvent(evtD.EVENT_COMPLETE);
+    						evtD.dispatchEvent(evtD.EVENT_SUCCESS);
     					}
 
     				}

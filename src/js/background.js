@@ -397,8 +397,11 @@ portMessenger.addEventListener("main.get_user", function () {
     		chrome.tabs.remove(tab.id);
 
     		model.authenticated.oAuthManager.getToken(verifier.Data).addEventListener('EVENT_SUCCESS', function () {
+    			console.log('token success');
     			model.authenticated.fetchUser().addEventListener('EVENT_SUCCESS', function () {
+    				console.log('fetch user success');
     				model.authenticated.fetchAlbums().addEventListener('EVENT_SUCCESS', function () {
+    					console.log('fetch albums success');
     					setContextMenus();
     					authTab = -1;
     					chrome.tabs.onRemoved.removeListener(sendAuthAbortedMessage);
