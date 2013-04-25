@@ -163,7 +163,7 @@ function deleteImage(image) {
 
     elem.classList.add('loading');
     if (CurrentAlbum == "_thisComputer") {
-    	model.unsorted.deleteImage(image.getAttribute('data-deletehash')).addEventListener('EVENT_SUCCESS', function (e) {
+    	model.unsorted.deleteImage(elem.getAttribute('data-deletehash')).addEventListener('EVENT_SUCCESS', function (e) {
             if (elem) {
                 elem.parentNode.removeChild(elem);
             }

@@ -307,6 +307,7 @@ function Model() {
     			return evtD;
     		};
 
+			// This is only consumed in the context of the request manager
     		this.refreshToken = function () {
 
     			var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS']),
