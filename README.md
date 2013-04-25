@@ -2,19 +2,9 @@
 
 **Licensed under BSD License**
 
-This is the new repository for the [imgur Chrome Extension](https://chrome.google.com/webstore/detail/imgur/ehoopddfhgaehhmphfcooacjdpmbjlao) and will be supported into the future. The name has changed to make it even clearer that this is not an official extension written by or supported by imgur (I wrote the original). Metronomik is the parent entity where I'm putting all my Chrome Extensions (such as Pinafore and Status Snapper) and will serve as the go-to place for more information and support.
+This is the new repository for the [imgur Chrome Extension](https://chrome.google.com/webstore/detail/imgur/ehoopddfhgaehhmphfcooacjdpmbjlao) and will be supported into the future. The name has changed to make it even clearer that this is not an official extension written by or supported by imgur (I wrote the original). Metronomik is the parent entity where I'm putting all my Chrome Extensions (such as [Pinafore](https://github.com/Metronomik/Pinafore) and [Status Snapper](https://github.com/williamparry/Status-Snapper)) and will serve as the go-to place for more information and support.
 
 There are no major User Interface differences in the 1.2 release - this release being an update to handle new Chrome and imgur APIs.
-
-Looking forward to future releases, we are thinking of adding comment notifications (using the new Chrome notifications API) and a few statistics to the User Interface.
-
-## Developers ##
-
-The project is open source, so if you want to fix bugs or implement new features flick me a message and I'll show you the ropes. It's pretty straightforward with abstracted calls such as:
-
-    model.authenticated.fetchUserImages().addEventListener('EVENT_SUCCESS', function (images) { } );
-
-Similarly, if you're an extension developer and would like to hook your extension up with mine for extra imgur awesomeness, let me know and we'll work out the interop.
 
 ## Testers ##
 
@@ -33,6 +23,14 @@ Thanks heaps!
 ### Current testers ###
 
 * https://github.com/Jobeanie123
+
+## Developers ##
+
+The project is open source, so if you want to fix bugs or implement new features flick me a message and I'll show you the ropes. It's pretty straightforward with abstracted calls such as:
+
+    model.authenticated.fetchUserImages().addEventListener('EVENT_SUCCESS', function (images) { } );
+
+Similarly, if you're an extension developer and would like to hook your extension up with mine for extra imgur awesomeness, let me know and we'll work out the interop.
 
 ## Partners ##
 
