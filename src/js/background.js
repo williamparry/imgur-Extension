@@ -6,9 +6,15 @@ var model = new Model(),
     portMessenger = new UTILS.PortMessenger(),
     requestMessenger = new UTILS.RequestMessenger();
 
-/**************************
-* Chrome hooks
-**************************/
+// ------------------------------------------------------------------
+// Reset refreshing status when loading
+// ------------------------------------------------------------------
+
+model.authenticated.oAuthManager.resetRefreshing();
+
+// ------------------------------------------------------------------
+// Chrome hooks
+// ------------------------------------------------------------------
 
 chrome.browserAction.setBadgeBackgroundColor({ color: [85, 85, 85, 155] });
 
@@ -23,41 +29,47 @@ function setContextMenus() {
     
     chrome.contextMenus.removeAll();
 
+
     function handleCapture() {
     	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS']);
-        chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-        	chrome.tabs.getSelected(null, function (tab) {
-                requestMessenger.addEventListener("got_area", function (e) {
-                    requestMessenger.removeEventListener("got_area", arguments.callee);
-                    var canvas = document.createElement('canvas');
-                    canvas.width = e.Data.width;
-                    canvas.height = e.Data.height;
-                    var ctx = canvas.getContext('2d');
-                    var i = new Image();
-                    i.src = img;
-                    i.onload = function () {
-                    	ctx.drawImage(i, e.Data.left, e.Data.top, e.Data.width, e.Data.height, 0, 0, e.Data.width, e.Data.height);
-                        evtD.dispatchEvent(evtD.EVENT_COMPLETE, canvas.toDataURL("image/png"));
-                    };
-                }, true);
-                chrome.tabs.executeScript(tab.id, { file: "js/inject/captureArea.js" });
-            });
-        });
-        return evtD;
+    	chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+    		chrome.tabs.getSelected(null, function (tab) {
+    			requestMessenger.addEventListener("got_area", function (e) {
+    				requestMessenger.removeEventListener("got_area", arguments.callee);
+    				var canvas = document.createElement('canvas');
+    				canvas.width = e.Data.width;
+    				canvas.height = e.Data.height;
+    				var ctx = canvas.getContext('2d');
+    				var i = new Image();
+    				i.src = img;
+    				i.onload = function () {
+    					ctx.drawImage(i, e.Data.left, e.Data.top, e.Data.width, e.Data.height, 0, 0, e.Data.width, e.Data.height);
+    					evtD.dispatchEvent(evtD.EVENT_SUCCESS, canvas.toDataURL("image/png"));
+    				};
+    			}, true);
+    			chrome.tabs.executeScript(tab.id, { file: "js/inject/captureArea.js" });
+    		});
+    	});
+    	return evtD;
     }
 
 
     function addToClipboard(url) {
-        var txt = UTILS.DOM.create('input');
-        document.body.appendChild(txt);
-        txt.value = url;
-        txt.select();
-        document.execCommand('copy');
-        document.body.removeChild(txt);
+    	var txt = UTILS.DOM.create('input');
+    	document.body.appendChild(txt);
+    	txt.value = url;
+    	txt.select();
+    	document.execCommand('copy');
+    	document.body.removeChild(txt);
     }
 
+
+    var parentId = chrome.contextMenus.create({ "title": "imgur" });
+
+    
+
     var capturePageContextMenuItem = chrome.contextMenus.create({
-        "title": "capture page", "contexts": ["page"],
+    	"title": "capture page", "contexts": ["page"], parentId: parentId,
         "onclick": function (obj) {
         	UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
                 var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
@@ -67,7 +79,8 @@ function setContextMenus() {
          }
     });
 
-    var captureViewContextMenuItem = chrome.contextMenus.create({ "title": "capture view", "contexts": ["page"],
+    var captureViewContextMenuItem = chrome.contextMenus.create({
+    	"title": "capture view", "contexts": ["page"], parentId: parentId,
         "onclick": function (obj) {
             chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
                 var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
@@ -77,7 +90,8 @@ function setContextMenus() {
         }
     });
 
-    var captureAreaContextMenuItem = chrome.contextMenus.create({ "title": "capture area", "contexts": ["page"],
+    var captureAreaContextMenuItem = chrome.contextMenus.create({
+    	"title": "capture area", "contexts": ["page"], parentId: parentId,
         "onclick": function (obj) {
         	handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
                 var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
@@ -88,17 +102,14 @@ function setContextMenus() {
         }
     });
 
-    var addImageContextMenuItem = chrome.contextMenus.create({ "title": "rehost image", "contexts": ["image"],
+    var addImageContextMenuItem = chrome.contextMenus.create({
+    	"title": "rehost image", "contexts": ["image"], parentId: parentId,
         "onclick": function (obj) {
             var evt = model.unsorted.sendImageURL(obj.srcUrl);
             evt.type = "rehost";
             uploadDelegate(evt);
         }
     });
-
-   
-   // capture to file system
-   // if incognito, change
 
     if(model.authenticated.oAuthManager.getAuthStatus()) {
         var authenticatedAlbums = model.authenticated.getAlbums();
@@ -338,7 +349,9 @@ function showError(message) {
 	webkitNotifications.createNotification("img/logo.png", "imgur failed", message).show();
 }
 
-
+// ------------------------------------------------------------------
+// Port messaging
+// ------------------------------------------------------------------
 
 function syncViews() {
 
@@ -355,14 +368,6 @@ function syncViews() {
 portMessenger.addEventListener("options.sync", function () {
     syncViews();
 });
-
-
-
-
-
-
-
-
 
 portMessenger.addEventListener("main.get_user", function () {
 
@@ -457,7 +462,3 @@ var ContextMenuSchedule = new function () {
     this.Start();
 
 }
-
-// Testing requeueing
-//model.authenticated.oAuthManager.invalidateToken();
-//ContextMenuSchedule.ResetInterval();

@@ -110,12 +110,6 @@ function Model() {
         root.authenticated.oAuthManager.reset();
     };
 
-	// Only use in testing
-    this.fullReset = function () {
-    	DAL.set('OAuth2', null);
-    	var unsorted = DAL.get('unsorted');
-    }
-
 	// ------------------------------------------------------------------
 	// Preferences
 	// ------------------------------------------------------------------
@@ -280,10 +274,15 @@ function Model() {
     			DAL.set('OAuth2.account_username', account_username);
     		};
 
+			// Only for testing
     		this.invalidateToken = function () {
     			DAL.set('OAuth2.refreshing', false);
     			DAL.set('OAuth2.access_token', 123);
     			return DAL.get('OAuth2.access_token');
+    		};
+
+    		this.resetRefreshing = function () {
+    			DAL.set('OAuth2.refreshing', false);
     		};
 
     		this.getAuthStatus = function () {

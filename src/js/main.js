@@ -208,7 +208,6 @@ function makeAlbumItem(imageItem) {
         del = UTILS.DOM.create('a'),
         copy = UTILS.DOM.create('a'),
         edit = UTILS.DOM.create('a'),
-		views = UTILS.DOM.create('span'),
 		reddit = UTILS.DOM.create('a'),
 		download = UTILS.DOM.create('a'),
         copyInput = UTILS.DOM.create('input');
@@ -320,14 +319,17 @@ function makeAlbumItem(imageItem) {
     	chrome.tabs.create({ url: "http://www.reddit.com/submit?url=" + imageItem.link });
     };
 
-    views.classList.add('image-views');
-    views.innerHTML = friendlyNumber(imageItem.views, 1) + " view" + (imageItem.views !== 1 ? "s" : "");
+    if (imageItem.views) {
+    	var views = UTILS.DOM.create('span');
+    	views.classList.add('image-views');
+    	views.innerHTML = friendlyNumber(imageItem.views, 1) + " view" + (imageItem.views !== 1 ? "s" : "");
+    	li.appendChild(views);
+    }
 
     li.appendChild(copyInput);
     li.appendChild(img);
     li.appendChild(del);
     li.appendChild(copy);
-    li.appendChild(views);
     li.appendChild(edit);
     li.appendChild(download);
     li.appendChild(reddit);
