@@ -27,6 +27,7 @@ Thanks heaps!
 ### Current testers ###
 
 * https://github.com/Jobeanie123
+* https://github.com/jmlind
 
 ## Developers ##
 
