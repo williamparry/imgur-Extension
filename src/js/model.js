@@ -476,6 +476,9 @@ function Model() {
 
     	this.sendImage = function (album, image) {
 
+			// Don't track the actual image, just that they have triggered this method
+    		_gaq.push(['_trackEvent', 'Image', 'Send Image', 'Authenticated']);
+
     		var postStr = "image=" + encode(image) + "&type=base64";
 
     		if (album !== '_userAlbum') {
@@ -490,6 +493,9 @@ function Model() {
     	};
 
     	this.sendImageURL = function (album, url) {
+
+    		// Don't track the actual image, just that they have triggered this method
+    		_gaq.push(['_trackEvent', 'Image', 'Send Image URL', 'Authenticated']);
 
     		var postStr = "image=" + encode(url) + "&type=url";
 
@@ -506,6 +512,9 @@ function Model() {
 
 
     	this.deleteImage = function (deletehash) {
+
+    		// Don't track the actual image, just that they have triggered this method
+    		_gaq.push(['_trackEvent', 'Image', 'Delete Image', 'Authenticated']);
 
     		var req = new signedRequest("DELETE", "https://api.imgur.com/3/image/" + deletehash);
     		root.requestManager.queue(req);
@@ -588,13 +597,14 @@ function Model() {
 
     	};
 
-
-
     	this.get = function () {
     		return DAL.get('unsorted');
     	};
 
     	this.sendImage = function (image) {
+
+    		// Don't track the actual image, just that they have triggered this method
+    		_gaq.push(['_trackEvent', 'Image', 'Send Image', 'Unauthenticated']);
 
 			// Strange how we don't encode the image here to make it work
     		var req = new signedRequest("POST", "https://api.imgur.com/3/image", "image=" + image + "&type=base64");
@@ -616,6 +626,9 @@ function Model() {
 
     	this.sendImageURL = function (url) {
 
+    		// Don't track the actual image, just that they have triggered this method
+    		_gaq.push(['_trackEvent', 'Image', 'Send Image URL', 'Unauthenticated']);
+
     		var req = new signedRequest("POST", "https://api.imgur.com/3/image", "image=" + encode(url) + "&type=url");
     		root.requestManager.queue(req);
 
@@ -634,6 +647,9 @@ function Model() {
     	
 
     	this.deleteImage = function (deletehash) {
+
+    		// Don't track the actual image, just that they have triggered this method
+    		_gaq.push(['_trackEvent', 'Image', 'Delete Image', 'Unauthenticated']);
 
     		var req = new signedRequest("DELETE", "https://api.imgur.com/3/image/" + deletehash);
     		root.requestManager.queue(req);
