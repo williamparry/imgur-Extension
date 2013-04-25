@@ -18,11 +18,15 @@ Similarly, if you're an extension developer and would like to hook your extensio
 
 ## Testers ##
 
-Disable the existing imgur extension while running this one.
+Version 1.2 brings with it some major changes to the data models (new imgur API), so it's important that the user's images are upgraded seemlessly. Users will also need to reauthenticate with imgur as their existing tokens will be invalidated.
 
-When submitting bug reports please include what operating system you're using, what version of Chrome and any console errors from the [Developer Tools](https://developers.google.com/chrome-developer-tools/).
+### How to submit a bug ###
 
-Some bugs may cascade and break other functionality, so when something is logged as fixed please reload the extension (refresh the chrome://extensions page) before retesting.
+* Disable the existing imgur extension while running this one.
+
+* Please include what operating system you're using, what version of Chrome and any console errors from the [Developer Tools](https://developers.google.com/chrome-developer-tools/).
+
+* Some bugs may cascade and break other functionality, so when something is logged as fixed please reload the extension (refresh the chrome://extensions page) before retesting.
 
 Thanks heaps!
 
