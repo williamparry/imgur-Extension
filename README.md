@@ -22,7 +22,17 @@ Version 1.2 brings with it some major changes to the data models (new imgur API)
 
 * Some bugs may cascade and break other functionality, so when something is logged as fixed please reload the extension (refresh the chrome://extensions page) before retesting.
 
-Thanks heaps!
+### Testing "- this computer -" upgrade ###
+
+1. Disable the existing unpacked extension
+2. Drag and drop the v1.1.3.crx file onto the chrome://extensions page
+3. Rehost images to it (both when authenticated and not)
+4. Drag and drop the v1.2.crx file onto the chrome://extensions page (this will overwrite the v1.1.3)
+5. Open the main extension page and check that the images are still there
+
+If you want to run the latest codebase against the v1.1.3 crx then you'll need to pack the "src" folder using the "beta-signing-key" key.
+
+Thanks!
 
 ### Current testers ###
 
