@@ -12,6 +12,8 @@ Any questions flick me an [email](mailto:williamparry@gmail.com) or [tweet](http
 
 Version 1.2 brings with it some major changes to the data models (new imgur API), so it's important that the user's images are upgraded seemlessly. Users will also need to reauthenticate with imgur as their existing tokens will be invalidated.
 
+**Note of warning: The images in your "- this computer -" may be temporarily or in worst case permanently corrupted while upgrading is sorted out.**
+
 ### How to submit a bug ###
 
 * Disable the existing imgur extension while running this one.
