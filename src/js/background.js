@@ -75,8 +75,6 @@ function setContextMenus() {
 
     var parentId = chrome.contextMenus.create({ "title": "imgur" });
 
-    
-
     var capturePageContextMenuItem = chrome.contextMenus.create({
     	"title": "capture page", "contexts": ["page"], parentId: parentId,
         "onclick": function (obj) {

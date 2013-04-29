@@ -368,12 +368,12 @@ function Model() {
 
     				if (xhr.readyState === 4) {
 
-    					console.log('xhr status', xhr.status);
+    					var resp = JSON.parse(xhr.responseText);
 
     					if (xhr.status === 200) {
 
     						var resp = JSON.parse(xhr.responseText);
-    						console.log(resp);
+    						
     						self.evtD.dispatchEvent('EVENT_COMPLETE', resp.data);
 
     						if (resp.success) {
@@ -381,7 +381,7 @@ function Model() {
     							self.evtD.dispatchEvent('EVENT_SUCCESS', resp.data);
 
     						} else {
-
+    							console.log('error', resp);
     							self.evtD.dispatchEvent('EVENT_ERROR', resp.error);
 
     						}
@@ -395,7 +395,7 @@ function Model() {
     					} else {
 
     						console.warn('other error', xhr.status);
-    						self.evtD.dispatchEvent("EVENT_ERROR");
+    						self.evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
 
     					}
 
@@ -562,11 +562,13 @@ function Model() {
     			xhr.onreadystatechange = function () {
 
     				if (xhr.readyState === 4) {
+    					
+    					var resp = JSON.parse(xhr.responseText);
 
     					if (xhr.status === 200) {
 
     						var resp = JSON.parse(xhr.responseText);
-
+    						
     						self.evtD.dispatchEvent('EVENT_COMPLETE', resp.data);
 
     						if (resp.success) {
@@ -582,7 +584,7 @@ function Model() {
     					}  else {
 
     						console.warn('other error', xhr.status);
-    						self.evtD.dispatchEvent("EVENT_ERROR");
+    						self.evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
 
     					}
 
