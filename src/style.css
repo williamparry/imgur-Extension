@@ -225,7 +225,7 @@ a#nav-options:hover {
 
 	display: -webkit-flex;
     -webkit-flex-flow: row wrap;
-	-webkit-justify-content: space-between; /* Horizontal */
+	-webkit-justify-content: space-around; /* Horizontal */
 	-webkit-align-content: space-between; /* vertical */
 }
     
@@ -306,10 +306,12 @@ a#nav-options:hover {
 	width: 100%;
 	text-align: center;
 	font-size: 11px;
+	background: rgba(33, 33, 33, 0.9);
+    padding: 5px 10px;
+	box-sizing: border-box;
 	color: #ddd;
 	text-shadow: 0 0 2px #000;
-	z-index: 0;
-	padding: 5px 0;
+	z-index: 1;
 }
 
 
