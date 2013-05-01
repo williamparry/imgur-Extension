@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<link rel="stylesheet" type="text/css" href="reset-min.css">
-		<link rel="stylesheet" type="text/css" href="style.css" />
+		<link href="js/lib/reset-min.css" rel="stylesheet" />
+		<link href="js/lib/fancybox/jquery.fancybox.css" rel="stylesheet" />
+		<link href="style.css" rel="stylesheet" />
 		<title>imgur Extension</title>
 	</head>
 <body>
@@ -10,26 +11,30 @@
 	<div id="wrap">
 		
 		<header>
-			
-			<hgroup>
-				<h1>imgur</h1>
-				<h2>Extension by <a href="http://www.metronomik.com">Metronomik</a></h2>
-			</hgroup>
-			<nav id="nav-main">
-                <select id="nav-albums" class="hide"></select>
-				<a href="#" class="btn hide" id="nav-connect">connect to imgur.com</a>
-				<a href="#" class="btn" id="nav-download">download all</a>
-				<a href="#" class="btn" id="nav-delete">delete all</a>
-				<nav id="nav-extension">
-					<a href="#" class="btn" id="nav-options">options</a>
+
+			<div class="inner cf">
+
+				<a href="http://www.metronomik.com" target="_blank" class="metronomik-logo left">Metronomik</a>
+
+				<h1 class="left">imgur</h1>
+
+				<nav class="right cf">
+					
+					<select id="nav-albums" class="hide left"></select>
+					<a href="#" class="hide left" id="nav-connect">connect to imgur.com</a>
+					<a href="#" class="left" id="nav-download">download all</a>
+					<a href="#" class="left" id="nav-delete">delete all</a>
+					<a href="options.html" data-fancybox-type="iframe" id="nav-options" class="right">
+						<span class="inner">options</span>
+					</a>
 				</nav>
-			</nav>
 			
-			
+			</div>
 		</header>
 
-        <div id="albums">
-        </div>
+		
+
+        <div id="albums"></div>
 
 		
 		
@@ -41,8 +46,9 @@
 	</div>
 	
 
-    <script src="https://dme0ih8comzn4.cloudfront.net/js/feather.js"></script>
 	<script src="js/lib/utils-1.3.js"></script>
+	<script src="js/lib/jquery-2.0.0.min.js"></script>
+	<script src="js/lib/fancybox/jquery.fancybox.pack.js"></script>
     <script src="js/model.js"></script>
     <script src="js/main.js"></script>
 

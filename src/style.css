@@ -1,10 +1,8 @@
-
-
 html,
 body
 {
-	background: #121211;
-	height: 100%;
+	background: #000;
+
 }
 
 body
@@ -17,6 +15,60 @@ p
     color: #fff;
 }
 
+.fancybox-lock .fancybox-overlay {
+	overflow-y: auto;
+}
+
+.cf:before,
+.cf:after {
+    content: " ";
+    display: table;
+}
+
+.cf:after {
+    clear: both;
+}
+
+.left {
+	float: left;
+}
+
+.right {
+	float: right;
+}
+
+.btn {
+	background-image: -webkit-linear-gradient(#2b2b2b, #121211);
+	border: 2px solid #2b2b2b;
+	color: #fff;
+	padding: 5px 10px;
+	border-radius: 3px;
+	text-decoration: none;
+	font-size: 14px;
+	font-weight: bold;
+	display: inline-block;
+	margin-left: 3px;
+}
+		
+.btn:hover {
+	background-image: -webkit-linear-gradient(#444442, #131312);
+}
+		
+.btn:focus {
+	-webkit-box-shadow: 0 0 1px 1px #2b2b2b;
+	outline: none;
+}
+        
+.btn[disabled] {
+	background-image: -webkit-linear-gradient(#444, #333);
+    border: 2px solid #444;
+	outline: none;
+}
+
+.btn-inline
+{
+    background-image: -webkit-linear-gradient(#2b2b2b, #121211);
+}
 
 h3
 {
@@ -27,141 +79,115 @@ h3
 }
 
 header {
-	position: relative;
-    padding: 25px;
-    padding-bottom: 0;
+	
+	background: #121210;
+	height: 41px;
+	box-sizing: border-box;
+	border-bottom: 1px solid #484848;
 }
 
-	header hgroup {
-		height: 55px;
-		position: relative;
+	header > .inner {
+		border-bottom: 1px solid #000;
 	}
 
-		hgroup h1 {
-			background: #000 url('img/logo.gif') no-repeat top left;
+		header > .inner a.metronomik-logo {
+			background: transparent url('img/main/metronomik-logo.png') no-repeat left center;
 			text-indent: -99999px;
-			width: 155px;
-			height: 55px;
-			position: absolute;
-			top: 0;
-			left: 0;
-		}
-	
-		hgroup h2 {
-			color: #ddddd1;
-			font-size: 28px;
-			font-weight: bold;
-			font-family: sans-serif;
-			position: absolute;
-			bottom: 5px;
-			left: 165px;
-			width: 400px;
+			width: 23px;
+			height: 41px;
+			margin: 0 15px;
+			display: block;
+			-webkit-transition: all linear 1s;
 		}
 
-			hgroup h2 a {
-				color: #333;
-				text-decoration: none;
+			header > .inner a.metronomik-logo:hover {
+				-webkit-filter: brightness(150%); 
 			}
 
-			hgroup h2 a:hover {
-				color: #ddddd1;
-			}
-	
+		h1 {
+			background: transparent url('img/main/logo.png') no-repeat left center;
+			text-indent: -99999px;
+			width: 71px;
+			height: 41px;
+			position: relative;
+			bottom: -2px;
+		}
 	
 	nav {
-		display: inline-block;
+		display: table;
 	}
-	
-	nav#nav-main {
-		position: absolute;
-		top: 25px;
-		right: 25px;
-	}
-	
-		.btn {
-			background-image: -webkit-linear-gradient(#2b2b2b, #121211);
-			border: 2px solid #2b2b2b;
-			color: #fff;
-			padding: 5px 10px;
-			border-radius: 3px;
-			text-decoration: none;
-			font-size: 14px;
-			font-weight: bold;
-			display: inline-block;
-			margin-left: 3px;
-		}
-		
-		.btn:hover {
-			background-image: -webkit-linear-gradient(#444442, #131312);
-		}
-		
-		.btn:focus {
-			-webkit-box-shadow: 0 0 1px 1px #2b2b2b;
-			outline: none;
-		}
-        
-        .btn[disabled] {
-			background-image: -webkit-linear-gradient(#444, #333);
-            border: 2px solid #444;
-			outline: none;
-		}
 
-        .btn-inline
-        {
-            background-image: -webkit-linear-gradient(#2b2b2b, #121211);
-        }
-		
-		nav a:first-child {
-			margin-left: 0;
-		}
-		
-		nav#nav-main select {
-			
-			padding: 4px 18px 4px 2px;
-			border-radius: 3px;
-			text-decoration: none;
-			font-size: 14px;
-			font-weight: bold;
-			display: inline-block;
-			margin-left: 3px;
+		nav select {
+			border: 1px solid #484848;
+			display: table-cell;
+			vertical-align: middle;
+			background: #000;
 			color: #fff;
-			background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAKCAYAAAC9vt6cAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NUQ5RTAyQjQ2NEVBMTFFMUI0QjJFRUMyNUMxMDkxQjgiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NUQ5RTAyQjU2NEVBMTFFMUI0QjJFRUMyNUMxMDkxQjgiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo1RDlFMDJCMjY0RUExMUUxQjRCMkVFQzI1QzEwOTFCOCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo1RDlFMDJCMzY0RUExMUUxQjRCMkVFQzI1QzEwOTFCOCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pv15XcMAAAB7SURBVHjaYvj////G/8QDkFoGZAwipIH4MxGaP0PVYhgAwjlEGJCDrhnZAGYgPolH80moGpwGgLABEP/BovkPVI6BkAEg3I7FgHZcmrEZwAPEt5E034aKEW0ACHsgGeCBTzMIM4JNwQRLoXQ0AwGAywBRKP2akAEAAQYAyM2+EukpB+gAAAAASUVORK5CYII='), -webkit-linear-gradient(#2b2b2b, #121211);
-			border: 2px solid #2b2b2b;
-			-webkit-appearance: none;
-			-webkit-box-shadow: 1px 1px 1px #212121;
-			-webkit-border-radius: 3px;
-			background-position: center right, top left;
-			background-repeat: no-repeat, repeat-x;			
-			
-			outline: none;
-			
+			padding: 5px;
+			margin-top: 4px;
+			margin-right: 10px;
 		}
-		
-		    nav#nav-main select option {
-		       color: #000;
-		    }
 		    
-		nav#nav-main .hide 
+		nav .hide 
 		{
-		    position: absolute;
-		    top: -99999px;
-		    left: -99999px;
-		}
-		
-		#nav-extension
-		{
-			padding-left: 22px;
-			background: transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QUQ5N0U2MUQ2NEVBMTFFMThGOUNFNzUxOUZEMjI3REEiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QUQ5N0U2MUU2NEVBMTFFMThGOUNFNzUxOUZEMjI3REEiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpBRDk3RTYxQjY0RUExMUUxOEY5Q0U3NTE5RkQyMjdEQSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpBRDk3RTYxQzY0RUExMUUxOEY5Q0U3NTE5RkQyMjdEQSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pgebgj8AAAB/SURBVHjaYuw8psIABfZAXATExlD+WSDuA+KDIA4TVLAaiA8AsR8QS0OxH1SsAqYQZFIjA27QAsQ2TFAGMx6FILkWkEJdBsLAgImBOMAMUniZCIVnQQprgPgvHkUguRomaDjV41EIMugIzI2tQOwAxJuA+AUUb4KKdYAUAAQYAIQBFo2wtSG+AAAAAElFTkSuQmCC') no-repeat 4px center;
+		   display: none;
 		}
 
-hgroup
-{
-    display: inline-block;
+		nav .btn {
+
+			display: table-cell;
+			vertical-align: middle;
+		}
+
+a#nav-connect,
+a#nav-download,
+a#nav-delete {
+	padding: 0 15px;
+	line-height: 40px;
+	box-sizing: border-box;
+	border-left: 1px solid #484848;
+	color: #ffffff;
+	text-decoration: none;
 }
+
+	a#nav-connect:hover,
+	a#nav-download:hover,
+	a#nav-delete:hover {
+		text-decoration: underline;
+	}
+
+a#nav-options {
+	
+	width: 41px;
+	height: 40px;
+	display: block;
+	box-sizing: border-box;
+	border-left: 1px solid #484848;
+}
+
+	a#nav-options .inner {
+		background: transparent url('img/main/options.png') no-repeat center center;
+		text-indent: -99999px;
+		display: block;
+		width: 100%;
+		height: 100%;
+		-webkit-transition: all linear 1s;
+	}
+
+a#nav-options:hover {
+	background-color: #000;
+}
+
+	a#nav-options:hover .inner {
+		-webkit-transform: rotate(180deg);
+	}
+
+
+
 
 #albums
 {
-    width: -webkit-calc(100% - 100px);
+    width: -webkit-calc(100% - 115px);
 	margin: 0 auto;
     position: relative;
 }		
@@ -199,9 +225,9 @@ hgroup
     margin: 15px 15px 0 0;
     width: 200px;
     height: 200px;
-    border-radius: 10px;
+	border: 1px solid #484848;
     position: relative;
-    -webkit-transition: background-color 0.25s linear;
+    box-sizing: border-box;
 }
 
 .album li:hover
@@ -246,7 +272,7 @@ hgroup
     top: -9999px;
 }
 
-.album ul li a
+.album ul li a.action
 {
 	display: inline;
     position: absolute;
@@ -256,7 +282,6 @@ hgroup
     opacity: 0;
     background: rgba(33, 33, 33, 0.9);
     padding: 5px 10px;
-    -webkit-transition: opacity 0.25s linear;
 	width: 65px;
 	box-sizing: border-box;
 	text-align: center;
@@ -284,62 +309,58 @@ hgroup
 
 .album ul li:hover span.image-views 
 {
-	opacity: 1;
-	
-}
-
-.album ul li:hover a {
-    opacity: 100;
-	z-index: 1;
-}
-
-.album ul li a:hover {
-	-webkit-box-shadow: 0 0 2px 2px #ddd;
-	background: rgba(33, 33, 33, 1);
-}
-
-.album ul li a.image-delete 
-{
-	bottom: 0;
-    left: 0;
-    border-bottom-left-radius: 10px;
-}
-
-.album ul li a.image-copy
-{
-	bottom: 0;
-    right: 0;
-    border-bottom-right-radius: 10px;
-}
-
-.album ul li a.image-edit
-{
-    top: 0;
-    right: 0;
-    border-top-right-radius: 10px;
+	opacity: 1;	
 }
 
 .album ul li a.image-download
 {
-    top: 0;
+	position: absolute;
+    top: -9999px;
     left: -999999px;
 }
 
-.album ul li a.image-reddit
+.album ul li:hover a.action {
+    opacity: 100;
+	z-index: 1;
+}
+
+.album ul li a.action:hover {
+	background: rgba(33, 33, 33, 1);
+	text-decoration: underline;
+}
+
+.album ul li a.action.image-delete 
+{
+	bottom: 0;
+    left: 0;
+}
+
+.album ul li a.action.image-copy
+{
+	bottom: 0;
+    right: 0;
+}
+
+.album ul li a.action.image-preview
+{
+    top: 0;
+    right: 0;
+}
+
+.album ul li a.action.image-reddit
 {
     top: 0;
     left: 0;
-    border-top-left-radius: 10px;
 }
 
 .album ul li img
 {
-	-webkit-box-shadow: 0 0 10px 5px #2b2b2b;
+	
 }
 
 .album ul li img:hover
 {
-	-webkit-box-shadow: 0 0 2px 2px #ddd;
+	
 }
 
 @-webkit-keyframes copynotificationanim {

@@ -19,7 +19,6 @@ var port = chrome.extension.connect({ name: "main" }),
     ENavSelect,
 	ENavDownload,
 	ENavDelete,
-    ENavOptions,
     EAlbums,
     CurrentAlbum,
     ECurrentAlbum,
@@ -27,18 +26,6 @@ var port = chrome.extension.connect({ name: "main" }),
 	EStatusBarLink;
 
 
-// Aviary
-
-var featherEditor = new Aviary.Feather({
-    apiKey: 'b073f6881',
-    apiVersion: '2',
-    openType: 'lightbox',
-    tools: 'all',
-    appendTo: '',
-    onSave: function (imageID, newURL) {
-        makeURLItem(newURL);
-    }
-});
 
 function uploadFiles(e) {
     
@@ -203,18 +190,18 @@ function resizeImage(img, maxh, maxw) {
 
 function makeAlbumItem(imageItem) {
 
-    var li = UTILS.DOM.create('li'),
+	var li = UTILS.DOM.create('li'),
         img = UTILS.DOM.create('img'),
+		imgLink = UTILS.DOM.create('a'),
         del = UTILS.DOM.create('a'),
         copy = UTILS.DOM.create('a'),
-        edit = UTILS.DOM.create('a'),
-		reddit = UTILS.DOM.create('a'),
 		download = UTILS.DOM.create('a'),
         copyInput = UTILS.DOM.create('input');
 
     del.href = copy.href = "#";
     del.innerHTML = "delete";
     del.classList.add('image-delete');
+    del.classList.add('action');
     del.onclick = function (e) {
         e.preventDefault();
         if (del.innerHTML == 'sure?') {
@@ -227,6 +214,7 @@ function makeAlbumItem(imageItem) {
 
     copy.innerHTML = "copy link";
     copy.classList.add('image-copy');
+    copy.classList.add('action');
     copy.onclick = function (e) {
         e.preventDefault();
         copyInput.select();
@@ -274,25 +262,17 @@ function makeAlbumItem(imageItem) {
 
     };
 
-    img.onclick = function () {
+    imgLink.onclick = function (e) {
+    	e.preventDefault();
         chrome.tabs.create({ "url": imageItem.link, "selected": true });
     };
 
+    imgLink.href = imageItem.link;
+    imgLink.classList.add('image-link');
     img.src = imageItem.link + 't';
 
     li.id = imageItem.id;
     li.setAttribute('data-deletehash', imageItem.deletehash);
-
-    edit.href = "#";
-    edit.innerHTML = "edit copy";
-    edit.classList.add('image-edit');
-    edit.onclick = function (e) {
-    	e.preventDefault();
-    	featherEditor.launch({
-    		image: 'image-' + imageItem.id,
-    		url: imageItem.link
-    	});
-    }
 
 
     download.href = "#";
@@ -311,14 +291,6 @@ function makeAlbumItem(imageItem) {
 
     };
 
-    reddit.href = "#";
-    reddit.innerHTML = "reddit";
-    reddit.classList.add('image-reddit');
-    reddit.onclick = function (e) {
-    	e.preventDefault();
-    	chrome.tabs.create({ url: "http://www.reddit.com/submit?url=" + imageItem.link });
-    };
-
     if (imageItem.views) {
     	var views = UTILS.DOM.create('span');
     	views.classList.add('image-views');
@@ -326,13 +298,13 @@ function makeAlbumItem(imageItem) {
     	li.appendChild(views);
     }
 
+    imgLink.appendChild(img);
+
     li.appendChild(copyInput);
-    li.appendChild(img);
+    li.appendChild(imgLink);
     li.appendChild(del);
     li.appendChild(copy);
-    li.appendChild(edit);
     li.appendChild(download);
-    li.appendChild(reddit);
 
     return li;
 
@@ -472,7 +444,7 @@ function initAuthenticated() {
     defaultAlbumOpt.text = model.authenticated.getAccount().url;
     ENavSelect.appendChild(defaultAlbumOpt);
 
-    var EUserAlbum = makeAlbum(makeAlbum({ id: '_userAlbum' }));
+    var EUserAlbum = makeAlbum({ id: '_userAlbum' });
     EAlbums.appendChild(EUserAlbum);
 
     if (albums) {
@@ -501,7 +473,11 @@ port.onMessage.addListener(function (msg) {
     window.location.reload();
 });
 
-window.onload = function () {
+$(document).ready(function () {
+
+
+	$("#nav-options").fancybox();
+
 
 	EAlbums = UTILS.DOM.id('albums');
 	EWrap = UTILS.DOM.id('wrap');
@@ -510,7 +486,6 @@ window.onload = function () {
 	ENavDownload = UTILS.DOM.id('nav-download');
 	ENavDelete = UTILS.DOM.id('nav-delete');
 	ENavSelect = UTILS.DOM.id('nav-albums');
-	ENavOptions = UTILS.DOM.id('nav-options');
 	EStatusBar = UTILS.DOM.id('status-bar');
 	EStatusBarLink = EStatusBar.querySelectorAll('span')[0];
 
@@ -566,13 +541,6 @@ window.onload = function () {
 		changeAlbum(this.value);
 	};
 
-	ENavOptions.onclick = function () {
-		if (document.querySelectorAll('.loading').length > 0) {
-			chrome.tabs.create({ "url": "options.html", "selected": true });
-		} else {
-			window.location = "options.html";
-		}
-	};
 
 	ENavDownload.onclick = function (e) {
 		e.preventDefault();
@@ -617,4 +585,4 @@ window.onload = function () {
 	}
 	changeAlbum(model.currentAlbum.get());
 
-};
+});
