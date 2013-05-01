@@ -256,6 +256,11 @@ a#nav-options:hover {
         left: 20px;
     }
 
+	.album li.loading a.action,
+	.album li.loading span {
+		display: none;
+	}
+
 .album li.error
 {
 	background: red;
