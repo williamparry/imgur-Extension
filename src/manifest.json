@@ -2,7 +2,7 @@
 	"manifest_version" : 2,
 	"name": "imgur Extension by Metronomik",
 	"description": "Unofficial imgur Chrome Extension by Metronomik. Take screenshots, add images to your imgur account and upload images from your desktop using drag and drop.",
-	"version": "1.2",
+	"version": "2",
 	"icons": { 
 		"16": "img/logo.ico",
 		"48": "img/logo_48.png",
