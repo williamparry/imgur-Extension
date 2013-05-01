@@ -118,12 +118,15 @@ header {
 	}
 
 		nav select {
-			border: 1px solid #484848;
+			font-weight: bold;
+			outline: none;
+			background: #121210 url('img/main/dropdown.png') no-repeat right center;
+			-webkit-appearance:none;
+			border: none;
 			display: table-cell;
 			vertical-align: middle;
-			background: #000;
 			color: #fff;
-			padding: 5px;
+			padding: 5px 20px 5px 5px;
 			margin-top: 4px;
 			margin-right: 10px;
 		}
