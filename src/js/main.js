@@ -272,8 +272,9 @@ function makeAlbumItem(imageItem) {
     img.src = imageItem.link + 't';
 
     li.id = imageItem.id;
-    li.setAttribute('data-deletehash', imageItem.deletehash);
-
+    if (imageItem.deletehash) {
+    	li.setAttribute('data-deletehash', imageItem.deletehash);
+    }
 
     download.href = "#";
     download.innerHTML = "download";
