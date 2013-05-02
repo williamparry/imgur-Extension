@@ -119,170 +119,172 @@ function setContextMenus() {
     });
 
     if(model.authenticated.oAuthManager.getAuthStatus()) {
+        
+        chrome.contextMenus.update(capturePageContextMenuItem, { title: "capture page to" });
+        chrome.contextMenus.update(captureViewContextMenuItem, { title: "capture view to" });
+        chrome.contextMenus.update(captureAreaContextMenuItem, { title: "capture area to" });
+        chrome.contextMenus.update(addImageContextMenuItem, { title: "rehost image to" });
+
+
+        chrome.contextMenus.create({
+            "title": "- this computer -", "contexts": ["page"],
+            "onclick": function (obj) {
+                UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+                    var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+                    evt.type = "capture";
+                    uploadDelegate(evt);
+                });
+
+            }, "parentId": capturePageContextMenuItem
+        });
+
+
+        chrome.contextMenus.create({
+            "title": model.authenticated.getAccount().url, "contexts": ["page"],
+            "onclick": function (obj) {
+                UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+                    var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
+                    evt.type = "capture";
+                    uploadDelegate(evt);
+                });
+
+            }, "parentId": capturePageContextMenuItem
+        });
+
+
+        chrome.contextMenus.create({
+            "title": "- this computer -", "contexts": ["page"],
+            "onclick": function (obj) {
+                chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+                    var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+                    evt.type = "capture";
+                    uploadDelegate(evt);
+                });
+            }, "parentId": captureViewContextMenuItem
+        });
+
+        chrome.contextMenus.create({
+            "title": model.authenticated.getAccount().url, "contexts": ["page"],
+            "onclick": function (obj) {
+                chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+                    var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
+                    evt.type = "capture";
+                    uploadDelegate(evt);
+                });
+            }, "parentId": captureViewContextMenuItem
+        });
+
+        chrome.contextMenus.create({
+            "title": "- this computer -", "contexts": ["page"],
+            "onclick": function (obj) {
+                handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
+                    var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+                    evt.type = "capture";
+                    uploadDelegate(evt);
+                });
+
+            }, "parentId": captureAreaContextMenuItem
+        });
+
+        chrome.contextMenus.create({
+            "title": model.authenticated.getAccount().url, "contexts": ["page"],
+            "onclick": function (obj) {
+                handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
+                    var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
+                    evt.type = "capture";
+                    uploadDelegate(evt);
+                });
+
+            }, "parentId": captureAreaContextMenuItem
+        });
+
+        chrome.contextMenus.create({
+            "title": "- this computer -", "contexts": ["image"],
+            "onclick": function (obj) {
+                var evt = model.unsorted.sendImageURL(obj.srcUrl);
+                evt.type = "rehost";
+                uploadDelegate(evt);
+
+            }, "parentId": addImageContextMenuItem
+        });
+
+
+        chrome.contextMenus.create({
+            "title": model.authenticated.getAccount().url, "contexts": ["image"],
+            "onclick": function (obj) {
+                var evt = model.authenticated.sendImageURL("_userAlbum", obj.srcUrl);
+                evt.type = "rehost";
+                uploadDelegate(evt);
+
+            }, "parentId": addImageContextMenuItem
+        });
+			
         var authenticatedAlbums = model.authenticated.getAlbums();
+
         if (authenticatedAlbums.length > 0) {
 
-            chrome.contextMenus.update(capturePageContextMenuItem, { title: "capture page to" });
-            chrome.contextMenus.update(captureViewContextMenuItem, { title: "capture view to" });
-            chrome.contextMenus.update(captureAreaContextMenuItem, { title: "capture area to" });
-            chrome.contextMenus.update(addImageContextMenuItem, { title: "rehost image to" });
+			for (var i = 0; i < authenticatedAlbums.length; i++) {
 
+				(function (album) {
 
-            chrome.contextMenus.create({
-                "title": "- this computer -", "contexts": ["page"],
-                "onclick": function (obj) {
-                	UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
-                        var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-                        evt.type = "capture";
-                        uploadDelegate(evt);
-                    });
+					if (album.title) {
 
-                }, "parentId": capturePageContextMenuItem
-            });
-
-
-            chrome.contextMenus.create({
-                "title": model.authenticated.getAccount().url, "contexts": ["page"],
-                "onclick": function (obj) {
-                	UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
-                        var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
-                        evt.type = "capture";
-                        uploadDelegate(evt);
-                    });
-
-                }, "parentId": capturePageContextMenuItem
-            });
-
-
-            chrome.contextMenus.create({
-                "title": "- this computer -", "contexts": ["page"],
-                "onclick": function (obj) {
-                    chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-                        var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-                        evt.type = "capture";
-                        uploadDelegate(evt);
-                    });
-                }, "parentId": captureViewContextMenuItem
-            });
-
-            chrome.contextMenus.create({
-                "title": model.authenticated.getAccount().url, "contexts": ["page"],
-                "onclick": function (obj) {
-                    chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-                        var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
-                        evt.type = "capture";
-                        uploadDelegate(evt);
-                    });
-                }, "parentId": captureViewContextMenuItem
-            });
-
-            chrome.contextMenus.create({
-                "title": "- this computer -", "contexts": ["page"],
-                "onclick": function (obj) {
-                	handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
-                        var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-                        evt.type = "capture";
-                        uploadDelegate(evt);
-                    });
-
-                }, "parentId": captureAreaContextMenuItem
-            });
-
-            chrome.contextMenus.create({
-                "title": model.authenticated.getAccount().url, "contexts": ["page"],
-                "onclick": function (obj) {
-                	handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
-                        var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
-                        evt.type = "capture";
-                        uploadDelegate(evt);
-                    });
-
-                }, "parentId": captureAreaContextMenuItem
-            });
-
-            chrome.contextMenus.create({
-                "title": "- this computer -", "contexts": ["image"],
-                "onclick": function (obj) {
-                    var evt = model.unsorted.sendImageURL(obj.srcUrl);
-                    evt.type = "rehost";
-                    uploadDelegate(evt);
-
-                }, "parentId": addImageContextMenuItem
-            });
-
-
-            chrome.contextMenus.create({
-                "title": model.authenticated.getAccount().url, "contexts": ["image"],
-                "onclick": function (obj) {
-                    var evt = model.authenticated.sendImageURL("_userAlbum", obj.srcUrl);
-                    evt.type = "rehost";
-                    uploadDelegate(evt);
-
-                }, "parentId": addImageContextMenuItem
-            });
-
-            for (var i = 0; i < authenticatedAlbums.length; i++) {
-
-                (function (album) {
-
-                    if (album.title) {
-
-                        // Extend
-                        chrome.contextMenus.create({
-                            "title": album.title, "contexts": ["page"],
-                            "onclick": function (obj) {
+						// Extend
+						chrome.contextMenus.create({
+							"title": album.title, "contexts": ["page"],
+							"onclick": function (obj) {
                             	UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
-                                    var evt = model.authenticated.sendImage(album.id, img.split(',')[1]);
-                                    evt.type = "capture";
-                                    uploadDelegate(evt);
-                                });
+									var evt = model.authenticated.sendImage(album.id, img.split(',')[1]);
+									evt.type = "capture";
+									uploadDelegate(evt);
+								});
 
-                            }, "parentId": capturePageContextMenuItem
-                        });
-
-
-                        chrome.contextMenus.create({
-                            "title": album.title, "contexts": ["page"],
-                            "onclick": function (obj) {
-                                chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-                                    var evt = model.authenticated.sendImage(album.id, img.split(',')[1]);
-                                    evt.type = "capture";
-                                    uploadDelegate(evt);
-                                });
-                            }, "parentId": captureViewContextMenuItem
-                        });
+							}, "parentId": capturePageContextMenuItem
+						});
 
 
+						chrome.contextMenus.create({
+							"title": album.title, "contexts": ["page"],
+							"onclick": function (obj) {
+								chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+									var evt = model.authenticated.sendImage(album.id, img.split(',')[1]);
+									evt.type = "capture";
+									uploadDelegate(evt);
+								});
+							}, "parentId": captureViewContextMenuItem
+						});
 
-                        chrome.contextMenus.create({
-                            "title": album.title, "contexts": ["page"],
-                            "onclick": function (obj) {
-                                handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
-                                    var evt = model.authenticated.sendImage(album.id, img.split(',')[1]);
-                                    evt.type = "capture";
-                                    uploadDelegate(evt);
 
-                                });
 
-                            }, "parentId": captureAreaContextMenuItem
-                        });
+						chrome.contextMenus.create({
+							"title": album.title, "contexts": ["page"],
+							"onclick": function (obj) {
+								handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
+									var evt = model.authenticated.sendImage(album.id, img.split(',')[1]);
+									evt.type = "capture";
+									uploadDelegate(evt);
 
-                        chrome.contextMenus.create({
-                            "title": album.title, "contexts": ["image"],
-                            "onclick": function (obj) {
-                                var evt = model.authenticated.sendImageURL(album.id, obj.srcUrl);
-                                evt.type = "rehost";
-                                uploadDelegate(evt);
+								});
 
-                            }, "parentId": addImageContextMenuItem
-                        });
+							}, "parentId": captureAreaContextMenuItem
+						});
 
-                    }
-                })(authenticatedAlbums[i]);
+						chrome.contextMenus.create({
+							"title": album.title, "contexts": ["image"],
+							"onclick": function (obj) {
+								var evt = model.authenticated.sendImageURL(album.id, obj.srcUrl);
+								evt.type = "rehost";
+								uploadDelegate(evt);
 
-            }
+							}, "parentId": addImageContextMenuItem
+						});
 
-    }
+					}
+				})(authenticatedAlbums[i]);
+
+			}
+
+		}
 
     }
 
