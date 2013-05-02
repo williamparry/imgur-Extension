@@ -5,6 +5,8 @@ function Model() {
 
 	var root = this;
 
+	var clientId = "e5642c924b26904";
+
 	// ------------------------------------------------------------------
 	// Data Access Layer
 	// ------------------------------------------------------------------
@@ -294,16 +296,16 @@ function Model() {
     			var evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE', 'EVENT_SUCCESS']),
 					xhr = new XMLHttpRequest();
 
-    			xhr.open("POST", "https://api.imgur.com/oauth2/token", true);
-    			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    			xhr.open("GET", "https://imgur-extension-server.appspot.com/getToken/" + clientId + "/" + pin, true);
     			xhr.onreadystatechange = function () {
     				if (xhr.readyState == 4) {
+
     					var resp = JSON.parse(xhr.responseText);
     					authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
     					evtD.dispatchEvent(evtD.EVENT_SUCCESS);
     				}
     			};
-    			xhr.send("client_id=e5642c924b26904&client_secret=182e1f36ca3fa519df464bb0004d478cdab734d8&grant_type=pin&pin=" + pin);
+    			xhr.send(null);
     			return evtD;
     		};
 
@@ -313,8 +315,7 @@ function Model() {
     			var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS']),
 					xhr = new XMLHttpRequest();
 
-    			xhr.open("POST", "https://api.imgur.com/oauth2/token", true);
-    			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    			xhr.open("GET", "https://imgur-extension-server.appspot.com/getRefreshToken/" + clientId + "/" + DAL.get('OAuth2.refresh_token'), true);
 
     			xhr.onreadystatechange = function () {
 
@@ -331,7 +332,7 @@ function Model() {
 
     			}
 
-    			xhr.send("client_id=e5642c924b26904&client_secret=182e1f36ca3fa519df464bb0004d478cdab734d8&grant_type=refresh_token&refresh_token=" + DAL.get('OAuth2.refresh_token'));
+    			xhr.send(null);
 
     			return evtD;
 
@@ -546,7 +547,7 @@ function Model() {
     			var xhr = new XMLHttpRequest();
 
     			xhr.open(method, url, true);
-    			xhr.setRequestHeader('Authorization', 'Client-ID e5642c924b26904');
+    			xhr.setRequestHeader('Authorization', 'Client-ID ' + clientId);
 
     			if (postStr) {
     				xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
