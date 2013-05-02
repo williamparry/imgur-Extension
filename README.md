@@ -4,13 +4,13 @@
 
 This is the new repository for the [imgur Chrome Extension](https://chrome.google.com/webstore/detail/imgur/ehoopddfhgaehhmphfcooacjdpmbjlao) and will be supported into the future. The name has changed to make it even clearer that this is not an official extension written by or supported by imgur (I wrote the original). Metronomik is the parent entity where I'm putting all my Chrome Extensions (such as [Pinafore](https://github.com/Metronomik/Pinafore) and [Status Snapper](https://github.com/williamparry/Status-Snapper)) and will serve as the go-to place for more information and support.
 
-There are no major User Interface differences in the 1.2 release - this release being an update to handle new Chrome and imgur APIs.
+The User Interface has been refreshed and upgraded, as well as improving security and compatibility with Chrome and imgur APIs.
 
 Any questions flick me an [email](mailto:williamparry@gmail.com) or [tweet](https://twitter.com/williamparry)
 
 ## Testers ##
 
-Version 1.2 brings with it some major changes to the data models (new imgur API), so it's important that the user's images are upgraded seemlessly. Users will also need to reauthenticate with imgur as their existing tokens will be invalidated.
+Version 2 brings with it some major changes to the data models (new imgur API), so it's important that the user's images are upgraded seemlessly. Users will also need to reauthenticate with imgur as their existing tokens will be invalidated.
 
 **Note of warning: The images in your "- this computer -" may be temporarily or in worst case permanently corrupted while upgrading is sorted out.**
 
@@ -27,7 +27,7 @@ Version 1.2 brings with it some major changes to the data models (new imgur API)
 1. Disable the existing unpacked extension
 2. Drag and drop the v1.1.3.crx file onto the chrome://extensions page
 3. Rehost images to it (both when authenticated and not)
-4. Drag and drop the v1.2.crx file onto the chrome://extensions page (this will overwrite the v1.1.3)
+4. Drag and drop the v2.crx file onto the chrome://extensions page (this will overwrite the v1.1.3)
 5. Open the main extension page and check that the images are still there
 
 If you want to run the latest codebase against the v1.1.3 crx then you'll need to pack the "src" folder using the "beta-signing-key" key.
