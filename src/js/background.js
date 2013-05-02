@@ -287,7 +287,7 @@ function setContextMenus() {
     }
 
     function uploadCompleteNotification(message) {
-        var notification = webkitNotifications.createNotification("img/logo.png", "Finished",  message);
+        var notification = webkitNotifications.createNotification("img/logo96.png", "Finished",  message);
         notification.show();
         setTimeout(function() { notification.cancel();}, 3000);
     }
@@ -353,7 +353,7 @@ function setContextMenus() {
 
 function showError(message) {
 	chrome.browserAction.setBadgeText({ 'text': '' });
-	webkitNotifications.createNotification("img/logo.png", "imgur failed", message).show();
+	webkitNotifications.createNotification("img/logo96.png", "imgur failed", message).show();
 }
 
 // ------------------------------------------------------------------

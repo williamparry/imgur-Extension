@@ -238,9 +238,8 @@ function makeAlbumItem(imageItem) {
     img.id = 'image-' + imageItem.id;
 
     img.onload = function () {
-        resizeImage(this);
-        
-        if (imageItem.animated && model.preferences.get('freezegifs')) {
+    	resizeImage(this);
+        if (!!~imageItem.link.indexOf('gif') && model.preferences.get('freezegifs')) {
             var canvas = UTILS.DOM.create('canvas');
             canvas.width = this.width;
             canvas.height = this.height;
