@@ -369,34 +369,42 @@ function Model() {
 
     				if (xhr.readyState === 4) {
 
-    					var resp = JSON.parse(xhr.responseText);
-
-    					if (xhr.status === 200) {
+    					try {
 
     						var resp = JSON.parse(xhr.responseText);
+
+    						if (xhr.status === 200) {
+
+    							var resp = JSON.parse(xhr.responseText);
     						
-    						self.evtD.dispatchEvent('EVENT_COMPLETE', resp.data);
+    							self.evtD.dispatchEvent('EVENT_COMPLETE', resp.data);
 
-    						if (resp.success) {
+    							if (resp.success) {
 
-    							self.evtD.dispatchEvent('EVENT_SUCCESS', resp.data);
+    								self.evtD.dispatchEvent('EVENT_SUCCESS', resp.data);
+
+    							} else {
+    								console.log('error', resp);
+    								self.evtD.dispatchEvent('EVENT_ERROR', resp.error);
+
+    							}
+
+    						} else if (xhr.status === 403) {
+
+    							console.warn('auth error');
+    							// Inherited EVENT_REAUTH
+    							self.evtD.dispatchEvent("EVENT_REAUTH");
 
     						} else {
-    							console.log('error', resp);
-    							self.evtD.dispatchEvent('EVENT_ERROR', resp.error);
+
+    							console.warn('other error', xhr.status);
+    							self.evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
 
     						}
 
-    					} else if (xhr.status === 403) {
+    					} catch (ex) {
 
-    						console.warn('auth error');
-    						// Inherited EVENT_REAUTH
-    						self.evtD.dispatchEvent("EVENT_REAUTH");
-
-    					} else {
-
-    						console.warn('other error', xhr.status);
-    						self.evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
+    						self.evtD.dispatchEvent("EVENT_ERROR", "imgur has broken. Please try again later");
 
     					}
 
@@ -564,28 +572,36 @@ function Model() {
 
     				if (xhr.readyState === 4) {
     					
-    					var resp = JSON.parse(xhr.responseText);
-
-    					if (xhr.status === 200) {
+    					try {
 
     						var resp = JSON.parse(xhr.responseText);
+
+    						if (xhr.status === 200) {
+
+    							var resp = JSON.parse(xhr.responseText);
     						
-    						self.evtD.dispatchEvent('EVENT_COMPLETE', resp.data);
+    							self.evtD.dispatchEvent('EVENT_COMPLETE', resp.data);
 
-    						if (resp.success) {
+    							if (resp.success) {
 
-    							self.evtD.dispatchEvent('EVENT_SUCCESS', resp.data);
+    								self.evtD.dispatchEvent('EVENT_SUCCESS', resp.data);
 
-    						} else {
+    							} else {
 
-    							self.evtD.dispatchEvent('EVENT_ERROR', resp.error);
+    								self.evtD.dispatchEvent('EVENT_ERROR', resp.error);
+
+    							}
+
+    						}  else {
+
+    							console.warn('other error', xhr.status);
+    							self.evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
 
     						}
+    					
+    					} catch (ex) {
 
-    					}  else {
-
-    						console.warn('other error', xhr.status);
-    						self.evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
+    						self.evtD.dispatchEvent("EVENT_ERROR", "imgur has broken. Please try again later");
 
     					}
 
