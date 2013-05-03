@@ -393,6 +393,9 @@ function changeAlbum(albumID) {
                     ul.insertBefore(makeAlbumItem(images[i]), ul.firstChild);
                 }
             }
+        }).addEventListener('EVENT_ERROR', function(msg) {
+        	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg);
+        	notification.show();
         });
     } else {
     	
@@ -410,6 +413,9 @@ function changeAlbum(albumID) {
         	} else {
         		showStatusBar("You have no images in this album. You can drag and drop images onto this page or print screen and paste straight onto this page to upload your images.");
         	}
+        }).addEventListener('EVENT_ERROR', function (msg) {
+        	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg);
+        	notification.show();
         });
     }
 

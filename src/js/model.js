@@ -403,8 +403,8 @@ function Model() {
     						}
 
     					} catch (ex) {
-
-    						self.evtD.dispatchEvent("EVENT_ERROR", "imgur has broken. Please try again later");
+    						console.log('imgur borked');
+    						self.evtD.dispatchEvent("EVENT_ERROR", "imgur has broken. Please try again later.");
 
     					}
 
@@ -601,7 +601,7 @@ function Model() {
     					
     					} catch (ex) {
 
-    						self.evtD.dispatchEvent("EVENT_ERROR", "imgur has broken. Please try again later");
+    						self.evtD.dispatchEvent("EVENT_ERROR", "imgur has broken. Please try again later.");
 
     					}
 
