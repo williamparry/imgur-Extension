@@ -174,6 +174,17 @@ function Model() {
     		pending.unshift(req);
     	};
 
+    	function failAll(error) {
+
+    		for (var i = 0; i < pending.length; i++) {
+
+    			pending.shift().evtD.dispatchEvent('EVENT_ERROR', error);
+
+    		}
+
+    		CurrentlyProcessing = 0;
+    	}
+
     	function processQueue() {
     		
     		if (pending.length > 0 && !!!DAL.get('OAuth2.refreshing')) {
@@ -221,6 +232,21 @@ function Model() {
     							console.log('Token refreshed. Requeue ', item);
 
     							requeue(item);
+
+    						}).addEventListener("EVENT_ERROR", function (error) {
+
+								// Handled by EVENT_ERROR on the item
+    							// CurrentlyProcessing--;
+
+    							DAL.set('OAuth2.refreshing', false);
+
+    							console.warn('Token not refreshed. Requeue ', item);
+
+								// Requeue then fail all
+    							requeue(item);
+
+    							failAll(error);
+
     						});
     						
     					} else {
@@ -293,16 +319,40 @@ function Model() {
 
     		this.getToken = function (pin) {
 
-    			var evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE', 'EVENT_SUCCESS']),
+    			var evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE', 'EVENT_SUCCESS', 'EVENT_ERROR']),
 					xhr = new XMLHttpRequest();
 
     			xhr.open("GET", "https://imgur-extension-server.appspot.com/getToken/" + clientId + "/" + pin, true);
     			xhr.onreadystatechange = function () {
+
     				if (xhr.readyState == 4) {
 
-    					var resp = JSON.parse(xhr.responseText);
-    					authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
-    					evtD.dispatchEvent(evtD.EVENT_SUCCESS);
+    					evtD.dispatchEvent("EVENT_COMPLETE");
+
+    					try {
+
+    						var resp = JSON.parse(xhr.responseText);
+
+    						if (xhr.status === 200) {
+
+    								authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
+    								evtD.dispatchEvent("EVENT_SUCCESS");
+
+    						} else {
+
+    							console.warn('other error', xhr.status);
+    							evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
+
+    						}
+
+    					} catch (ex) {
+
+    						console.log('imgur borked');
+    						evtD.dispatchEvent("EVENT_ERROR", "imgur API error. Please try again later.");
+
+    					}
+
+
     				}
     			};
     			xhr.send(null);
@@ -312,7 +362,7 @@ function Model() {
 			// This is only consumed in the context of the request manager
     		this.refreshToken = function () {
 
-    			var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS']),
+    			var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']),
 					xhr = new XMLHttpRequest();
 
     			xhr.open("GET", "https://imgur-extension-server.appspot.com/getRefreshToken/" + clientId + "/" + DAL.get('OAuth2.refresh_token'), true);
@@ -321,11 +371,29 @@ function Model() {
 
     				if (xhr.readyState == 4) {
 
-    					if (xhr.status === 200) {
+						
+    					try {
+
     						var resp = JSON.parse(xhr.responseText);
-    						authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
-    						console.log("new refresh token", resp.refresh_token);
-    						evtD.dispatchEvent(evtD.EVENT_SUCCESS);
+
+    						if (xhr.status === 200) {
+    						
+    							authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
+    							console.log("new refresh token", resp.refresh_token);
+    							evtD.dispatchEvent("EVENT_SUCCESS");
+
+    						} else {
+
+    							console.warn('other error', xhr.status);
+    							evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
+
+    						}
+    					
+    					} catch (ex) {
+
+    						console.log('imgur borked');
+    						evtD.dispatchEvent("EVENT_ERROR", "imgur API error. Please try again later.");
+
     					}
 
     				}
@@ -404,7 +472,7 @@ function Model() {
 
     					} catch (ex) {
     						console.log('imgur borked');
-    						self.evtD.dispatchEvent("EVENT_ERROR", "imgur has broken. Please try again later.");
+    						self.evtD.dispatchEvent("EVENT_ERROR", "imgur API error. Please try again later.");
 
     					}
 
@@ -601,7 +669,7 @@ function Model() {
     					
     					} catch (ex) {
 
-    						self.evtD.dispatchEvent("EVENT_ERROR", "imgur has broken. Please try again later.");
+    						self.evtD.dispatchEvent("EVENT_ERROR", "imgur API error. Please try again later.");
 
     					}
 

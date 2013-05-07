@@ -397,6 +397,7 @@ portMessenger.addEventListener("main.get_user", function () {
     	url: 'https://api.imgur.com/oauth2/authorize?client_id=e5642c924b26904&response_type=pin',
     	selected: true
     }, function (tab) {
+
     	authTab = tab.id;
     	chrome.tabs.onRemoved.addListener(sendAuthAbortedMessage);
 
@@ -406,20 +407,31 @@ portMessenger.addEventListener("main.get_user", function () {
 
     		chrome.tabs.remove(tab.id);
 
-    		model.authenticated.oAuthManager.getToken(verifier.Data).addEventListener('EVENT_SUCCESS', function () {
-    			console.log('token success');
+    		model.authenticated.oAuthManager.getToken(verifier.Data).addEventListener('EVENT_COMPLETE', function () {
+
+    			authTab = -1;
+    			chrome.tabs.onRemoved.removeListener(sendAuthAbortedMessage);
+
+    		}).addEventListener('EVENT_SUCCESS', function () {
+
     			model.authenticated.fetchUser().addEventListener('EVENT_SUCCESS', function () {
-    				console.log('fetch user success');
+
     				model.authenticated.fetchAlbums().addEventListener('EVENT_SUCCESS', function () {
-    					console.log('fetch albums success');
+
     					setContextMenus();
-    					authTab = -1;
-    					chrome.tabs.onRemoved.removeListener(sendAuthAbortedMessage);
     					syncViews();
+
     				}).addEventListener('EVENT_ERROR', function (error) {
+
     					showError(error);
+
     				});
     			});
+
+    		}).addEventListener('EVENT_ERROR', function (error) {
+    			
+    			showError(error);
+
     		});
 
 
