@@ -531,7 +531,7 @@ portMessenger.addEventListener("main.get_user", function () {
 
 // Set itself to run
 var ContextMenuSchedule = new function () {
-    var defaultInterval = interval = 30000,
+	var defaultInterval = interval = 300000,
         currentTimeout;
 
     function send() {
