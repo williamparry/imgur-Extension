@@ -484,6 +484,63 @@ $(document).ready(function () {
 
 	$("#nav-options").fancybox();
 
+	$("#nav-webcam").fancybox({
+
+		minWidth: 400,
+		minHeight: 400,
+
+		afterLoad: function () {
+
+			var self = this,
+				video;
+
+			navigator.webkitGetUserMedia({ video: true }, function (stream) {
+				video = document.querySelector('video');
+				video.src = window.webkitURL.createObjectURL(stream);
+				self.localStream = stream;
+			});
+
+			$("#webcam #webcam-snap-new").on("click", function () {
+				
+				var $this = $(this);
+
+				if ($this.val() === 'snap') {
+					video.pause();
+					$this.val('new');
+				} else {
+					video.play();
+					$this.val('snap');
+				}
+
+			});
+
+			$("#webcam #webcam-save").on("click", function () {
+				
+				var canvas = UTILS.DOM.create("canvas"),
+					ctx = canvas.getContext('2d');
+
+				ctx.drawImage(video, 0, 0, video.width, video.height);
+
+				makeItem(canvas.toDataURL());
+
+				$.fancybox.close();
+
+			});
+
+
+		},
+
+		afterClose: function () {
+
+			this.localStream.stop();
+
+			$("#webcam #webcam-snap-new, #webcam #webcam-save").off("click");
+
+		}
+
+	});
+
+	
 
 	EAlbums = UTILS.DOM.id('albums');
 	EWrap = UTILS.DOM.id('wrap');
