@@ -186,7 +186,31 @@ a#nav-options:hover {
 	}
 
 
+a#nav-webcam {
+	
+	width: 41px;
+	height: 40px;
+	display: block;
+	box-sizing: border-box;
+	border-left: 1px solid #484848;
+}
 
+	a#nav-webcam .inner {
+		background: transparent url('img/main/webcam.png') no-repeat center center;
+		text-indent: -99999px;
+		display: block;
+		width: 100%;
+		height: 100%;
+		-webkit-transition: all linear 1s;
+	}
+
+a#nav-webcam:hover {
+	background-color: #000;
+}
+
+	a#nav-webcam:hover .inner {
+		-webkit-transform: rotate(180deg);
+	}
 
 #albums
 {
