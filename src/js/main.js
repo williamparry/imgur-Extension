@@ -486,21 +486,26 @@ $(document).ready(function () {
 
 	$("#nav-webcam").fancybox({
 
-		minWidth: 400,
-		minHeight: 400,
 
 		afterLoad: function () {
 
 			var self = this,
-				video;
+				video,
+                $video,
+                $snapNew = $("#webcam #webcam-snap-new"),
+                $save = $("#webcam #webcam-save");
 
 			navigator.webkitGetUserMedia({ video: true }, function (stream) {
 				video = document.querySelector('video');
 				video.src = window.webkitURL.createObjectURL(stream);
+                $video = $(video);
 				self.localStream = stream;
+                $snapNew.removeAttr('disabled');
+                $save.removeAttr('disabled');
+
 			});
 
-			$("#webcam #webcam-snap-new").on("click", function () {
+			$snapNew.on("click", function () {
 				
 				var $this = $(this);
 
@@ -514,16 +519,19 @@ $(document).ready(function () {
 
 			});
 
-			$("#webcam #webcam-save").on("click", function () {
+			$save.on("click", function () {
 				
 				var canvas = UTILS.DOM.create("canvas"),
 					ctx = canvas.getContext('2d');
 
-				ctx.drawImage(video, 0, 0, video.width, video.height);
+                canvas.width = $video.width();
+                canvas.height = $video.height();
+
+				ctx.drawImage(video, 0, 0, $video.width(), $video.height());
 
 				makeItem(canvas.toDataURL());
 
-				$.fancybox.close();
+                $.fancybox.close();
 
 			});
 
@@ -534,7 +542,7 @@ $(document).ready(function () {
 
 			this.localStream.stop();
 
-			$("#webcam #webcam-snap-new, #webcam #webcam-save").off("click");
+			$("#webcam #webcam-snap-new, #webcam #webcam-save").off("click").attr('disabled');
 
 		}
 
