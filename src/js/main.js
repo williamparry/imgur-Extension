@@ -479,75 +479,125 @@ port.onMessage.addListener(function (msg) {
     window.location.reload();
 });
 
+function setUpWebcam() {
+
+    var self = this,
+        video,
+        localStream,
+        countDownTime = 2,
+        timer,
+        $video,
+        $snapNew = $("#webcam #webcam-snap-new"),
+        $save = $("#webcam #webcam-save");
+        $countDown = $("#webcam #webcam-countdown");
+
+
+    function resetTimer() {
+
+        clearInterval(timer);
+        timer = null;
+        countDownTime = 2;
+
+    }
+
+
+    $("#nav-webcam").fancybox({
+
+
+        afterLoad: function () {
+
+            navigator.webkitGetUserMedia({ video: true }, function (stream) {
+                
+                video = document.getElementById('webcam-video');
+                video.src = window.webkitURL.createObjectURL(stream);
+                localStream = stream;
+                $video = $(video);
+                $snapNew.removeAttr('disabled');
+                $save.removeAttr('disabled');
+
+            });
+
+            $snapNew.on("click", function () {
+                
+                var $this = $(this);
+                    
+                if ($this.val() === 'snap') {
+
+                    $countDown.addClass('counting-down').text(countDownTime + 1);
+
+                    $snapNew.prop('disabled', 'disabled');
+                    $save.prop('disabled', 'disabled');
+
+                    timer = setInterval(function() {
+
+                        if(countDownTime === 0) {
+                            
+                            video.pause();
+                            
+                            resetTimer();
+
+                            $countDown.removeClass('counting-down');
+                            $this.val('new').removeAttr('disabled');
+                            $save.removeAttr('disabled');
+                            
+                        } else {
+
+                            $countDown.text(countDownTime)
+                            countDownTime--;
+                            
+                        }
+
+                    }, 1000);
+
+                    
+                } else {
+                    video.play();
+                    $this.val('snap');
+                }
+
+            });
+
+            $save.on("click", function () {
+                
+                var canvas = UTILS.DOM.create("canvas"),
+                    ctx = canvas.getContext('2d');
+
+                canvas.width = $video.width();
+                canvas.height = $video.height();
+
+                ctx.drawImage(video, 0, 0, $video.width(), $video.height());
+
+                makeItem(canvas.toDataURL());
+
+                $.fancybox.close();
+
+            });
+
+
+        },
+
+        afterClose: function () {
+
+            resetTimer();
+
+            $countDown.removeClass('counting-down');
+            $snapNew.val("snap").off("click").prop('disabled', 'disabled');
+            $save.off("click").prop('disabled', 'disabled');
+
+        }
+
+    });
+
+
+
+}
+
 $(document).ready(function () {
 
 
 	$("#nav-options").fancybox();
 
-	$("#nav-webcam").fancybox({
-
-
-		afterLoad: function () {
-
-			var self = this,
-				video,
-                $video,
-                $snapNew = $("#webcam #webcam-snap-new"),
-                $save = $("#webcam #webcam-save");
-
-			navigator.webkitGetUserMedia({ video: true }, function (stream) {
-				video = document.querySelector('video');
-				video.src = window.webkitURL.createObjectURL(stream);
-                $video = $(video);
-				self.localStream = stream;
-                $snapNew.removeAttr('disabled');
-                $save.removeAttr('disabled');
-
-			});
-
-			$snapNew.on("click", function () {
-				
-				var $this = $(this);
-
-				if ($this.val() === 'snap') {
-					video.pause();
-					$this.val('new');
-				} else {
-					video.play();
-					$this.val('snap');
-				}
-
-			});
-
-			$save.on("click", function () {
-				
-				var canvas = UTILS.DOM.create("canvas"),
-					ctx = canvas.getContext('2d');
-
-                canvas.width = $video.width();
-                canvas.height = $video.height();
-
-				ctx.drawImage(video, 0, 0, $video.width(), $video.height());
-
-				makeItem(canvas.toDataURL());
-
-                $.fancybox.close();
-
-			});
-
-
-		},
-
-		afterClose: function () {
-
-			this.localStream.stop();
-
-			$("#webcam #webcam-snap-new, #webcam #webcam-save").off("click").attr('disabled');
-
-		}
-
-	});
-
+    setUpWebcam();
 	
 
 	EAlbums = UTILS.DOM.id('albums');

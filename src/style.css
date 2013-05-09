@@ -433,12 +433,40 @@ a#nav-webcam:hover {
 	background: #000000;
 	padding: 25px;
 	box-sizing: border-box;
+	position: relative;
 }
 
 	#webcam-video {
 		display: block;
 		margin: 10px auto;
 	}
+
+	#webcam .cf {
+		position: relative;
+	}
+
+
+@-webkit-keyframes CountDown {
+  0%   { -webkit-transform: scale(1);}
+  50%   { -webkit-transform: scale(1.5); }
+  100% { -webkit-transform: scale(1); }
+}
+
+		#webcam .cf #webcam-countdown {
+			font-size: 20px;
+			color: #fff;
+			display: none;
+			text-align: center;
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+		}
+
+		#webcam .cf #webcam-countdown.counting-down {
+			display: block;
+			 -webkit-animation: CountDown 1s infinite;
+		}
 
 #options
 {
