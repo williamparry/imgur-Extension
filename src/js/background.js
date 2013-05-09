@@ -72,6 +72,28 @@ function setContextMenus() {
     	document.body.removeChild(txt);
     }
 
+    function handleLocalFile(src) {
+
+    	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS']),
+			canvas = UTILS.DOM.create('canvas'),
+			ctx = canvas.getContext('2d'),
+			img = new Image();
+
+    	img.onload = function () {
+
+    		canvas.width = img.width;
+    		canvas.height = img.height;
+    		ctx.drawImage(img, 0, 0, img.width, img.height);
+
+    		evtD.dispatchEvent("EVENT_SUCCESS", canvas.toDataURL());
+
+    	}
+
+    	img.src = src;
+
+    	return evtD;
+    }
+
 
     var parentId = chrome.contextMenus.create({ "title": "imgur" });
 
@@ -111,10 +133,25 @@ function setContextMenus() {
 
     var addImageContextMenuItem = chrome.contextMenus.create({
     	"title": "rehost image", "contexts": ["image"],
-        "onclick": function (obj) {
-            var evt = model.unsorted.sendImageURL(obj.srcUrl);
-            evt.type = "rehost";
-            uploadDelegate(evt);
+    	"onclick": function (obj) {
+
+    		var evt;
+
+    		if (!!~obj.srcUrl.indexOf('file:')) {
+
+    			handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
+    				evt = model.unsorted.sendImage(encodeURIComponent(imgData.split(',')[1]));
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+    			});
+
+    		} else {
+
+    			evt = model.unsorted.sendImageURL(obj.srcUrl);
+    			evt.type = "rehost";
+    			uploadDelegate(evt);
+
+    		}
         }
     });
 
@@ -201,9 +238,25 @@ function setContextMenus() {
         chrome.contextMenus.create({
             "title": "- this computer -", "contexts": ["image"],
             "onclick": function (obj) {
-                var evt = model.unsorted.sendImageURL(obj.srcUrl);
-                evt.type = "rehost";
-                uploadDelegate(evt);
+            	
+            	var evt;
+
+            	if (!!~obj.srcUrl.indexOf('file:')) {
+
+            		handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
+            			evt = model.unsorted.sendImage(encodeURIComponent(imgData.split(',')[1]));
+            			evt.type = "capture";
+            			uploadDelegate(evt);
+            		});
+
+            	} else {
+
+            		evt = model.unsorted.sendImageURL(obj.srcUrl);
+            		evt.type = "rehost";
+            		uploadDelegate(evt);
+            	}
+
+            	
 
             }, "parentId": addImageContextMenuItem
         });
@@ -212,9 +265,24 @@ function setContextMenus() {
         chrome.contextMenus.create({
             "title": model.authenticated.getAccount().url, "contexts": ["image"],
             "onclick": function (obj) {
-                var evt = model.authenticated.sendImageURL("_userAlbum", obj.srcUrl);
-                evt.type = "rehost";
-                uploadDelegate(evt);
+
+            	var evt;
+
+            	if (!!~obj.srcUrl.indexOf('file:')) {
+
+            		handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
+            			var evt = model.authenticated.sendImage("_userAlbum", imgData.split(',')[1]);
+            			evt.type = "capture";
+            			uploadDelegate(evt);
+            		});
+
+            	} else {
+
+					evt = model.authenticated.sendImageURL("_userAlbum", obj.srcUrl);
+            		evt.type = "rehost";
+            		uploadDelegate(evt);
+
+            	}
 
             }, "parentId": addImageContextMenuItem
         });
@@ -272,9 +340,24 @@ function setContextMenus() {
 						chrome.contextMenus.create({
 							"title": album.title, "contexts": ["image"],
 							"onclick": function (obj) {
-								var evt = model.authenticated.sendImageURL(album.id, obj.srcUrl);
-								evt.type = "rehost";
-								uploadDelegate(evt);
+
+								var evt;
+
+								if (!!~obj.srcUrl.indexOf('file:')) {
+
+									handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
+										var evt = model.authenticated.sendImage(album.id, imgData.split(',')[1]);
+										evt.type = "capture";
+										uploadDelegate(evt);
+									});
+
+								} else {
+
+									evt = model.authenticated.sendImageURL(album.id, obj.srcUrl);
+									evt.type = "rehost";
+									uploadDelegate(evt);
+
+								}
 
 							}, "parentId": addImageContextMenuItem
 						});
