@@ -544,7 +544,7 @@ function setUpWebcam() {
 
                             $countDown.text(countDownTime)
                             countDownTime--;
-                            
+
                         }
 
                     }, 1000);
@@ -579,6 +579,8 @@ function setUpWebcam() {
         afterClose: function () {
 
             resetTimer();
+            
+            localStream.stop();
 
             $countDown.removeClass('counting-down');
             $snapNew.val("snap").off("click").prop('disabled', 'disabled');
