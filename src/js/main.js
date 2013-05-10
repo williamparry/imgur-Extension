@@ -23,7 +23,8 @@ var port = chrome.extension.connect({ name: "main" }),
     CurrentAlbum,
     ECurrentAlbum,
     EStatusBar,
-	EStatusBarLink;
+	EStatusBarLink,
+	localStream;
 
 
 
@@ -483,7 +484,6 @@ function setUpWebcam() {
 
     var self = this,
         video,
-        localStream,
         countDownTime = 2,
         timer,
         $video,
@@ -576,11 +576,15 @@ function setUpWebcam() {
 
         },
 
+        beforeClose: function () {
+
+        	localStream.stop();
+
+        },
+
         afterClose: function () {
 
             resetTimer();
-            
-            localStream.stop();
 
             $countDown.removeClass('counting-down');
             $snapNew.val("snap").off("click").prop('disabled', 'disabled');
@@ -593,6 +597,13 @@ function setUpWebcam() {
 
 
 }
+
+window.onbeforeunload = function () {
+	if (localStream) {
+		localStream.stop();
+	}
+}
+
 
 $(document).ready(function () {
 
