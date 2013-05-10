@@ -567,6 +567,8 @@ function setUpWebcam() {
 
                 ctx.drawImage(video, 0, 0, $video.width(), $video.height());
 
+                _gaq.push(['_trackEvent', 'Main', 'Send Webcam Image']);
+
                 makeItem(canvas.toDataURL());
 
                 $.fancybox.close();
