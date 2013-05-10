@@ -139,6 +139,10 @@ function setContextMenus() {
 
     		if (!!~obj.srcUrl.indexOf('file:')) {
 
+				showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
+				
+				return;
+					
     			handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
     				evt = model.unsorted.sendImage(encodeURIComponent(imgData.split(',')[1]));
     				evt.type = "capture";
@@ -243,6 +247,10 @@ function setContextMenus() {
 
             	if (!!~obj.srcUrl.indexOf('file:')) {
 
+            		showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
+
+            		return;
+
             		handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
             			evt = model.unsorted.sendImage(encodeURIComponent(imgData.split(',')[1]));
             			evt.type = "capture";
@@ -269,6 +277,10 @@ function setContextMenus() {
             	var evt;
 
             	if (!!~obj.srcUrl.indexOf('file:')) {
+
+            		showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
+
+            		return;
 
             		handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
             			var evt = model.authenticated.sendImage("_userAlbum", imgData.split(',')[1]);
@@ -344,6 +356,10 @@ function setContextMenus() {
 								var evt;
 
 								if (!!~obj.srcUrl.indexOf('file:')) {
+
+									showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
+
+									return;
 
 									handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
 										var evt = model.authenticated.sendImage(album.id, imgData.split(',')[1]);
