@@ -24,6 +24,7 @@ Version 2 brings with it some major changes to the data models (new imgur API), 
 
 * https://github.com/Jobeanie123
 * https://github.com/jmlind
+* https://github.com/wrouesnel
 
 ## Developers ##
 
