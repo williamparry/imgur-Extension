@@ -8,6 +8,10 @@ The User Interface has been refreshed and upgraded, as well as improving securit
 
 Any questions flick me an [email](mailto:williamparry@gmail.com) or [tweet](https://twitter.com/williamparry)
 
+## Translators ##
+
+We'd really like to get this extension translated into as many languages as we can. If you're willing to help out please send us a message.
+
 ## Testers ##
 
 Version 2 brings with it some major changes to the data models (new imgur API), so it's important that the user's images are upgraded seemlessly. Users will also need to reauthenticate with imgur as their existing tokens will be invalidated.
