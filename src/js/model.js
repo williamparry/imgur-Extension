@@ -95,6 +95,19 @@ function Model() {
     	DAL.set('OAuth2', { access_token: null, refresh_token: null, account_username: null, refreshing: false });
     };
 
+	// ------------------------------------------------------------------
+	// Upgrade 2.0.4 - 2.0.5
+	// ------------------------------------------------------------------
+    DAL.set("notifications", null);
+    if (DAL.get('notifications') == null) {
+		/*
+    	DAL.set("notifications", {
+    		winmeme: false
+    	});
+		*/
+    };
+
+
 	function encode(str) {
     	return encodeURIComponent(str).replace(/\!/g, "%21").
             replace(/\*/g, "%2A").
@@ -102,6 +115,35 @@ function Model() {
             replace(/\(/g, "%28").
             replace(/\)/g, "%29");
     }
+
+	// ------------------------------------------------------------------
+	// Set notified
+	// ------------------------------------------------------------------
+
+	this.getNotifications = function () {
+
+		var notifications = DAL.get("notifications"),
+			retArr = [];
+		
+		if (notifications) {
+
+			for (var notification in notifications) {
+
+				if (!notifications[notification]) {
+					retArr.push(notification);
+				}
+
+			}
+
+		}
+
+		return retArr;
+
+	}
+
+	this.setNotified = function (key) {
+		DAL.set("notifications." + key + ".seen", true);
+	}
 
 	// ------------------------------------------------------------------
 	// Reset

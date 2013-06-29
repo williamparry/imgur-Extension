@@ -586,3 +586,21 @@ var ContextMenuSchedule = new function () {
     this.Start();
 
 }
+
+// Notifications
+
+var notifications = model.getNotifications();
+console.log(notifications);
+if (notifications.length > 0) {
+
+	for (var i = 0; i < notifications.length, notification = notifications[i]; i++) {
+		console.log("notifications/" + notification + ".html");
+		var popup = webkitNotifications.createHTMLNotification("notifications/" + notification + ".html");
+		//popup.show();
+
+		model.setNotified(notification);
+
+	}
+
+
+}

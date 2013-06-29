@@ -112,7 +112,16 @@ header {
 			position: relative;
 			bottom: -2px;
 		}
-	
+
+#donate-button {
+	position: absolute;
+	top: 11px;
+	left: calc((100% - 142px) / 2);
+	width: 148px;
+	height: 18px;
+	display: block;
+}
+
 	nav {
 		display: table;
 	}
