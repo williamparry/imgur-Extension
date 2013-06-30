@@ -116,7 +116,7 @@ header {
 #donate-button {
 	position: absolute;
 	top: 11px;
-	left: calc( ( ( 94px + ( 100% - 471px ) ) - 185px ) / 2 );
+	left: calc( 14px + ( ( 94px + ( 100% - 471px ) ) - 185px ) / 2 );
 	width: 185px;
 	height: 18px;
 	display: block;
