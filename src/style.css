@@ -384,12 +384,14 @@ a#nav-webcam:hover {
 
 .album ul li a.action.image-meme
 {
+	display: none;
     top: 0;
     right: 0;
 }
 
 .album ul li a.action.image-download
 {
+	display: none;
     top: 0;
     left: 0;
 }

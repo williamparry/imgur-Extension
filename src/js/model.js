@@ -11,7 +11,14 @@ function Model() {
 	// Data Access Layer
 	// ------------------------------------------------------------------
 
-    var DAL = new UTILS.LocalStoreDAL('imgur');
+	var DAL = new UTILS.LocalStoreDAL('imgur');
+
+	// ------------------------------------------------------------------
+	// Upgrade information
+	// ------------------------------------------------------------------
+
+	var checkVersion = DAL.get("currentVersion");
+	var currentVersion = chrome.app.getDetails().version;
     
 	// ------------------------------------------------------------------
 	// Upgrade -1 ~ 0.5 - 1.0.3
@@ -101,11 +108,22 @@ function Model() {
 
     if (DAL.get('notifications') == null) {
 
-    	DAL.set("notifications", {
-    		winmeme: false
-    	});
-		
+    	DAL.set("notifications", {});
+
     };
+
+	// ------------------------------------------------------------------
+	// Future testing to use this method
+	// ------------------------------------------------------------------
+
+    if (checkVersion !== currentVersion) {
+
+    	if (checkVersion === "2.0.5") {
+    		DAL.set("notifications.winmeme", false);
+    	}
+
+    	DAL.set("currentVersion", currentVersion);
+    }
 
 
 	function encode(str) {
@@ -142,7 +160,7 @@ function Model() {
 	}
 
 	this.setNotified = function (key) {
-		DAL.set("notifications." + key + ".seen", true);
+		DAL.set("notifications." + key, true);
 	}
 
 	// ------------------------------------------------------------------
