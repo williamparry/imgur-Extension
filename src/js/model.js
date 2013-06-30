@@ -100,11 +100,11 @@ function Model() {
 	// ------------------------------------------------------------------
     DAL.set("notifications", null);
     if (DAL.get('notifications') == null) {
-		/*
+		
     	DAL.set("notifications", {
     		winmeme: false
     	});
-		*/
+		
     };
 
 

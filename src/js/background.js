@@ -596,7 +596,7 @@ if (notifications.length > 0) {
 	for (var i = 0; i < notifications.length, notification = notifications[i]; i++) {
 		console.log("notifications/" + notification + ".html");
 		var popup = webkitNotifications.createHTMLNotification("notifications/" + notification + ".html");
-		//popup.show();
+		popup.show();
 
 		model.setNotified(notification);
 

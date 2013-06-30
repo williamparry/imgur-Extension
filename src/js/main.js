@@ -197,6 +197,7 @@ function makeAlbumItem(imageItem) {
         del = UTILS.DOM.create('a'),
         copy = UTILS.DOM.create('a'),
 		download = UTILS.DOM.create('a'),
+		meme = UTILS.DOM.create('a'),
         copyInput = UTILS.DOM.create('input');
 
     del.href = copy.href = "#";
@@ -212,7 +213,7 @@ function makeAlbumItem(imageItem) {
         }
 
     };
-
+	
     copy.innerHTML = "copy link";
     copy.classList.add('image-copy');
     copy.classList.add('action');
@@ -232,6 +233,15 @@ function makeAlbumItem(imageItem) {
 
     copyInput.type = 'text';
     copyInput.value = imageItem.link;
+
+    meme.href = "http://www.winmeme.com?url=" + imageItem.link;
+    meme.innerHTML = "meme";
+    meme.classList.add('image-meme');
+    meme.classList.add('action');
+    meme.onclick = function (e) {
+    	e.preventDefault();
+    	chrome.tabs.create({ url: this.href });
+    };
 
     li.classList.add('loading');
 
@@ -279,6 +289,7 @@ function makeAlbumItem(imageItem) {
     download.href = "#";
     download.innerHTML = "download";
     download.classList.add('image-download');
+    download.classList.add('action');
     download.onclick = function (e) {
     	e.preventDefault();
     	var existingIFrame = li.querySelectorAll('iframe')[0];
@@ -305,6 +316,7 @@ function makeAlbumItem(imageItem) {
     li.appendChild(imgLink);
     li.appendChild(del);
     li.appendChild(copy);
+    li.appendChild(meme);
     li.appendChild(download);
 
     return li;

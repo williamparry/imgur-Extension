@@ -344,7 +344,7 @@ a#nav-webcam:hover {
 	width: 100%;
 	text-align: center;
 	font-size: 11px;
-	background: rgba(33, 33, 33, 0.9);
+	background: rgba(33, 33, 33, 0.6);
     padding: 5px 10px;
 	box-sizing: border-box;
 	color: #ddd;
@@ -358,12 +358,7 @@ a#nav-webcam:hover {
 	opacity: 1;	
 }
 
-.album ul li a.image-download
-{
-	position: absolute;
-    top: -9999px;
-    left: -999999px;
-}
+
 
 .album ul li:hover a.action {
     opacity: 100;
@@ -387,13 +382,13 @@ a#nav-webcam:hover {
     right: 0;
 }
 
-.album ul li a.action.image-preview
+.album ul li a.action.image-meme
 {
     top: 0;
     right: 0;
 }
 
-.album ul li a.action.image-reddit
+.album ul li a.action.image-download
 {
     top: 0;
     left: 0;
