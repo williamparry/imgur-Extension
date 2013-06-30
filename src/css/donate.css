@@ -1,3 +1,179 @@
-﻿body {
-	background: #000000;
+﻿html,
+body
+{
+	background: #000;
+
+}
+
+body
+{
+	font-family: helvetica, arial, sans-serif;	
+}
+
+h1 {
+	color: #ffffff;
+}
+
+.cf:before,
+.cf:after {
+    content: " ";
+    display: table;
+}
+
+.cf:after {
+    clear: both;
+}
+
+.left {
+	float: left;
+}
+
+.right {
+	float: right;
+}
+
+#wrap {
+	width: 957px;
+	margin: 0 auto;
+}
+
+header {
+	padding: 28px 8px 8px;
+}
+
+section#intro {
+	color: #ffffff;
+	padding: 8px 8px 28px 8px;
+	position: relative;
+}
+
+	section#intro h2 {
+		font-size: 20px;
+		margin-bottom: 15px;
+	}
+
+	section#intro p {
+		font-size: 14px;
+		width: 560px;
+	}
+
+	section#intro img {
+		position: absolute;
+		bottom: 8px;
+		right: 8px;
+	}
+
+section#main {
+
+	display: -webkit-flex;
+    -webkit-flex-flow: row wrap;
+	-webkit-justify-content: space-around; /* Horizontal */
+	-webkit-align-content: space-between; /* vertical */
+}
+.catincan-item {
+	width: 33%;
+	padding: 8px;
+	box-sizing: border-box;
+}
+
+	.catincan-item .inner {
+		background: #ffffff;
+		box-sizing: border-box;
+		border: 1px solid #DFDFDF;
+		border-radius: 3px 3px 3px 3px;
+		box-shadow: 0 2px 3px -2px rgba(0,0,0,0.1);
+		font-family: arial, verdana;
+	}
+
+	.catincan-item a {
+		color: #2e72bd;
+	}
+
+	.catincan-item img {
+		display: none;
+	}
+
+	.catincan-item h2 {
+		margin: 0;
+		padding: 16px;
+	}
+
+		.catincan-item h2 a {
+			display: block;
+			line-height: 20px;
+			font-size: 16px;
+			font-weight: bold;
+		}
+
+	.catincan-item .body {
+		padding: 16px;
+	}
+
+		.catincan-item .body p {
+		
+			font-size: 14px;
+			line-height: 20px;
+			color: #777;
+			word-wrap: break-word;
+			margin-bottom: 1em;
+		}
+
+	.catincan-item .stats {
+		padding: 16px;
+		background: #f2f2f2;
+		border-top: 1px solid #dfdfdf;
+		border-top-left-radius: 3px;
+		border-bottom-left-radius: 3px;
+	}
+
+		.catincan-item .stats .meter {
+			height: 26px;
+			overflow: hidden;
+			background: #fff;
+			border-radius: 3px;
+			margin-bottom: 15px;
+		}
+
+			.catincan-item .stats .meter div {
+				height: 100%;
+				background: green;
+				border-top-left-radius: 3px;
+				border-bottom-left-radius: 3px;
+			}
+
+	.catincan-item .grey-boxes {
+		margin-left: -9px;
+	}
+
+		.catincan-item .grey-boxes .grey-box-item {
+			float: left;
+			background: #ddd;
+			padding: 9px 6px 4px;
+			border-bottom: 1px solid #fff;
+			border-radius: 3px;
+			width: 70.5px;
+			text-align: center;
+			margin-left: 9px;
+		}
+
+			.catincan-item .grey-boxes .grey-box-item .grey-box-title {
+				color: #242424;
+				font-size: 14px;
+				line-height: 14px;
+				font-weight: bold;
+				display: block;
+			}
+
+			.catincan-item .grey-boxes .grey-box-item .grey-box-content {
+				font-weight: normal;
+				font-size: 14px;
+				line-height: 14px;
+				margin: 2px 0;
+				color: #525252;
+				display: block;
+			}
+
+#main iframe {
+	float: left;
+	margin-left: 15px;
 }
