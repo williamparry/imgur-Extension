@@ -98,9 +98,9 @@ function Model() {
 	// ------------------------------------------------------------------
 	// Upgrade 2.0.4 - 2.0.5
 	// ------------------------------------------------------------------
-    DAL.set("notifications", null);
+
     if (DAL.get('notifications') == null) {
-		
+
     	DAL.set("notifications", {
     		winmeme: false
     	});
