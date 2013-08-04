@@ -452,9 +452,35 @@ function setContextMenus() {
 
 }
 
-function showError(message) {
-	chrome.browserAction.setBadgeText({ 'text': '' });
-	webkitNotifications.createNotification("img/logo96.png", "imgur failed", message).show();
+// Result of an action
+// Generic handler
+function showError(msg) {
+
+	if (typeof msg === "string") {
+
+		chrome.browserAction.setBadgeText({ 'text': '' });
+		webkitNotifications.createNotification("img/logo96.png", "imgur failed", msg).show();
+
+	} else {
+
+		if (msg.status === 400) {
+
+			alert(msg.text);
+			criticalError();
+
+		}
+	}
+
+	
+}
+
+// Can happen silently
+function criticalError() {
+
+	setContextMenus();
+	syncViews();
+	window.location.reload();
+
 }
 
 // ------------------------------------------------------------------
@@ -552,7 +578,11 @@ var ContextMenuSchedule = new function () {
 
     function send() {
         if (model.authenticated.oAuthManager.getAuthStatus()) {
-            model.authenticated.fetchAlbums().addEventListener('EVENT_SUCCESS', setContextMenus);
+        	model.authenticated.fetchAlbums().addEventListener('EVENT_SUCCESS', setContextMenus).addEventListener('EVENT_ERROR', function (msg) {
+        		if (msg.status === 400) {
+        			criticalError();
+        		}
+        	});
         } else {
             setContextMenus();
         }

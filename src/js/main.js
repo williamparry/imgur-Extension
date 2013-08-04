@@ -97,11 +97,19 @@ function makeItem(fileData) {
     });
 
                 
-    evt.addEventListener('EVENT_ERROR', function(message) {
+    evt.addEventListener('EVENT_ERROR', function (msg) {
+    	
         var progress = loadingItem.querySelectorAll('progress')[0];
         loadingItem.removeChild(progress);
         loadingItem.classList.add('error');
-        loadingItem.onclick = function() { alert(message); };
+        var errorText = msg.text;
+
+        if (msg.status === 400) {
+        	errorText += ' Please reload this page.';
+        }
+
+        loadingItem.onclick = function () { alert(errorText); };
+
     });
 }
 
@@ -129,11 +137,18 @@ function makeURLItem(URL) {
     });
 
 
-    evt.addEventListener('EVENT_ERROR', function (message) {
+    evt.addEventListener('EVENT_ERROR', function (msg) {
         var progress = loadingItem.querySelectorAll('progress')[0];
         loadingItem.removeChild(progress);
         loadingItem.classList.add('error');
-        loadingItem.onclick = function () { alert(message); };
+        var errorText = msg.text;
+
+        if (msg.status === 400) {
+        	errorText += ' Please reload this page.';
+        }
+
+        loadingItem.onclick = function () { alert(errorText); };
+
     });
 }
 
@@ -354,6 +369,10 @@ function makeAlbum(album) {
 
 }
 
+function criticalError() {
+	//window.location.reload();
+}
+
 function changeAlbum(albumID) {
 	hideStatusBar();
     if (albumID == '_newAlbum') {
@@ -406,8 +425,11 @@ function changeAlbum(albumID) {
                     ul.insertBefore(makeAlbumItem(images[i]), ul.firstChild);
                 }
             }
-        }).addEventListener('EVENT_ERROR', function(msg) {
-        	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg);
+        }).addEventListener('EVENT_ERROR', function (msg) {
+        	if (msg.status === 400) {
+        		criticalError();
+        	}
+        	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
         	notification.show();
         });
     } else {
@@ -427,7 +449,10 @@ function changeAlbum(albumID) {
         		showStatusBar("You have no images in this album. You can drag and drop images onto this page or print screen and paste straight onto this page to upload your images.");
         	}
         }).addEventListener('EVENT_ERROR', function (msg) {
-        	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg);
+        	if (msg.status === 400) {
+        		criticalError();
+        	}
+        	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
         	notification.show();
         });
     }

@@ -223,27 +223,19 @@ function Model() {
     this.requestManager = new function () {
 
     	var self = this;
+    	var timer;
     	var CurrentlyProcessing = 0;
     	var pending = [];
 
     	this.queue = function (req) {
+    		console.log('queue', req);
     		pending.push(req);
     	};
 
-    	function requeue (req) {
+    	function requeue(req) {
+    		console.log('requeue', req);
     		pending.unshift(req);
     	};
-
-    	function failAll(error) {
-
-    		for (var i = 0; i < pending.length; i++) {
-
-    			pending.shift().evtD.dispatchEvent('EVENT_ERROR', error);
-
-    		}
-
-    		CurrentlyProcessing = 0;
-    	}
 
     	function processQueue() {
     		
@@ -298,14 +290,26 @@ function Model() {
 								// Handled by EVENT_ERROR on the item
     							// CurrentlyProcessing--;
 
-    							DAL.set('OAuth2.refreshing', false);
+    							console.error('Refresh token expired, have to clear tokens :(');
 
     							console.warn('Token not refreshed. Requeue ', item);
 
-								// Requeue then fail all
-    							requeue(item);
+    							clearInterval(timer);
 
-    							failAll(error);
+    							DAL.set('OAuth2.refreshing', false);
+
+    							root.reset();
+
+    							pending.unshift(item);
+
+    							var len = pending.length;
+
+    							for (var i = 0; i < len; i++) {
+
+    								console.log(error);
+    								pending.shift().evtD.dispatchEvent('EVENT_ERROR', error);
+
+    							}
 
     						});
     						
@@ -336,7 +340,7 @@ function Model() {
     		}
     	}
 
-    	setInterval(processQueue, 500);
+    	timer = setInterval(processQueue, 500);
 
     };
 
@@ -367,6 +371,14 @@ function Model() {
     			DAL.set('OAuth2.refreshing', false);
     			DAL.set('OAuth2.access_token', 123);
     			return DAL.get('OAuth2.access_token');
+    		};
+
+			// Only for testing
+    		this.invalidateRefreshToken = function () {
+    			DAL.set('OAuth2.refreshing', false);
+    			DAL.set('OAuth2.access_token', 123);
+    			DAL.set('OAuth2.refresh_token', 123);
+    			return DAL.get('OAuth2.refresh_token');
     		};
 
     		this.resetRefreshing = function () {
@@ -431,7 +443,6 @@ function Model() {
 
     				if (xhr.readyState == 4) {
 
-						
     					try {
 
     						var resp = JSON.parse(xhr.responseText);
@@ -444,15 +455,14 @@ function Model() {
 
     						} else {
 
-    							console.warn('other error', xhr.status);
-    							evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
+    							console.error('other error', xhr.status);
+    							evtD.dispatchEvent("EVENT_ERROR", { text: "Your authentication has expired. We're not allowed to extend it so you'll have to connect to imgur again. Sorry, we know it sucks.", status: xhr.status });
 
     						}
     					
     					} catch (ex) {
-
     						console.log('imgur borked');
-    						evtD.dispatchEvent("EVENT_ERROR", "imgur API error. Please try again later.");
+    						evtD.dispatchEvent("EVENT_ERROR", { text: "Something went very wrong with the API response", status: xhr.status });
 
     					}
 
