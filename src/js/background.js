@@ -1,7 +1,7 @@
 /// <reference path="model.js" />
 
 var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-249743-23']);
+_gaq.push(['_setAccount', 'UA-41081662-9']);
 
 (function () {
 	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
