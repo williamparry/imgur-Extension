@@ -1,6 +1,3 @@
-/// <reference path="vsdoc/utils-1.3-vsdoc.js" />
-/// <reference path="vsdoc/chrome-vsdoc.js" />
-
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-249743-23']);
 _gaq.push(['_trackPageview']);

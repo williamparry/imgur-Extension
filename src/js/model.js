@@ -1,6 +1,3 @@
-/// <reference path="/vsdoc/utils-1.3-vsdoc.js" />
-/// <reference path="/vsdoc/chrome-vsdoc.js" />
-
 function Model() {
 
 	var root = this;

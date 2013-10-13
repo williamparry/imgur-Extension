@@ -1,5 +1,3 @@
-/// <reference path="/vsdoc/utils-1.3-vsdoc.js" />
-/// <reference path="/vsdoc/chrome-vsdoc.js" />
 /// <reference path="model.js" />
 
 var _gaq = _gaq || [];
