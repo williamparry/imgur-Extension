@@ -29,7 +29,6 @@ window.onload = function () {
     EMain = UTILS.DOM.id('nav-main'),
     EClear = UTILS.DOM.id('btn-clear'),
     EConnections = UTILS.DOM.id('connections'),
-    EFreezeGifs = UTILS.DOM.id('freeze-gifs'),
     ECopyOnRehost = UTILS.DOM.id('copy-on-rehost'),
     ETabOnRehost = UTILS.DOM.id('tab-on-rehost'),
     ECopyOnCapture = UTILS.DOM.id('copy-on-capture'),
@@ -49,12 +48,11 @@ window.onload = function () {
 
     ESubmit.disabled = "disabled";
 
-    EConnections.onclick = ECopyOnRehost.onclick = ETabOnRehost.onclick = ECopyOnCapture.onclick = ETabOnCapture.onclick = EFreezeGifs.onclick = function () {
+    EConnections.onclick = ECopyOnRehost.onclick = ETabOnRehost.onclick = ECopyOnCapture.onclick = ETabOnCapture.onclick = function () {
         ESubmit.removeAttribute("disabled");
     };
 
     EConnections.value = model.preferences.get('connections');
-    EFreezeGifs.checked = model.preferences.get('freezegifs');
     ECopyOnRehost.checked = model.preferences.get('copyonrehost');
     ETabOnRehost.checked = model.preferences.get('tabonrehost');
     ECopyOnCapture.checked = model.preferences.get('copyoncapture');
@@ -67,7 +65,6 @@ window.onload = function () {
         ESubmit.style.cursor = "progress";
 
         model.preferences.set('connections', EConnections.value);
-        model.preferences.set('freezegifs', EFreezeGifs.checked);
         model.preferences.set('copyonrehost', ECopyOnRehost.checked);
         model.preferences.set('tabonrehost', ETabOnRehost.checked);
         model.preferences.set('copyoncapture', ECopyOnCapture.checked);
