@@ -194,33 +194,6 @@ a#nav-options:hover {
 		-webkit-transform: rotate(180deg);
 	}
 
-
-a#nav-webcam {
-	
-	width: 41px;
-	height: 40px;
-	display: block;
-	box-sizing: border-box;
-	border-left: 1px solid #484848;
-}
-
-	a#nav-webcam .inner {
-		background: transparent url('img/main/webcam.png') no-repeat center center;
-		text-indent: -99999px;
-		display: block;
-		width: 100%;
-		height: 100%;
-		-webkit-transition: all linear 1s;
-	}
-
-a#nav-webcam:hover {
-	background-color: #000;
-}
-
-	a#nav-webcam:hover .inner {
-		-webkit-transform: rotate(180deg);
-	}
-
 #albums
 {
 	padding: 20px;
@@ -268,6 +241,7 @@ a#nav-webcam:hover {
     height: 200px;
     position: relative;
     box-sizing: border-box;
+    display: table;
 }
 
 .album li:hover
@@ -287,12 +261,17 @@ a#nav-webcam:hover {
         position: absolute;
         bottom: 10px;
         left: 20px;
+        display: table-row;
     }
 
 	.album li.loading a.action,
 	.album li.loading span {
 		display: none;
 	}
+
+    .album li.loading img {
+        display: none;
+    }
 
 .album li.error
 {
@@ -304,11 +283,17 @@ a#nav-webcam:hover {
     height: 100%;
 }
 
+.album ul li div.inner {
+    display: table-cell;
+    vertical-align: middle;
+}
+
 .album ul li img,
 .album ul li canvas 
 {
-    position: absolute;
+    display: block;
     cursor: pointer;
+    margin: 0 auto;
 }
 
 .album ul li input 
@@ -316,6 +301,8 @@ a#nav-webcam:hover {
     position: absolute;
     top: -9999px;
 }
+
+
 
 .album ul li a.action
 {

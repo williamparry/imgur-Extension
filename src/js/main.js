@@ -61,10 +61,19 @@ function makeImage(fileData) {
 
     var img = UTILS.DOM.create('image');
     img.src = fileData;
+    
     img.style.display = 'none';
+
     img.onload = function () {
-        resizeImage(this);
+
         img.style.display = 'block';
+        console.log(img, img.width, img.height)
+        if (img.width > img.height) {
+            img.width = 160;
+        } else if(img.height > img.width) {
+            img.height = 160;
+        }
+       
     };
 
     return img;
@@ -182,31 +191,10 @@ function deleteImage(image) {
     }
 }
 
-function resizeImage(img, maxh, maxw) {
-
-    var maxh = 180,
-        maxw = 180;
-    var ratio = maxh/maxw;
-    if (img.height/img.width > ratio){
-        if (img.height > maxh){
-            img.width = Math.round(img.width*(maxh/img.height));
-            img.height = maxh;
-        }
-    } else {
-        if (img.width > maxh){
-            img.height = Math.round(img.height*(maxw/img.width));
-            img.width = maxw;
-
-        }
-    }
-
-    img.style.top = (200 - img.height) / 2 + 'px';
-    img.style.left = (200 - img.width) / 2 + 'px';
-};
-
 function makeAlbumItem(imageItem) {
 
-	var li = UTILS.DOM.create('li'),
+    var li = UTILS.DOM.create('li'),
+        inner = UTILS.DOM.create('div'),
         img = UTILS.DOM.create('img'),
 		imgLink = UTILS.DOM.create('a'),
         del = UTILS.DOM.create('a'),
@@ -214,6 +202,8 @@ function makeAlbumItem(imageItem) {
 		download = UTILS.DOM.create('a'),
 		meme = UTILS.DOM.create('a'),
         copyInput = UTILS.DOM.create('input');
+
+    inner.classList.add('inner');
 
     del.href = copy.href = "#";
     del.innerHTML = "delete";
@@ -260,29 +250,10 @@ function makeAlbumItem(imageItem) {
 
     li.classList.add('loading');
 
-    img.style.display = 'none';
     img.id = 'image-' + imageItem.id;
 
     img.onload = function () {
-    	resizeImage(this);
-        if (!!~imageItem.link.indexOf('gif') && model.preferences.get('freezegifs')) {
-            var canvas = UTILS.DOM.create('canvas');
-            canvas.width = this.width;
-            canvas.height = this.height;
-            canvas.style.top = this.style.top;
-            canvas.style.left = this.style.left;
-            canvas.id = this.id;
-            canvas.getContext('2d').drawImage(this, 0, 0, this.width, this.height);
-            canvas.onclick = img.onclick;
-            li.appendChild(canvas);
-            li.onmouseover = function () { canvas.style.display = "none"; img.style.display = "block"; };
-            li.onmouseout = function () { img.style.display = "none"; canvas.style.display = "block"; };
-        }
-		else {
-			// Show the img only for non animated image. Your CPU will not cry anymore.
-			img.style.display = 'block';
-		}
-        
+    	
         li.classList.remove('loading');
 
     };
@@ -294,7 +265,10 @@ function makeAlbumItem(imageItem) {
 
     imgLink.href = imageItem.link;
     imgLink.classList.add('image-link');
-    img.src = imageItem.link + 't';
+    console.log(imageItem);
+    var il = imageItem.link.split('.'),
+        ext = il.pop();
+    img.src = il.join('.') + 't.' + ext;
 
     li.id = imageItem.id;
     if (imageItem.deletehash) {
@@ -327,12 +301,15 @@ function makeAlbumItem(imageItem) {
 
     imgLink.appendChild(img);
 
-    li.appendChild(copyInput);
-    li.appendChild(imgLink);
-    li.appendChild(del);
-    li.appendChild(copy);
-    li.appendChild(meme);
-    li.appendChild(download);
+    inner.appendChild(copyInput);
+    inner.appendChild(imgLink);
+    inner.appendChild(del);
+    inner.appendChild(copy);
+    inner.appendChild(meme);
+    inner.appendChild(download);
+
+    li.appendChild(inner);
+    
 
     return li;
 
@@ -340,12 +317,16 @@ function makeAlbumItem(imageItem) {
 
 function makeLoadingItem(image) {
     var li = UTILS.DOM.create('li'),
+        inner = UTILS.DOM.create('div'),
         progress = UTILS.DOM.create('progress');
 
     progress.setAttribute('min', '0');
     progress.setAttribute('max', '100');
-    
-    li.appendChild(image);
+
+    inner.classList.add('inner');
+
+    inner.appendChild(image);
+    li.appendChild(inner);
     li.appendChild(progress);
     li.classList.add('loading');
 
