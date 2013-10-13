@@ -10,6 +10,11 @@ body
 	font-family: helvetica, arial, sans-serif;	
 }
 
+body.loading
+{
+    cursor: progress;
+}
+
 p
 {
     color: #fff;

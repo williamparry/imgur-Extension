@@ -1,3 +1,5 @@
+/// <reference path="model.js" />
+
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-41081662-9']);
 _gaq.push(['_trackPageview']);
@@ -64,10 +66,10 @@ function makeImage(fileData) {
     img.onload = function () {
 
         img.style.display = 'block';
-        console.log(img, img.width, img.height)
-        if (img.width > img.height) {
+
+        if (img.width >= img.height) {
             img.width = 160;
-        } else if(img.height > img.width) {
+        } else if(img.height >= img.width) {
             img.height = 160;
         }
        
@@ -102,6 +104,9 @@ function makeItem(fileData) {
         progress.value = Math.floor(((e.loaded/e.total) * 100));
     });
 
+    evt.addEventListener('EVENT_PROGRESS', setBodyLoading);
+
+    evt.addEventListener('EVENT_COMPLETE', setBodyFinished);
                 
     evt.addEventListener('EVENT_ERROR', function (msg) {
     	
@@ -161,14 +166,18 @@ function makeURLItem(URL) {
 
 function deleteImage(image) {
 
-	var elem = document.getElementById(image.id);
+    var elem = document.getElementById(image.id);
 
     progress = UTILS.DOM.create('progress');
 
     elem.appendChild(progress);
-    var links = elem.querySelectorAll('a');
-    elem.removeChild(links[0]);
-    elem.removeChild(links[1]);
+
+    var inner = elem.getElementsByClassName('inner')[0],
+        links = inner.getElementsByClassName('action');
+
+    for (var i = 0; i < links.length - 1; i++) {
+        inner.removeChild(links[i]);
+    }
 
     elem.classList.add('loading');
     if (CurrentAlbum == "_thisComputer") {
@@ -262,7 +271,6 @@ function makeAlbumItem(imageItem) {
 
     imgLink.href = imageItem.link;
     imgLink.classList.add('image-link');
-    console.log(imageItem);
     var il = imageItem.link.split('.'),
         ext = il.pop();
     img.src = il.join('.') + 't.' + ext;
@@ -351,8 +359,32 @@ function criticalError() {
 	//window.location.reload();
 }
 
+function constructAlbumImages(images) {
+
+    hideStatusBar();
+
+    var ul = ECurrentAlbum.querySelectorAll('ul')[0];
+    
+    ul.innerHTML = "";
+    if (images && images.length > 0) {
+        for (var i = 0; i < images.length; i++) {
+            ul.appendChild(makeAlbumItem(images[i]));
+        }
+    } else {
+        showStatusBar("You have no images in this album. You can drag and drop images onto this page or print screen and paste straight onto this page to upload your images.");
+    }
+}
+
+function setBodyLoading() {
+    document.body.classList.add('loading');
+}
+
+function setBodyFinished() {
+    document.body.classList.remove('loading');
+}
+
 function changeAlbum(albumID) {
-	hideStatusBar();
+
     if (albumID == '_newAlbum') {
 
         var albumTitle = prompt('Album title');
@@ -381,52 +413,39 @@ function changeAlbum(albumID) {
     ECurrentAlbum = UTILS.DOM.id(CurrentAlbum);
     ECurrentAlbum.classList.add('active');
 
-    var ul = ECurrentAlbum.querySelectorAll('ul')[0];
-
     if (CurrentAlbum == "_thisComputer") {
-        var images = model.unsorted.get();
-        ul.innerHTML = "";
-        if (images.length > 0) {
-        	for (var i = 0; i < images.length; i++) {
-        		ul.insertBefore(makeAlbumItem(images[i]), ul.firstChild);
-        	}
-        } else {
-			showStatusBar("You have no images in this album. You can drag and drop images onto this page or print screen and paste straight onto this page to upload your images.");
-        }
+
+        constructAlbumImages(model.unsorted.get());
+
     } else if (CurrentAlbum == "_userAlbum") {
-        document.body.style.cursor = 'progress';
-        model.authenticated.fetchUserImages().addEventListener('EVENT_SUCCESS', function (images) {
-            document.body.style.cursor = 'default';
-            ul.innerHTML = "";
-            if (images) {
-                for (var i = 0; i < images.length; i++) {
-                    ul.insertBefore(makeAlbumItem(images[i]), ul.firstChild);
-                }
-            }
-        }).addEventListener('EVENT_ERROR', function (msg) {
-        	if (msg.status === 400) {
-        		criticalError();
-        	}
-        	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
-        	notification.show();
-        });
+
+        // Show immediately
+        constructAlbumImages(model.authenticated.getUserImages());
+
+        model.authenticated.fetchUserImages()
+            .addEventListener('EVENT_LOADING', setBodyLoading)
+            .addEventListener('EVENT_COMPLETE', setBodyFinished)
+            .addEventListener('EVENT_SUCCESS', constructAlbumImages)
+            .addEventListener('EVENT_ERROR', function (msg) {
+
+                if (msg.status === 400) {
+        		    criticalError();
+        	    }
+
+        	    var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
+        	    notification.show();
+            });
+
     } else {
-    	
-        document.body.style.cursor = 'progress';
-        var noImages = ECurrentAlbum.querySelectorAll('.no-images')[0];
-        model.authenticated.fetchAlbumImages(CurrentAlbum).addEventListener('EVENT_COMPLETE', function () {
-        	document.body.style.cursor = 'default';
-        	ul.innerHTML = "";
-        }).addEventListener('EVENT_SUCCESS', function (data) {
-        	
-        	if (data.images.length > 0) {
-        		for (var i = 0; i < data.images.length; i++) {
-        			ul.insertBefore(makeAlbumItem(data.images[i]), ul.firstChild);
-        		}
-        	} else {
-        		showStatusBar("You have no images in this album. You can drag and drop images onto this page or print screen and paste straight onto this page to upload your images.");
-        	}
-        }).addEventListener('EVENT_ERROR', function (msg) {
+        
+        // Show immediately
+        constructAlbumImages(model.authenticated.getAlbumImages(CurrentAlbum));
+
+        model.authenticated.fetchAlbumImages(CurrentAlbum)
+            .addEventListener('EVENT_LOADING', setBodyLoading)
+            .addEventListener('EVENT_COMPLETE', setBodyFinished)
+            .addEventListener('EVENT_SUCCESS', constructAlbumImages)
+            .addEventListener('EVENT_ERROR', function (msg) {
         	if (msg.status === 400) {
         		criticalError();
         	}
@@ -476,18 +495,18 @@ function initAuthenticated() {
 
             var opt = UTILS.DOM.create('option');
             opt.value = albums[i].id;
-            opt.text = albums[i].title || "(Untitled Album)";
+            opt.text = albums[i].title || "(API processing)";
 
             ENavSelect.appendChild(opt);
             EAlbums.appendChild(EAlbum);
         }
     }
-	/* Unexpected results
+	
     var newAlbumOpt = UTILS.DOM.create('option');
     newAlbumOpt.value = '_newAlbum';
     newAlbumOpt.text = '<New Album>';
     ENavSelect.appendChild(newAlbumOpt);
-	*/
+	
 }
 
 port.onMessage.addListener(function (msg) {

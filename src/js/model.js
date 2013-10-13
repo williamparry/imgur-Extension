@@ -480,7 +480,7 @@ function Model() {
     		
     		var self = this;
 
-    		this.evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE', 'EVENT_SUCCESS', 'EVENT_ERROR', 'EVENT_PROGRESS', 'ERROR_RATE_LIMITED']);
+    		this.evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE', 'EVENT_SUCCESS', 'EVENT_ERROR', 'EVENT_PROGRESS', 'EVENT_LOADING', 'ERROR_RATE_LIMITED']);
 
     		this.handler = function () {
 
@@ -502,7 +502,11 @@ function Model() {
 
     			xhr.onreadystatechange = function () {
 
-    				if (xhr.readyState === 4) {
+    			    if (xhr.readyState === 2) {
+
+    			        self.evtD.dispatchEvent('EVENT_LOADING');
+
+    			    } else if (xhr.readyState === 4) {
 
     					try {
 
@@ -562,6 +566,14 @@ function Model() {
     		return DAL.get('albums');
     	};
 
+    	this.getUserImages = function () {
+    	    return DAL.get('userImages');
+    	};
+
+    	this.getAlbumImages = function (albumID) {
+    	    return DAL.get('album/' + albumID);
+    	};
+
     	this.fetchUser = function () {
 
     		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me")
@@ -578,6 +590,12 @@ function Model() {
     		
     		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/images")
     		root.requestManager.queue(req);
+
+    	    // Handle caching
+    		req.evtD.addEventListener("EVENT_SUCCESS", function (images) {
+    		    DAL.set('userImages', images);
+    		});
+
     		return req.evtD;
 
     	};
@@ -586,7 +604,7 @@ function Model() {
 
     		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/albums");
     		root.requestManager.queue(req);
-    		console.log('fetch albums');
+    		
     		req.evtD.addEventListener("EVENT_SUCCESS", function (albums) {
     			DAL.set('albums', albums);
     		});
@@ -597,8 +615,13 @@ function Model() {
 
     	this.fetchAlbumImages = function (ID) {
 
-    		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/album/" + ID);
+    		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/album/" + ID + "/images");
     		root.requestManager.queue(req);
+
+            // Handle caching
+    		req.evtD.addEventListener("EVENT_SUCCESS", function (images) {
+    		    DAL.set('album/' + ID, images);
+    		});
     		return req.evtD;
 
     	};
