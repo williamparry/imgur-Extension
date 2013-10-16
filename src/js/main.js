@@ -359,11 +359,13 @@ function criticalError() {
 	//window.location.reload();
 }
 
-function constructAlbumImages(images) {
+function constructAlbumImages(images, album) {
 
     hideStatusBar();
 
-    var ul = ECurrentAlbum.querySelectorAll('ul')[0];
+    console.log('construct for album', album);
+
+    var ul = album.querySelectorAll('ul')[0];
     
     ul.innerHTML = "";
     if (images && images.length > 0) {
@@ -415,43 +417,53 @@ function changeAlbum(albumID) {
 
     if (CurrentAlbum == "_thisComputer") {
 
-        constructAlbumImages(model.unsorted.get());
+        constructAlbumImages(model.unsorted.get(), ECurrentAlbum);
 
     } else if (CurrentAlbum == "_userAlbum") {
 
-        // Show immediately
-        constructAlbumImages(model.authenticated.getUserImages());
+        // Set scope closure for current album
+        (function(EAlbum) {
 
-        model.authenticated.fetchUserImages()
-            .addEventListener('EVENT_LOADING', setBodyLoading)
-            .addEventListener('EVENT_COMPLETE', setBodyFinished)
-            .addEventListener('EVENT_SUCCESS', constructAlbumImages)
-            .addEventListener('EVENT_ERROR', function (msg) {
+            // Show immediately
+            constructAlbumImages(model.authenticated.getUserImages(), EAlbum);
 
-                if (msg.status === 400) {
+            model.authenticated.fetchUserImages()
+                .addEventListener('EVENT_LOADING', setBodyLoading)
+                .addEventListener('EVENT_COMPLETE', setBodyFinished)
+                .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
+                .addEventListener('EVENT_ERROR', function (msg) {
+
+                    if (msg.status === 400) {
+                        criticalError();
+                    }
+
+                    var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
+                    notification.show();
+                });
+
+        })(ECurrentAlbum);
+
+    } else {
+        
+        // Set scope closure for current album
+        (function (EAlbum) {
+
+            // Show immediately
+            constructAlbumImages(model.authenticated.getAlbumImages(CurrentAlbum), EAlbum);
+
+            model.authenticated.fetchAlbumImages(CurrentAlbum)
+                .addEventListener('EVENT_LOADING', setBodyLoading)
+                .addEventListener('EVENT_COMPLETE', setBodyFinished)
+                .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
+                .addEventListener('EVENT_ERROR', function (msg) {
+        	    if (msg.status === 400) {
         		    criticalError();
         	    }
-
         	    var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
         	    notification.show();
             });
 
-    } else {
-        
-        // Show immediately
-        constructAlbumImages(model.authenticated.getAlbumImages(CurrentAlbum));
-
-        model.authenticated.fetchAlbumImages(CurrentAlbum)
-            .addEventListener('EVENT_LOADING', setBodyLoading)
-            .addEventListener('EVENT_COMPLETE', setBodyFinished)
-            .addEventListener('EVENT_SUCCESS', constructAlbumImages)
-            .addEventListener('EVENT_ERROR', function (msg) {
-        	if (msg.status === 400) {
-        		criticalError();
-        	}
-        	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
-        	notification.show();
-        });
+        })(ECurrentAlbum);
     }
 
 }

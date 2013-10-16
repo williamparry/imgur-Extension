@@ -706,7 +706,7 @@ function Model() {
 
     		var self = this;
 
-    		this.evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE', 'EVENT_SUCCESS', 'EVENT_ERROR', 'EVENT_PROGRESS', 'ERROR_RATE_LIMITED']);
+    		this.evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE', 'EVENT_SUCCESS', 'EVENT_ERROR', 'EVENT_LOADING', 'EVENT_PROGRESS', 'ERROR_RATE_LIMITED']);
 
     		this.handler = function () {
 
@@ -728,7 +728,11 @@ function Model() {
 
     			xhr.onreadystatechange = function () {
 
-    				if (xhr.readyState === 4) {
+    			    if (xhr.readyState === 2) {
+
+    			        self.evtD.dispatchEvent('EVENT_LOADING');
+
+    			    } else if (xhr.readyState === 4) {
     					
     					try {
 
