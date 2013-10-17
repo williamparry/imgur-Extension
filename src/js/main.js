@@ -402,7 +402,13 @@ function constructAlbumImages(images, album) {
     ul.innerHTML = "";
     if (images && images.length > 0) {
         for (var i = 0; i < images.length; i++) {
-            ul.appendChild(makeAlbumItem(images[i]));
+            if (album.id !== '_thisComputer') {
+                ul.appendChild(makeAlbumItem(images[i]));
+
+            } else {
+                ul.insertBefore(makeAlbumItem(images[i]), ul.firstChild);
+            }
+            
         }
     } else {
         showStatusBar("You have no images in this album. You can drag and drop images onto this page or print screen and paste straight onto this page to upload your images.");
