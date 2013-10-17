@@ -235,7 +235,7 @@ function makeAlbumItem(imageItem) {
         var views = UTILS.DOM.create('span');
         views.classList.add('image-views');
         views.innerHTML = friendlyNumber(imageItem.views, 1) + " view" + (imageItem.views !== 1 ? "s" : "");
-        li.appendChild(views);
+        inner.appendChild(views);
     }
 
     img.onload = function () {

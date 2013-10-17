@@ -322,6 +322,7 @@ a#nav-options:hover {
 	width: 65px;
 	box-sizing: border-box;
 	text-align: center;
+    z-index: 2;
 }
 
 .album ul li iframe {
