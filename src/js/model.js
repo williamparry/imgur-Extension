@@ -644,6 +644,37 @@ function Model() {
 
     	};
 
+    	this.fetchGalleryProfile = function () {
+
+    	    var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/gallery_profile");
+    	    root.requestManager.queue(req);
+
+    	    req.evtD.addEventListener("EVENT_SUCCESS", function (galleryProfile) {
+    	        console.log(galleryProfile);
+    	        //DAL.set('galleryProfile', galleryProfile);
+    	    });
+
+    	    return req.evtD;
+
+    	};
+
+    	this.fetchUserStats = function () {
+
+    	    var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/stats");
+    	    root.requestManager.queue(req);
+
+    	    req.evtD.addEventListener("EVENT_SUCCESS", function (userStats) {
+    	        console.log(userStats);
+    	        //DAL.set('userStats', userStats);
+    	    });
+
+    	    return req.evtD;
+
+    	};
+
+
+        
+
     	this.makeAlbum = function (title) {
     		
     		var req = new signedRequest("POST", "https://api.imgur.com/3/album/", "title=" + title);
