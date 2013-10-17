@@ -96,7 +96,27 @@ function makeItem(fileData) {
     } else {
         evt = model.authenticated.sendImage(CurrentAlbum, fileData.split(',')[1]);
         evt.addEventListener('EVENT_SUCCESS', function (e) {
-            convertLoadingToAlbum(loadingItem, e);
+
+            if (CurrentAlbum == "_userFavouritesAlbum") {
+
+                favouriteEvt = model.authenticated.favouriteImage(e.id).addEventListener('EVENT_SUCCESS', function () {
+
+                    convertLoadingToAlbum(loadingItem, e);
+
+                }).addEventListener('EVENT_ERROR', function() {
+                  
+                    var notification = webkitNotifications.createNotification(e.link, "Error", "We were able to upload your image but not favourite it.");
+                    notification.show();
+
+                });
+
+                
+            } else {
+
+                convertLoadingToAlbum(loadingItem, e);
+
+            }
+
         });
     }
                 
@@ -109,11 +129,11 @@ function makeItem(fileData) {
     evt.addEventListener('EVENT_COMPLETE', setBodyFinished);
                 
     evt.addEventListener('EVENT_ERROR', function (msg) {
-    	
+
         var progress = loadingItem.querySelectorAll('progress')[0];
         loadingItem.removeChild(progress);
         loadingItem.classList.add('error');
-        var errorText = msg.text;
+        var errorText = msg;
 
         if (msg.status === 400) {
         	errorText += ' Please reload this page.';
@@ -202,120 +222,134 @@ function makeAlbumItem(imageItem) {
     var li = UTILS.DOM.create('li'),
         inner = UTILS.DOM.create('div'),
         img = UTILS.DOM.create('img'),
-		imgLink = UTILS.DOM.create('a'),
-        del = UTILS.DOM.create('a'),
-        copy = UTILS.DOM.create('a'),
-		download = UTILS.DOM.create('a'),
-		meme = UTILS.DOM.create('a'),
-        copyInput = UTILS.DOM.create('input');
+        imgLink = UTILS.DOM.create('a');
+       
 
-    inner.classList.add('inner');
-
-    del.href = copy.href = "#";
-    del.innerHTML = "delete";
-    del.classList.add('image-delete');
-    del.classList.add('action');
-    del.onclick = function (e) {
-        e.preventDefault();
-        if (del.innerHTML == 'sure?') {
-        	deleteImage(imageItem);
-        } else {
-            del.innerHTML = 'sure?';
-        }
-
-    };
-	
-    copy.innerHTML = "copy link";
-    copy.classList.add('image-copy');
-    copy.classList.add('action');
-    copy.onclick = function (e) {
-        e.preventDefault();
-        copyInput.select();
-        document.execCommand("Copy");
-        var copyNotification = UTILS.DOM.create('span');
-
-        copyNotification.innerHTML = 'copied';
-        copyNotification.classList.add('copy-notification');
-        li.appendChild(copyNotification);
-        setTimeout(function () {
-            li.removeChild(copyNotification);
-        }, 1000);
-    };
-
-    copyInput.type = 'text';
-    copyInput.value = imageItem.link;
-
-    meme.href = "http://www.winmeme.com?url=" + imageItem.link;
-    meme.innerHTML = "meme";
-    meme.classList.add('image-meme');
-    meme.classList.add('action');
-    meme.onclick = function (e) {
-    	e.preventDefault();
-    	chrome.tabs.create({ url: this.href });
-    };
-
+    li.id = imageItem.id;
     li.classList.add('loading');
 
-    img.id = 'image-' + imageItem.id;
+    inner.classList.add('inner');
+    li.appendChild(inner);
+
+    if (imageItem.views) {
+        var views = UTILS.DOM.create('span');
+        views.classList.add('image-views');
+        views.innerHTML = friendlyNumber(imageItem.views, 1) + " view" + (imageItem.views !== 1 ? "s" : "");
+        li.appendChild(views);
+    }
 
     img.onload = function () {
-    	
         li.classList.remove('loading');
-
     };
 
     imgLink.onclick = function (e) {
-    	e.preventDefault();
+        e.preventDefault();
         chrome.tabs.create({ "url": imageItem.link, "selected": true });
     };
 
     imgLink.href = imageItem.link;
     imgLink.classList.add('image-link');
-    var il = imageItem.link.split('.'),
-        ext = il.pop();
-    img.src = il.join('.') + 't.' + ext;
-
-    li.id = imageItem.id;
-    if (imageItem.deletehash) {
-    	li.setAttribute('data-deletehash', imageItem.deletehash);
-    }
-
-    download.href = "#";
-    download.innerHTML = "download";
-    download.classList.add('image-download');
-    download.classList.add('action');
-    download.onclick = function (e) {
-    	e.preventDefault();
-    	var existingIFrame = li.querySelectorAll('iframe')[0];
-    	if (existingIFrame) {
-    		li.removeChild(existingIFrame);
-    	}
-
-    	var iFrame = UTILS.DOM.create('iframe');
-    	iFrame.src = "http://imgur.com/download/" + imageItem.id;
-    	li.appendChild(iFrame);
-
-    };
-
-    if (imageItem.views) {
-    	var views = UTILS.DOM.create('span');
-    	views.classList.add('image-views');
-    	views.innerHTML = friendlyNumber(imageItem.views, 1) + " view" + (imageItem.views !== 1 ? "s" : "");
-    	li.appendChild(views);
-    }
-
     imgLink.appendChild(img);
-
-    inner.appendChild(copyInput);
     inner.appendChild(imgLink);
-    inner.appendChild(del);
-    inner.appendChild(copy);
-    inner.appendChild(meme);
-    inner.appendChild(download);
-
-    li.appendChild(inner);
     
 
+    if (!imageItem.is_album) {
+
+        var del = UTILS.DOM.create('a'),
+            copy = UTILS.DOM.create('a'),
+		    download = UTILS.DOM.create('a'),
+		    meme = UTILS.DOM.create('a'),
+            copyInput = UTILS.DOM.create('input');
+
+        del.href = copy.href = "#";
+        del.innerHTML = "delete";
+        del.classList.add('image-delete');
+        del.classList.add('action');
+        del.onclick = function (e) {
+            e.preventDefault();
+            if (del.innerHTML == 'sure?') {
+                deleteImage(imageItem);
+            } else {
+                del.innerHTML = 'sure?';
+            }
+
+        };
+
+        copy.innerHTML = "copy link";
+        copy.classList.add('image-copy');
+        copy.classList.add('action');
+        copy.onclick = function (e) {
+            e.preventDefault();
+            copyInput.select();
+            document.execCommand("Copy");
+            var copyNotification = UTILS.DOM.create('span');
+
+            copyNotification.innerHTML = 'copied';
+            copyNotification.classList.add('copy-notification');
+            li.appendChild(copyNotification);
+            setTimeout(function () {
+                li.removeChild(copyNotification);
+            }, 1000);
+        };
+
+        copyInput.type = 'text';
+        copyInput.value = imageItem.link;
+
+        meme.href = "http://www.winmeme.com?url=" + imageItem.link;
+        meme.innerHTML = "meme";
+        meme.classList.add('image-meme');
+        meme.classList.add('action');
+        meme.onclick = function (e) {
+            e.preventDefault();
+            chrome.tabs.create({ url: this.href });
+        };
+
+        img.id = 'image-' + imageItem.id;
+
+        var il = imageItem.link.split('.'),
+            ext = il.pop();
+        img.src = il.join('.') + 't.' + ext;
+
+        if (imageItem.deletehash) {
+            li.setAttribute('data-deletehash', imageItem.deletehash);
+        }
+
+        download.href = "#";
+        download.innerHTML = "download";
+        download.classList.add('image-download');
+        download.classList.add('action');
+        download.onclick = function (e) {
+            e.preventDefault();
+            var existingIFrame = li.querySelectorAll('iframe')[0];
+            if (existingIFrame) {
+                li.removeChild(existingIFrame);
+            }
+
+            var iFrame = UTILS.DOM.create('iframe');
+            iFrame.src = "http://imgur.com/download/" + imageItem.id;
+            li.appendChild(iFrame);
+
+        };
+
+        inner.appendChild(copyInput);
+        inner.appendChild(del);
+        inner.appendChild(copy);
+        inner.appendChild(meme);
+        inner.appendChild(download);
+
+    } else {
+        console.log('album', imageItem);
+        var title = UTILS.DOM.create('div');
+        title.innerHTML = imageItem.title;
+        title.classList.add('album-title');
+        inner.appendChild(title);
+
+        img.src = 'http://i.imgur.com/' + imageItem.cover + 't.jpg';
+
+    }
+
+    
+    
     return li;
 
 }
@@ -414,21 +448,22 @@ function changeAlbum(albumID) {
     CurrentAlbum = albumID;
     ECurrentAlbum = UTILS.DOM.id(CurrentAlbum);
     ECurrentAlbum.classList.add('active');
+    setBodyLoading();
 
-    if (CurrentAlbum == "_thisComputer") {
 
-        constructAlbumImages(model.unsorted.get(), ECurrentAlbum);
+    (function (EAlbum) {
 
-    } else if (CurrentAlbum == "_userAlbum") {
+        if (CurrentAlbum == "_thisComputer") {
 
-        // Set scope closure for current album
-        (function(EAlbum) {
+            constructAlbumImages(model.unsorted.get(), EAlbum);
+            setBodyFinished();
+
+        } else if (CurrentAlbum == "_userAlbum") {
 
             // Show immediately
             constructAlbumImages(model.authenticated.getUserImages(), EAlbum);
 
             model.authenticated.fetchUserImages()
-                .addEventListener('EVENT_LOADING', setBodyLoading)
                 .addEventListener('EVENT_COMPLETE', setBodyFinished)
                 .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
                 .addEventListener('EVENT_ERROR', function (msg) {
@@ -441,30 +476,46 @@ function changeAlbum(albumID) {
                     notification.show();
                 });
 
-        })(ECurrentAlbum);
 
-    } else {
-        
-        // Set scope closure for current album
-        (function (EAlbum) {
+        } else if (CurrentAlbum == "_userFavouritesAlbum") {
+
+            // Show immediately
+            constructAlbumImages(model.authenticated.getFavourites(), EAlbum);
+
+            model.authenticated.fetchFavourites()
+                .addEventListener('EVENT_COMPLETE', setBodyFinished)
+                .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
+                .addEventListener('EVENT_ERROR', function (msg) {
+
+                    if (msg.status === 400) {
+                        criticalError();
+                    }
+
+                    var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
+                    notification.show();
+                });
+
+
+        } else {
 
             // Show immediately
             constructAlbumImages(model.authenticated.getAlbumImages(CurrentAlbum), EAlbum);
 
             model.authenticated.fetchAlbumImages(CurrentAlbum)
-                .addEventListener('EVENT_LOADING', setBodyLoading)
                 .addEventListener('EVENT_COMPLETE', setBodyFinished)
                 .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
                 .addEventListener('EVENT_ERROR', function (msg) {
-        	    if (msg.status === 400) {
-        		    criticalError();
-        	    }
-        	    var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
-        	    notification.show();
-            });
+                    if (msg.status === 400) {
+                        criticalError();
+                    }
+                    var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
+                    notification.show();
+                });
 
-        })(ECurrentAlbum);
-    }
+        
+        }
+
+    })(ECurrentAlbum);
 
 }
 
@@ -489,7 +540,7 @@ function initAuthenticated() {
 
     var unsortedOpt = UTILS.DOM.create('option');
     unsortedOpt.value = '_thisComputer';
-    unsortedOpt.text = '- this computer -';
+    unsortedOpt.text = 'This Computer';
     ENavSelect.appendChild(unsortedOpt);
 
     var defaultAlbumOpt = UTILS.DOM.create('option');
@@ -500,7 +551,19 @@ function initAuthenticated() {
     var EUserAlbum = makeAlbum({ id: '_userAlbum' });
     EAlbums.appendChild(EUserAlbum);
 
+    var favouritesOpt = UTILS.DOM.create('option');
+    favouritesOpt.value = '_userFavouritesAlbum';
+    favouritesOpt.text = 'My Favourites';
+    ENavSelect.appendChild(favouritesOpt);
+
+    var EUserFavouritesAlbum = makeAlbum({ id: '_userFavouritesAlbum' });
+    EAlbums.appendChild(EUserFavouritesAlbum);
+
     if (albums) {
+
+        var albumsOptGroup = UTILS.DOM.create('optgroup');
+        albumsOptGroup.setAttribute('label', 'Albums');
+
         for (var i = 0; i < albums.length; i++) {
 
             var EAlbum = makeAlbum(albums[i]);
@@ -509,15 +572,17 @@ function initAuthenticated() {
             opt.value = albums[i].id;
             opt.text = albums[i].title || "(API processing)";
 
-            ENavSelect.appendChild(opt);
+            albumsOptGroup.appendChild(opt);
             EAlbums.appendChild(EAlbum);
         }
+
+        ENavSelect.appendChild(albumsOptGroup);
     }
 	
     var newAlbumOpt = UTILS.DOM.create('option');
     newAlbumOpt.value = '_newAlbum';
     newAlbumOpt.text = '<New Album>';
-    ENavSelect.appendChild(newAlbumOpt);
+    albumsOptGroup.appendChild(newAlbumOpt);
 	
 }
 

@@ -345,7 +345,8 @@ a#nav-options:hover {
 }
 
 
-.album ul li:hover span.image-views 
+.album ul li:hover span.image-views,
+.album ul li:hover div.album-title 
 {
 	opacity: 1;	
 }
@@ -394,6 +395,23 @@ a#nav-options:hover {
 .album ul li img:hover
 {
 	
+}
+
+.album ul li div.album-title {
+	position: absolute;
+	opacity: 0;
+	bottom: 0;
+    left: 0;
+	width: 100%;
+	text-align: center;
+	font-size: 11px;
+	background: rgba(33, 33, 33, 0.9);
+    padding: 5px 10px;
+	box-sizing: border-box;
+	color: #ddd;
+	text-shadow: 0 0 2px #000;
+	z-index: 1;
+
 }
 
 @-webkit-keyframes copynotificationanim {

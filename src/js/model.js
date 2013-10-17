@@ -574,6 +574,10 @@ function Model() {
     	    return DAL.get('album/' + albumID);
     	};
 
+    	this.getFavourites = function () {
+    	    return DAL.get('favourites');
+    	};
+
     	this.fetchUser = function () {
 
     		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me")
@@ -620,9 +624,23 @@ function Model() {
 
             // Handle caching
     		req.evtD.addEventListener("EVENT_SUCCESS", function (images) {
+    		    console.log(images);
     		    DAL.set('album/' + ID, images);
     		});
     		return req.evtD;
+
+    	};
+
+    	this.fetchFavourites = function () {
+
+    	    var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/favorites/images");
+    	    root.requestManager.queue(req);
+
+    	    req.evtD.addEventListener("EVENT_SUCCESS", function (favourites) {
+    	        DAL.set('favourites', favourites);
+    	    });
+
+    	    return req.evtD;
 
     	};
 
@@ -648,7 +666,7 @@ function Model() {
 
     		var postStr = "image=" + encode(image) + "&type=base64";
 
-    		if (album !== '_userAlbum') {
+    		if (album !== '_userAlbum' && album !== '_userFavouritesAlbum') {
     			postStr += "&album=" + album;
     		}
 
@@ -656,6 +674,17 @@ function Model() {
     		root.requestManager.queue(req);
 
     		return req.evtD;
+
+    	};
+
+    	this.favouriteImage = function (ID) {
+
+    	    _gaq.push(['_trackEvent', 'Image', 'Favourite Image', 'Authenticated']);
+
+    	    var req = new signedRequest("POST", "https://api.imgur.com/3/image/" + ID + "/favorite");
+    	    root.requestManager.queue(req);
+
+    	    return req.evtD;
 
     	};
 
