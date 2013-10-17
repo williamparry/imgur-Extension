@@ -338,7 +338,7 @@ function makeAlbumItem(imageItem) {
         inner.appendChild(download);
 
     } else {
-        console.log('album', imageItem);
+
         var title = UTILS.DOM.create('div');
         title.innerHTML = imageItem.title;
         title.classList.add('album-title');
@@ -396,8 +396,6 @@ function criticalError() {
 function constructAlbumImages(images, album) {
 
     hideStatusBar();
-
-    console.log('construct for album', album);
 
     var ul = album.querySelectorAll('ul')[0];
     
