@@ -304,7 +304,7 @@ a#nav-options:hover {
 .album ul li input 
 {
     position: absolute;
-    top: -9999px;
+    left: -99999px;
 }
 
 

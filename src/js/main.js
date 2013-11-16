@@ -19,6 +19,7 @@ var port = chrome.extension.connect({ name: "main" }),
 	ENavDownload,
 	ENavDelete,
     EAlbums,
+	CurrentOffset = 0,
     CurrentAlbum,
     ECurrentAlbum,
     EStatusBar,
@@ -395,22 +396,30 @@ function criticalError() {
 
 function constructAlbumImages(images, album) {
 
-    hideStatusBar();
+	hideStatusBar();
 
-    var ul = album.querySelectorAll('ul')[0];
+	var ul = album.querySelectorAll('ul')[0];
     
-    ul.innerHTML = "";
+	if(CurrentOffset === 0) {
+
+		ul.innerHTML = "";
+
+	}
+
     if (images && images.length > 0) {
         for (var i = 0; i < images.length; i++) {
             if (album.id !== '_thisComputer') {
-                ul.appendChild(makeAlbumItem(images[i]));
+
+            	if (!!!document.getElementById(images[i].id)) {
+            		ul.appendChild(makeAlbumItem(images[i]));
+            	}
 
             } else {
                 ul.insertBefore(makeAlbumItem(images[i]), ul.firstChild);
             }
             
         }
-    } else {
+    } else if(CurrentOffset === 0) {
         showStatusBar("You have no images in this album. You can drag and drop images onto this page or print screen and paste straight onto this page to upload your images.");
     }
 }
@@ -423,6 +432,82 @@ function setBodyFinished() {
     document.body.classList.remove('loading');
 }
 
+function isBodyLoading() {
+	return document.body.classList.contains('loading');
+}
+
+function fetchImages() {
+
+	setBodyLoading();
+
+	(function (EAlbum) {
+
+		if (CurrentAlbum == "_thisComputer") {
+
+			constructAlbumImages(model.unsorted.get(), EAlbum);
+			setBodyFinished();
+
+		} else if (CurrentAlbum == "_userAlbum") {
+
+			// Show immediately
+			constructAlbumImages(model.authenticated.getUserImages(CurrentOffset), EAlbum);
+
+			model.authenticated.fetchUserImages(CurrentOffset)
+                .addEventListener('EVENT_COMPLETE', setBodyFinished)
+                .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
+                .addEventListener('EVENT_ERROR', function (msg) {
+
+                	if (msg.status === 400) {
+                		criticalError();
+                	}
+
+                	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
+                	notification.show();
+                });
+
+
+		} else if (CurrentAlbum == "_userFavouritesAlbum") {
+
+			// Show immediately
+			constructAlbumImages(model.authenticated.getFavourites(CurrentOffset), EAlbum);
+
+			model.authenticated.fetchFavourites(CurrentOffset)
+                .addEventListener('EVENT_COMPLETE', setBodyFinished)
+                .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
+                .addEventListener('EVENT_ERROR', function (msg) {
+
+                	if (msg.status === 400) {
+                		criticalError();
+                	}
+
+                	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
+                	notification.show();
+                });
+
+
+		} else {
+
+			// Show immediately
+			constructAlbumImages(model.authenticated.getAlbumImages(CurrentAlbum, CurrentOffset), EAlbum);
+
+			model.authenticated.fetchAlbumImages(CurrentAlbum, CurrentOffset)
+                .addEventListener('EVENT_COMPLETE', setBodyFinished)
+                .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
+                .addEventListener('EVENT_ERROR', function (msg) {
+                	if (msg.status === 400) {
+                		criticalError();
+                	}
+                	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
+                	notification.show();
+                });
+
+
+		}
+
+	})(ECurrentAlbum);
+}
+
+// Can be called on init or change, or infinite scroll
 function changeAlbum(albumID) {
 
     if (albumID == '_newAlbum') {
@@ -441,85 +526,26 @@ function changeAlbum(albumID) {
         return;
     }
 
+    
+    console.log(model.authenticated.getAlbum(albumID));
+    if (albumID !== "_thisComputer") {
+    	CurrentOffset = 0;
+    	//CurrentLimit = model.authenticated.getAlbum(albumID).images_count;
+    }
+
     model.currentAlbum.set(albumID);
 
     ENavSelect.value = albumID;
 
     if (ECurrentAlbum) {
-        ECurrentAlbum.classList.remove('active');
+    	ECurrentAlbum.classList.remove('active');
     }
 
     CurrentAlbum = albumID;
     ECurrentAlbum = UTILS.DOM.id(CurrentAlbum);
     ECurrentAlbum.classList.add('active');
-    setBodyLoading();
 
-
-    (function (EAlbum) {
-
-        if (CurrentAlbum == "_thisComputer") {
-
-            constructAlbumImages(model.unsorted.get(), EAlbum);
-            setBodyFinished();
-
-        } else if (CurrentAlbum == "_userAlbum") {
-
-            // Show immediately
-            constructAlbumImages(model.authenticated.getUserImages(), EAlbum);
-
-            model.authenticated.fetchUserImages()
-                .addEventListener('EVENT_COMPLETE', setBodyFinished)
-                .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
-                .addEventListener('EVENT_ERROR', function (msg) {
-
-                    if (msg.status === 400) {
-                        criticalError();
-                    }
-
-                    var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
-                    notification.show();
-                });
-
-
-        } else if (CurrentAlbum == "_userFavouritesAlbum") {
-
-            // Show immediately
-            constructAlbumImages(model.authenticated.getFavourites(), EAlbum);
-
-            model.authenticated.fetchFavourites()
-                .addEventListener('EVENT_COMPLETE', setBodyFinished)
-                .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
-                .addEventListener('EVENT_ERROR', function (msg) {
-
-                    if (msg.status === 400) {
-                        criticalError();
-                    }
-
-                    var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
-                    notification.show();
-                });
-
-
-        } else {
-
-            // Show immediately
-            constructAlbumImages(model.authenticated.getAlbumImages(CurrentAlbum), EAlbum);
-
-            model.authenticated.fetchAlbumImages(CurrentAlbum)
-                .addEventListener('EVENT_COMPLETE', setBodyFinished)
-                .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
-                .addEventListener('EVENT_ERROR', function (msg) {
-                    if (msg.status === 400) {
-                        criticalError();
-                    }
-                    var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
-                    notification.show();
-                });
-
-        
-        }
-
-    })(ECurrentAlbum);
+    fetchImages();
 
 }
 
@@ -704,6 +730,21 @@ $(document).ready(function () {
 	} else {
 		ENavConnect.classList.remove('hide');
 	}
+
 	changeAlbum(model.currentAlbum.get());
+
+	window.onscroll = function () {
+		
+		if (document.body.scrollTop + window.innerHeight >= (document.body.clientHeight - 100)
+			&& CurrentAlbum !== "_thisComputer"
+			&& !isBodyLoading()
+		) {
+			
+			CurrentOffset++;
+			fetchImages();
+
+		}
+
+	}
 
 });

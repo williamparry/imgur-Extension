@@ -566,16 +566,36 @@ function Model() {
     		return DAL.get('albums');
     	};
 
-    	this.getUserImages = function () {
-    	    return DAL.get('userImages');
+    	this.getAlbum = function (id) {
+
+    		var albums = DAL.get('albums');
+    		
+    		if (albums.length > 0) {
+
+    			for (var i = 0; i < albums.length; i++) {
+
+    				if (albums[i].id === id) {
+    					return albums[i];
+    				}
+
+    			}
+
+    		}
+
+    		return null;
+
     	};
 
-    	this.getAlbumImages = function (albumID) {
-    	    return DAL.get('album/' + albumID);
+    	this.getUserImages = function (offset) {
+    	    return DAL.get('userImages/' + offset);
     	};
 
-    	this.getFavourites = function () {
-    	    return DAL.get('favourites');
+    	this.getAlbumImages = function (albumID, offset) {
+    	    return DAL.get('album/' + albumID + '/' + offset);
+    	};
+
+    	this.getFavourites = function (offset) {
+    	    return DAL.get('favourites/' + offset);
     	};
 
     	this.fetchUser = function () {
@@ -590,14 +610,14 @@ function Model() {
     		return req.evtD;
     	};
 
-    	this.fetchUserImages = function () {
-    		
-    		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/images")
+    	this.fetchUserImages = function (offset) {
+    		console.log(offset);
+    		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/images?page=" + offset)
     		root.requestManager.queue(req);
 
     	    // Handle caching
     		req.evtD.addEventListener("EVENT_SUCCESS", function (images) {
-    		    DAL.set('userImages', images);
+    		    DAL.set('userImages/' + offset, images);
     		});
 
     		return req.evtD;
@@ -610,6 +630,7 @@ function Model() {
     		root.requestManager.queue(req);
     		
     		req.evtD.addEventListener("EVENT_SUCCESS", function (albums) {
+    			console.log('set', albums);
     			DAL.set('albums', albums);
     		});
 
@@ -617,27 +638,28 @@ function Model() {
 
     	};
 
-    	this.fetchAlbumImages = function (ID) {
-
-    		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/album/" + ID + "/images");
+    	this.fetchAlbumImages = function (ID, offset) {
+    		
+    		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/album/" + ID + "/images?page=" + offset);
     		root.requestManager.queue(req);
 
             // Handle caching
     		req.evtD.addEventListener("EVENT_SUCCESS", function (images) {
-    		    console.log(images);
-    		    DAL.set('album/' + ID, images);
+    		    
+    			DAL.set('album/' + ID + '/' + offset, images);
+
     		});
     		return req.evtD;
 
     	};
 
-    	this.fetchFavourites = function () {
+    	this.fetchFavourites = function (offset) {
 
-    	    var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/favorites/images");
+    	    var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/favorites/images?page=" + offset);
     	    root.requestManager.queue(req);
 
     	    req.evtD.addEventListener("EVENT_SUCCESS", function (favourites) {
-    	        DAL.set('favourites', favourites);
+    	        DAL.set('favourites/' + offset, favourites);
     	    });
 
     	    return req.evtD;
