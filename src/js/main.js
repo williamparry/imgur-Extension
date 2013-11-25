@@ -27,6 +27,13 @@ var port = chrome.extension.connect({ name: "main" }),
 	localStream;
 
 
+// Send async call to get the album images
+// This will always be different to the count because on change of album it will be set to 0 and will be async
+
+
+// Current Offset needs to start at 0 because it needs to append the items sequentially
+// In theory because of the async nature, the current album could be End inbetween setting the changeAlbum
+// CurrentOffset could also have this problem
 
 function uploadFiles(e) {
     
@@ -83,6 +90,7 @@ function makeImage(fileData) {
 function friendlyNumber(n,d){x=(''+n).length,p=Math.pow,d=p(10,d);x-=x%3;return Math.round(n*d/p(10,x))/d+" kMGTPE"[x/3]}
 
 function makeItem(fileData) {
+	
     var ul = ECurrentAlbum.querySelectorAll('ul')[0],
         img = makeImage(fileData);
     var loadingItem = makeLoadingItem(img);
@@ -393,7 +401,7 @@ function makeAlbum(album) {
 function criticalError() {
 	//window.location.reload();
 }
-
+// Set a flag or set on the current album element
 function constructAlbumImages(images, album) {
 
 	hideStatusBar();
@@ -454,13 +462,21 @@ function fetchImages() {
 
 			model.authenticated.fetchUserImages(CurrentOffset)
                 .addEventListener('EVENT_COMPLETE', setBodyFinished)
-                .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
+                .addEventListener('EVENT_SUCCESS', function (images) {
+
+                	if (images.length > 0) {
+                		constructAlbumImages(images, EAlbum);
+                	} else {
+                		EAlbum.dataset.end = true;
+                	}
+
+                })
                 .addEventListener('EVENT_ERROR', function (msg) {
 
                 	if (msg.status === 400) {
                 		criticalError();
                 	}
-
+                	console.log(msg);
                 	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
                 	notification.show();
                 });
@@ -473,7 +489,13 @@ function fetchImages() {
 
 			model.authenticated.fetchFavourites(CurrentOffset)
                 .addEventListener('EVENT_COMPLETE', setBodyFinished)
-                .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
+                .addEventListener('EVENT_SUCCESS', function (images) {
+                	if (images.length > 0) {
+                		constructAlbumImages(images, EAlbum);
+                	} else {
+                		EAlbum.dataset.end = true;
+                	}
+                })
                 .addEventListener('EVENT_ERROR', function (msg) {
 
                 	if (msg.status === 400) {
@@ -492,7 +514,15 @@ function fetchImages() {
 
 			model.authenticated.fetchAlbumImages(CurrentAlbum, CurrentOffset)
                 .addEventListener('EVENT_COMPLETE', setBodyFinished)
-                .addEventListener('EVENT_SUCCESS', function (images) { constructAlbumImages(images, EAlbum) })
+                .addEventListener('EVENT_SUCCESS', function (images) {
+
+                	if (images.length > 0) {
+                		constructAlbumImages(images, EAlbum);
+                	} else {
+                		EAlbum.dataset.end = true;
+                	}
+
+                })
                 .addEventListener('EVENT_ERROR', function (msg) {
                 	if (msg.status === 400) {
                 		criticalError();
@@ -530,6 +560,7 @@ function changeAlbum(albumID) {
     console.log(model.authenticated.getAlbum(albumID));
     if (albumID !== "_thisComputer") {
     	CurrentOffset = 0;
+    	CurrentAlbumEnd = false;
     	//CurrentLimit = model.authenticated.getAlbum(albumID).images_count;
     }
 
@@ -538,12 +569,13 @@ function changeAlbum(albumID) {
     ENavSelect.value = albumID;
 
     if (ECurrentAlbum) {
-    	ECurrentAlbum.classList.remove('active');
+    	ECurrentAlbum.classList.remove('active')
     }
 
     CurrentAlbum = albumID;
     ECurrentAlbum = UTILS.DOM.id(CurrentAlbum);
-    ECurrentAlbum.classList.add('active');
+    ECurrentAlbum.classList.add('active')
+	ECurrentAlbum.dataset.end = false;
 
     fetchImages();
 
@@ -715,8 +747,6 @@ $(document).ready(function () {
 
 		}
 
-		
-
 	}
 
 	EStatusBarLink.addEventListener('click', function (e) {
@@ -734,9 +764,11 @@ $(document).ready(function () {
 	changeAlbum(model.currentAlbum.get());
 
 	window.onscroll = function () {
-		
+
+		// Could be out of sync with cache, but that's ok
 		if (document.body.scrollTop + window.innerHeight >= (document.body.clientHeight - 100)
 			&& CurrentAlbum !== "_thisComputer"
+			&& ECurrentAlbum.dataset.end === 'false'
 			&& !isBodyLoading()
 		) {
 			

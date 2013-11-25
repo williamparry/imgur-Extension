@@ -514,12 +514,10 @@ function Model() {
 
     						if (xhr.status === 200) {
 
-    							var resp = JSON.parse(xhr.responseText);
-    						
     							self.evtD.dispatchEvent('EVENT_COMPLETE', resp.data);
 
     							if (resp.success) {
-
+    								
     								self.evtD.dispatchEvent('EVENT_SUCCESS', resp.data);
 
     							} else {
@@ -542,7 +540,8 @@ function Model() {
     						}
 
     					} catch (ex) {
-    						console.log('imgur borked');
+    						console.log('imgur borked', ex);
+    						
     						self.evtD.dispatchEvent("EVENT_ERROR", "imgur API error. Please try again later.");
 
     					}
