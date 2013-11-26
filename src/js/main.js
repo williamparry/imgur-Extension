@@ -737,10 +737,12 @@ $(document).ready(function () {
 
 		var $activeAlbum = $(".album.active");
 
+		// Worst code
 		$("a.image-link", $activeAlbum).attr("rel", $activeAlbum.attr('id')).addClass('fancybox').fancybox({
 			afterClose: function () {
 				$(document).unbind('click.fb-start');
 				$(".fancybox").removeClass("fancybox");
+				$("#nav-options").fancybox();
 			}
 		}).first().trigger('click');
 
