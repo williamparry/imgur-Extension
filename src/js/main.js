@@ -17,6 +17,7 @@ var port = chrome.extension.connect({ name: "main" }),
     ENavConnect,
     ENavSelect,
 	ENavDownload,
+	ENavSlideShow,
 	ENavDelete,
     EAlbums,
 	CurrentOffset = 0,
@@ -252,10 +253,14 @@ function makeAlbumItem(imageItem) {
     };
 
     imgLink.onclick = function (e) {
-        e.preventDefault();
+    	e.preventDefault();
+		console.log(this.classList)
+    	if (this.classList.contains('fancybox')) {
+    		return;
+    	}
         chrome.tabs.create({ "url": imageItem.link, "selected": true });
     };
-
+    console.log(imageItem);
     imgLink.href = imageItem.link;
     imgLink.classList.add('image-link');
     imgLink.appendChild(img);
@@ -354,6 +359,9 @@ function makeAlbumItem(imageItem) {
         inner.appendChild(title);
 
         img.src = 'http://i.imgur.com/' + imageItem.cover + 't.jpg';
+
+		// Can't load into iframe
+        imgLink.setAttribute('data-fancybox-href', 'http://i.imgur.com/' + imageItem.cover + '.jpg');
 
     }
 
@@ -664,6 +672,7 @@ $(document).ready(function () {
 	ENavConnect = UTILS.DOM.id('nav-connect');
 	ENavDownload = UTILS.DOM.id('nav-download');
 	ENavDelete = UTILS.DOM.id('nav-delete');
+	ENavSlideShow = UTILS.DOM.id('nav-slideshow');
 	ENavSelect = UTILS.DOM.id('nav-albums');
 	EStatusBar = UTILS.DOM.id('status-bar');
 	EStatusBarLink = EStatusBar.querySelectorAll('span')[0];
@@ -720,6 +729,22 @@ $(document).ready(function () {
 		changeAlbum(this.value);
 	};
 
+	//$("#nav-slideshow").fancybox().trigger('click');
+
+	//$("#nav-slideshow").trigger('click');
+
+	ENavSlideShow.onclick = function (e) {
+
+		var $activeAlbum = $(".album.active");
+
+		$("a.image-link", $activeAlbum).attr("rel", $activeAlbum.attr('id')).addClass('fancybox').fancybox({
+			afterClose: function () {
+				$(document).unbind('click.fb-start');
+				$(".fancybox").removeClass("fancybox");
+			}
+		}).first().trigger('click');
+
+	};
 
 	ENavDownload.onclick = function (e) {
 		e.preventDefault();

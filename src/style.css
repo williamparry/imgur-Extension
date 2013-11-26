@@ -22,6 +22,7 @@ p
 
 .fancybox-lock .fancybox-overlay {
 	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 .cf:before,
@@ -158,7 +159,8 @@ header {
 
 a#nav-connect,
 a#nav-download,
-a#nav-delete {
+a#nav-delete,
+a#nav-slideshow {
 	padding: 0 15px;
 	line-height: 40px;
 	box-sizing: border-box;
@@ -169,7 +171,8 @@ a#nav-delete {
 
 	a#nav-connect:hover,
 	a#nav-download:hover,
-	a#nav-delete:hover {
+	a#nav-delete:hover,
+	a#nav-slideshow:hover {
 		text-decoration: underline;
 	}
 
