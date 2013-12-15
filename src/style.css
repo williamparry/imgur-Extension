@@ -2,7 +2,6 @@ html,
 body
 {
 	background: #000;
-
 }
 
 body
@@ -23,6 +22,11 @@ p
 .fancybox-lock .fancybox-overlay {
 	overflow-y: auto;
 	overflow-x: hidden;
+}
+
+.disable-hover,
+.disable-hover * {
+	pointer-events: none !important;
 }
 
 .cf:before,

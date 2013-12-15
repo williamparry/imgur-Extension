@@ -729,25 +729,6 @@ $(document).ready(function () {
 		changeAlbum(this.value);
 	};
 
-	//$("#nav-slideshow").fancybox().trigger('click');
-
-	//$("#nav-slideshow").trigger('click');
-
-	ENavSlideShow.onclick = function (e) {
-
-		var $activeAlbum = $(".album.active");
-
-		// Worst code
-		$("a.image-link", $activeAlbum).attr("rel", $activeAlbum.attr('id')).addClass('fancybox').fancybox({
-			afterClose: function () {
-				$(document).unbind('click.fb-start');
-				$(".fancybox").removeClass("fancybox");
-				$("#nav-options").fancybox();
-			}
-		}).first().trigger('click');
-
-	};
-
 	ENavDownload.onclick = function (e) {
 		e.preventDefault();
 		var downloadLinks = ECurrentAlbum.querySelectorAll('.image-download');
@@ -805,5 +786,19 @@ $(document).ready(function () {
 		}
 
 	}
+
+	var body = document.body,
+		timer;
+
+	window.addEventListener('scroll', function () {
+		clearTimeout(timer);
+		if (!body.classList.contains('disable-hover')) {
+			body.classList.add('disable-hover')
+		}
+
+		timer = setTimeout(function () {
+			body.classList.remove('disable-hover')
+		}, 500);
+	}, false);
 
 });
