@@ -254,13 +254,13 @@ function makeAlbumItem(imageItem) {
 
     imgLink.onclick = function (e) {
     	e.preventDefault();
-		console.log(this.classList)
+		
     	if (this.classList.contains('fancybox')) {
     		return;
     	}
         chrome.tabs.create({ "url": imageItem.link, "selected": true });
     };
-    console.log(imageItem);
+    
     imgLink.href = imageItem.link;
     imgLink.classList.add('image-link');
     imgLink.appendChild(img);
@@ -484,7 +484,7 @@ function fetchImages() {
                 	if (msg.status === 400) {
                 		criticalError();
                 	}
-                	console.log(msg);
+                	
                 	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
                 	notification.show();
                 });
@@ -565,7 +565,7 @@ function changeAlbum(albumID) {
     }
 
     
-    console.log(model.authenticated.getAlbum(albumID));
+   
     if (albumID !== "_thisComputer") {
     	CurrentOffset = 0;
     	CurrentAlbumEnd = false;

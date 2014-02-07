@@ -387,11 +387,12 @@ function Model() {
     		};
 
     		this.getToken = function (pin) {
-
+    			alert(pin);
     			var evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE', 'EVENT_SUCCESS', 'EVENT_ERROR']),
 					xhr = new XMLHttpRequest();
-
-    			xhr.open("GET", "https://imgur-extension-server.appspot.com/getToken/" + clientId + "/" + pin, true);
+    			
+    			xhr.open("POST", "https://api.imgur.com/metronomik/token", true);
+    			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     			xhr.onreadystatechange = function () {
 
     				if (xhr.readyState == 4) {
@@ -403,19 +404,19 @@ function Model() {
     						var resp = JSON.parse(xhr.responseText);
 
     						if (xhr.status === 200) {
-
+    							
     								authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
     								evtD.dispatchEvent("EVENT_SUCCESS");
 
     						} else {
-
+    							
     							console.warn('other error', xhr.status);
     							evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
 
     						}
 
     					} catch (ex) {
-
+    						alert('ex');
     						console.log('imgur borked');
     						evtD.dispatchEvent("EVENT_ERROR", "imgur API error. Please try again later.");
 
@@ -424,7 +425,7 @@ function Model() {
 
     				}
     			};
-    			xhr.send(null);
+    			xhr.send("grant_type=pin&response_type=pin&pin=" + pin);
     			return evtD;
     		};
 
@@ -434,7 +435,8 @@ function Model() {
     			var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']),
 					xhr = new XMLHttpRequest();
 
-    			xhr.open("GET", "https://imgur-extension-server.appspot.com/getRefreshToken/" + clientId + "/" + DAL.get('OAuth2.refresh_token'), true);
+    			xhr.open("POST", "https://api.imgur.com/metronomik/token", true);
+    			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
     			xhr.onreadystatechange = function () {
 
@@ -467,7 +469,7 @@ function Model() {
 
     			}
 
-    			xhr.send(null);
+    			xhr.send("grant_type=refresh_token&refresh_token=" + DAL.get('OAuth2.refresh_token'));
 
     			return evtD;
 

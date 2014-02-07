@@ -526,13 +526,13 @@ portMessenger.addEventListener("main.get_user", function () {
     	chrome.tabs.onRemoved.addListener(sendAuthAbortedMessage);
 
     	requestMessenger.addEventListener("oauth_verified", function (verifier) {
-
+    		
     		requestMessenger.removeEventListener("oauth_verified", arguments.callee);
 
     		chrome.tabs.remove(tab.id);
 
     		model.authenticated.oAuthManager.getToken(verifier.Data).addEventListener('EVENT_COMPLETE', function () {
-
+    			
     			authTab = -1;
     			chrome.tabs.onRemoved.removeListener(sendAuthAbortedMessage);
 
@@ -619,7 +619,7 @@ var ContextMenuSchedule = new function () {
 // Notifications
 
 var notifications = model.getNotifications();
-console.log(notifications);
+
 if (notifications.length > 0) {
 
 	for (var i = 0; i < notifications.length, notification = notifications[i]; i++) {
