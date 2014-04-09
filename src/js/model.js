@@ -387,7 +387,7 @@ function Model() {
     		};
 
     		this.getToken = function (pin) {
-    			alert(pin);
+    			
     			var evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE', 'EVENT_SUCCESS', 'EVENT_ERROR']),
 					xhr = new XMLHttpRequest();
     			
