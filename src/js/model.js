@@ -455,7 +455,7 @@ function Model() {
     						} else {
 
     							console.error('other error', xhr.status);
-    							evtD.dispatchEvent("EVENT_ERROR", { text: "Your authentication has expired. We're not allowed to extend it so you'll have to connect to imgur again. Sorry, we know it sucks.", status: xhr.status });
+    							evtD.dispatchEvent("EVENT_ERROR", { text: "Your authentication has expired. Please connect again.", status: xhr.status });
 
     						}
     					
