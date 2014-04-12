@@ -11,8 +11,7 @@ _gaq.push(['_setAccount', 'UA-41081662-9']);
 
 var model = new Model(),
     portMessenger = new UTILS.PortMessenger(),
-    requestMessenger = new UTILS.RequestMessenger(),
-    dpi = window.devicePixelRatio;
+    requestMessenger = new UTILS.RequestMessenger();
 
 // ------------------------------------------------------------------
 // Reset refreshing status when loading
@@ -45,13 +44,13 @@ function setContextMenus() {
     			requestMessenger.addEventListener("got_area", function (e) {
     				requestMessenger.removeEventListener("got_area", arguments.callee);
     				var canvas = document.createElement('canvas');
-    				canvas.width = e.Data.width * dpi;
-    				canvas.height = e.Data.height * dpi;
+    				canvas.width = e.Data.width;
+    				canvas.height = e.Data.height;
     				var ctx = canvas.getContext('2d');
     				var i = new Image();
     				i.src = img;
     				i.onload = function () {
-    					ctx.drawImage(i, e.Data.left, e.Data.top, e.Data.width * dpi, e.Data.height * dpi, 0, 0, e.Data.width * dpi, e.Data.height * dpi);
+    					ctx.drawImage(i, e.Data.left, e.Data.top, e.Data.width, e.Data.height, 0, 0, e.Data.width, e.Data.height);
     					evtD.dispatchEvent(evtD.EVENT_SUCCESS, canvas.toDataURL("image/png"));
     				};
     			}, true);

@@ -260,7 +260,6 @@ var UTILS = {
 				portMessenger = new UTILS.PortMessenger(),
         		canvas = document.createElement('canvas'),
         		ctx = canvas.getContext('2d'),
-                dpi = window.devicePixelRatio,
         		evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE']);
 
         	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {

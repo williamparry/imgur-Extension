@@ -13,6 +13,7 @@
 		"notifications",
 		"http://*/*",
 		"https://*/*",
+		"activeTab",
 		"clipboardWrite",
 		"clipboardRead"
 	],
