@@ -405,7 +405,7 @@ function Model() {
 
     						if (xhr.status === 200) {
     							
-    								authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
+    								authenticated.oAuthManager.set(resp.data.access_token, resp.data.refresh_token, resp.data.account_username);
     								evtD.dispatchEvent("EVENT_SUCCESS");
 
     						} else {
