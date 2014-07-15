@@ -386,9 +386,19 @@ function setContextMenus() {
     }
 
     function uploadCompleteNotification(message) {
-        var notification = webkitNotifications.createNotification("img/logo96.png", "Finished",  message);
-        notification.show();
-        setTimeout(function() { notification.cancel();}, 3000);
+
+    	chrome.notifications.create("", {
+
+    		type: "basic",
+    		iconUrl: "img/logo96.png",
+    		title: "Finished",
+    		message: message
+    	}, function (notificationId) {
+    		setTimeout(function () {
+    			chrome.notifications.clear(notificationId);
+    		}, 3000);
+    	});
+
     }
 
     function uploadCompleteTab(url) {
@@ -457,7 +467,15 @@ function showError(msg) {
 	if (typeof msg === "string") {
 
 		chrome.browserAction.setBadgeText({ 'text': '' });
-		webkitNotifications.createNotification("img/logo96.png", "imgur failed", msg).show();
+
+
+		chrome.notifications.create("", {
+
+			type: "basic",
+			iconUrl: "img/logo96.png",
+			title: "imgur failed",
+			message: msg
+		}, function () { });
 
 	} else {
 
@@ -616,12 +634,14 @@ var ContextMenuSchedule = new function () {
 }
 
 // Notifications
-
+/*
 var notifications = model.getNotifications();
 
 if (notifications.length > 0) {
 
 	for (var i = 0; i < notifications.length, notification = notifications[i]; i++) {
+
+
 
 		var popup = webkitNotifications.createHTMLNotification("notifications/" + notification + ".html");
 		popup.show();
@@ -632,3 +652,4 @@ if (notifications.length > 0) {
 
 
 }
+*/

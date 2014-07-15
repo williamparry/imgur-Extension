@@ -115,8 +115,13 @@ function makeItem(fileData) {
 
                 }).addEventListener('EVENT_ERROR', function() {
                   
-                    var notification = webkitNotifications.createNotification(e.link, "Error", "We were able to upload your image but not favourite it.");
-                    notification.show();
+                	chrome.notifications.create("", {
+
+                		type: "basic",
+                		iconUrl: e.link,
+                		title: "Error",
+                		message: "We were able to upload your image but not favourite it."
+                	}, function () { });
 
                 });
 
@@ -485,8 +490,14 @@ function fetchImages() {
                 		criticalError();
                 	}
                 	
-                	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
-                	notification.show();
+                	chrome.notifications.create("", {
+
+                		type: "basic",
+                		iconUrl: "img/logo96.png",
+                		title: "Error",
+                		message: msg.text
+                	}, function () { });
+
                 });
 
 
@@ -510,8 +521,14 @@ function fetchImages() {
                 		criticalError();
                 	}
 
-                	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
-                	notification.show();
+                	chrome.notifications.create("", {
+
+                		type: "basic",
+                		iconUrl: "img/logo96.png",
+                		title: "Error",
+                		message: msg.text
+                	}, function () { });
+
                 });
 
 
@@ -535,8 +552,15 @@ function fetchImages() {
                 	if (msg.status === 400) {
                 		criticalError();
                 	}
-                	var notification = webkitNotifications.createNotification("img/logo96.png", "Error", msg.text);
-                	notification.show();
+
+                	chrome.notifications.create("", {
+
+                		type: "basic",
+                		iconUrl: "img/logo96.png",
+                		title: "Error",
+                		message: msg.text
+                	}, function () { });
+
                 });
 
 
