@@ -18,12 +18,6 @@ We'd really like to get this extension translated into as many languages as we c
 
 * Some bugs may cascade and break other functionality, so when something is logged as fixed please reload the extension (refresh the chrome://extensions page) before retesting.
 
-### Current testers ###
-
-* https://github.com/Jobeanie123
-* https://github.com/jmlind
-* https://github.com/wrouesnel
-
 ## Developers ##
 
 The project is open source, so if you want to fix bugs or implement new features flick me a message and I'll show you the ropes. It's pretty straightforward with abstracted calls such as:
