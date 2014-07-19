@@ -395,7 +395,7 @@ function setContextMenus() {
     		message: message
     	}, function (notificationId) {
     		setTimeout(function () {
-    			chrome.notifications.clear(notificationId);
+    			chrome.notifications.clear(notificationId, function () { });
     		}, 3000);
     	});
 
