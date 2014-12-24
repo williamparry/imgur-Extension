@@ -326,8 +326,18 @@ function makeAlbumItem(imageItem) {
         img.id = 'image-' + imageItem.id;
 
         var il = imageItem.link.split('.'),
-            ext = il.pop();
-        img.src = il.join('.') + 't.' + ext;
+            ext = il.pop(),
+			imageName = il.join('.');
+
+        if (imageItem.gifv) {
+        	console.log(imageName);
+        	if (imageName[imageName.length - 1] === 'h') {
+        		imageName = imageName.substring(0, imageName.length - 1);
+        	}
+        	console.log(imageName);
+        }
+
+        img.src = imageName + 't.' + ext;
 
         if (imageItem.deletehash) {
             li.setAttribute('data-deletehash', imageItem.deletehash);
