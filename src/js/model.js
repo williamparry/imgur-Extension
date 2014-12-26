@@ -612,7 +612,7 @@ function Model() {
     	};
 
     	this.fetchUserImages = function (offset) {
-    		console.log(offset);
+    		
     		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/images?page=" + offset)
     		root.requestManager.queue(req);
 
@@ -666,6 +666,24 @@ function Model() {
     	    return req.evtD;
 
     	};
+
+    	this.fetchNotifications = function () {
+
+    		var req = new signedRequest("GET", "https://api.imgur.com/3/notification");
+    		root.requestManager.queue(req);
+
+    		return req.evtD;
+
+    	}
+
+    	this.setNotificationAsRead = function (id) {
+
+    		var req = new signedRequest("PUT", "https://api.imgur.com/3/notification/" + id);
+    		root.requestManager.queue(req);
+
+    		return req.evtD;
+
+    	}
 
     	this.fetchGalleryProfile = function () {
 

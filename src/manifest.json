@@ -2,7 +2,7 @@
 	"manifest_version" : 2,
 	"name": "imgur Extension by Metronomik",
 	"description": "Take screenshots, add images to your imgur account and upload images from your desktop using drag and drop.",
-	"version": "2.0.13",
+	"version": "2.0.14",
 	"icons": {
 		"16": "img/logo16.png",
 		"128": "img/logo128.png"
@@ -13,7 +13,8 @@
 		"notifications",
 		"http://*/*",
 		"https://*/*",
-		"activeTab",
+        "activeTab",
+        "alarms",
 		"clipboardWrite",
 		"clipboardRead"
 	],
@@ -22,11 +23,12 @@
 		"img/logo96.png"
 	],
 	"background": {
-		"scripts": [
-			"js/lib/utils-1.3.js",
-			"js/model.js",
-			"js/background.js"
-		]
+        "scripts": [
+            "js/lib/utils-1.3.js",
+            "js/model.js",
+            "js/background.js"
+        ],
+        "persistent": false
 	},
 	"minimum_chrome_version": "22",
 	"browser_action": { "default_icon": "img/logo19.png"},

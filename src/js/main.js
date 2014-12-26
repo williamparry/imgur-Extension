@@ -717,7 +717,7 @@ function initAuthenticated() {
     newAlbumOpt.value = '_newAlbum';
     newAlbumOpt.text = '<New Album>';
     albumsOptGroup.appendChild(newAlbumOpt);
-	
+
 }
 
 port.onMessage.addListener(function (msg) {

@@ -93,68 +93,33 @@ function setContextMenus() {
     }
 
 
-    var parentId = chrome.contextMenus.create({ "title": "imgur" });
+    var parentId = chrome.contextMenus.create({ "id": "imgur", "title": "imgur" });
 
     var capturePageContextMenuItem = chrome.contextMenus.create({
-    	"title": "capture page", "contexts": ["page"], parentId: parentId,
-        "onclick": function (obj) {
-        	UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
-                var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-                evt.type = "capture";
-                uploadDelegate(evt);
-            });
-         }
+    	"id": "unsorted.page",
+    	"title": "capture page",
+    	"contexts": ["page"],
+    	"parentId": parentId
     });
 
     var captureViewContextMenuItem = chrome.contextMenus.create({
-    	"title": "capture view", "contexts": ["page"], parentId: parentId,
-        "onclick": function (obj) {
-            chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-                var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-                evt.type = "capture";
-                uploadDelegate(evt);
-            });
-        }
+    	"id": "unsorted.view",
+    	"title": "capture view",
+    	"contexts": ["page"],
+    	"parentId": parentId
     });
 
     var captureAreaContextMenuItem = chrome.contextMenus.create({
-    	"title": "capture area", "contexts": ["page"], parentId: parentId,
-        "onclick": function (obj) {
-        	handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
-                var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-                evt.type = "capture";
-                uploadDelegate(evt);
-            });
-
-        }
+    	"id": "unsorted.area",
+    	"title": "capture area",
+    	"contexts": ["page"],
+    	"parentId": parentId
     });
 
     var addImageContextMenuItem = chrome.contextMenus.create({
-    	"title": "rehost image", "contexts": ["image"],
-    	"onclick": function (obj) {
-
-    		var evt;
-
-    		if (!!~obj.srcUrl.indexOf('file:')) {
-
-				showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
-				
-				return;
-					
-    			handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
-    				evt = model.unsorted.sendImage(encodeURIComponent(imgData.split(',')[1]));
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-    			});
-
-    		} else {
-
-    			evt = model.unsorted.sendImageURL(obj.srcUrl);
-    			evt.type = "rehost";
-    			uploadDelegate(evt);
-
-    		}
-        }
+    	"id": "unsorted.rehost",
+    	"title": "rehost image",
+    	"contexts": ["image"]
     });
 
     if(model.authenticated.oAuthManager.getAuthStatus()) {
@@ -166,135 +131,62 @@ function setContextMenus() {
 
 
         chrome.contextMenus.create({
-            "title": "- this computer -", "contexts": ["page"],
-            "onclick": function (obj) {
-                UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
-                    var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-                    evt.type = "capture";
-                    uploadDelegate(evt);
-                });
-
-            }, "parentId": capturePageContextMenuItem
+        	"id": "authenticated.page.thiscomputer",
+        	"title": "- this computer -",
+        	"contexts": ["page"],
+			"parentId": capturePageContextMenuItem
         });
 
 
         chrome.contextMenus.create({
-            "title": model.authenticated.getAccount().url, "contexts": ["page"],
-            "onclick": function (obj) {
-                UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
-                    var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
-                    evt.type = "capture";
-                    uploadDelegate(evt);
-                });
-
-            }, "parentId": capturePageContextMenuItem
+        	"id": "authenticated.page.me",
+        	"title": model.authenticated.getAccount().url,
+        	"contexts": ["page"],
+            "parentId": capturePageContextMenuItem
         });
 
 
         chrome.contextMenus.create({
-            "title": "- this computer -", "contexts": ["page"],
-            "onclick": function (obj) {
-                chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-                    var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-                    evt.type = "capture";
-                    uploadDelegate(evt);
-                });
-            }, "parentId": captureViewContextMenuItem
+        	"id": "authenticated.view.thiscomputer",
+        	"title": "- this computer -",
+        	"contexts": ["page"],
+        	"parentId": captureViewContextMenuItem
         });
 
         chrome.contextMenus.create({
-            "title": model.authenticated.getAccount().url, "contexts": ["page"],
-            "onclick": function (obj) {
-                chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-                    var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
-                    evt.type = "capture";
-                    uploadDelegate(evt);
-                });
-            }, "parentId": captureViewContextMenuItem
+        	"id": "authenticated.view.me",
+        	"title": model.authenticated.getAccount().url,
+        	"contexts": ["page"],
+        	"parentId": captureViewContextMenuItem
         });
 
         chrome.contextMenus.create({
-            "title": "- this computer -", "contexts": ["page"],
-            "onclick": function (obj) {
-                handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
-                    var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-                    evt.type = "capture";
-                    uploadDelegate(evt);
-                });
-
-            }, "parentId": captureAreaContextMenuItem
+        	"id": "authenticated.area.thiscomputer",
+        	"title": "- this computer -",
+        	"contexts": ["page"],
+        	"parentId": captureAreaContextMenuItem
         });
 
         chrome.contextMenus.create({
-            "title": model.authenticated.getAccount().url, "contexts": ["page"],
-            "onclick": function (obj) {
-                handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
-                    var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
-                    evt.type = "capture";
-                    uploadDelegate(evt);
-                });
-
-            }, "parentId": captureAreaContextMenuItem
+        	"id": "authenticated.area.me",
+        	"title": model.authenticated.getAccount().url,
+        	"contexts": ["page"],
+            "parentId": captureAreaContextMenuItem
         });
 
         chrome.contextMenus.create({
-            "title": "- this computer -", "contexts": ["image"],
-            "onclick": function (obj) {
-            	
-            	var evt;
-
-            	if (!!~obj.srcUrl.indexOf('file:')) {
-
-            		showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
-
-            		return;
-
-            		handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
-            			evt = model.unsorted.sendImage(encodeURIComponent(imgData.split(',')[1]));
-            			evt.type = "capture";
-            			uploadDelegate(evt);
-            		});
-
-            	} else {
-
-            		evt = model.unsorted.sendImageURL(obj.srcUrl);
-            		evt.type = "rehost";
-            		uploadDelegate(evt);
-            	}
-
-            	
-
-            }, "parentId": addImageContextMenuItem
+        	"id": "authenticated.image.thiscomputer",
+        	"title": "- this computer -",
+        	"contexts": ["image"],
+			"parentId": addImageContextMenuItem
         });
 
 
         chrome.contextMenus.create({
-            "title": model.authenticated.getAccount().url, "contexts": ["image"],
-            "onclick": function (obj) {
-
-            	var evt;
-
-            	if (!!~obj.srcUrl.indexOf('file:')) {
-
-            		showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
-
-            		return;
-
-            		handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
-            			var evt = model.authenticated.sendImage("_userAlbum", imgData.split(',')[1]);
-            			evt.type = "capture";
-            			uploadDelegate(evt);
-            		});
-
-            	} else {
-
-					evt = model.authenticated.sendImageURL("_userAlbum", obj.srcUrl);
-            		evt.type = "rehost";
-            		uploadDelegate(evt);
-
-            	}
-
-            }, "parentId": addImageContextMenuItem
+        	"id": "authenticated.image.me.",
+        	"title": model.authenticated.getAccount().url,
+        	"contexts": ["image"],
+        	"parentId": addImageContextMenuItem
         });
 			
         var authenticatedAlbums = model.authenticated.getAlbums();
@@ -309,71 +201,34 @@ function setContextMenus() {
 
 						// Extend
 						chrome.contextMenus.create({
-							"title": album.title, "contexts": ["page"],
-							"onclick": function (obj) {
-                            	UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
-									var evt = model.authenticated.sendImage(album.id, img.split(',')[1]);
-									evt.type = "capture";
-									uploadDelegate(evt);
-								});
-
-							}, "parentId": capturePageContextMenuItem
+							"id": "authenticated.page.album." + album.id,
+							"title": album.title,
+							"contexts": ["page"],
+							"parentId": capturePageContextMenuItem
 						});
 
 
 						chrome.contextMenus.create({
-							"title": album.title, "contexts": ["page"],
-							"onclick": function (obj) {
-								chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-									var evt = model.authenticated.sendImage(album.id, img.split(',')[1]);
-									evt.type = "capture";
-									uploadDelegate(evt);
-								});
-							}, "parentId": captureViewContextMenuItem
+							"id": "authenticated.view.album." + album.id,
+							"title": album.title,
+							"contexts": ["page"],
+							"parentId": captureViewContextMenuItem
 						});
 
 
 
 						chrome.contextMenus.create({
-							"title": album.title, "contexts": ["page"],
-							"onclick": function (obj) {
-								handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
-									var evt = model.authenticated.sendImage(album.id, img.split(',')[1]);
-									evt.type = "capture";
-									uploadDelegate(evt);
-
-								});
-
-							}, "parentId": captureAreaContextMenuItem
+							"id": "authenticated.area.album." + album.id,
+							"title": album.title,
+							"contexts": ["page"],
+							"parentId": captureAreaContextMenuItem
 						});
 
 						chrome.contextMenus.create({
-							"title": album.title, "contexts": ["image"],
-							"onclick": function (obj) {
-
-								var evt;
-
-								if (!!~obj.srcUrl.indexOf('file:')) {
-
-									showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
-
-									return;
-
-									handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
-										var evt = model.authenticated.sendImage(album.id, imgData.split(',')[1]);
-										evt.type = "capture";
-										uploadDelegate(evt);
-									});
-
-								} else {
-
-									evt = model.authenticated.sendImageURL(album.id, obj.srcUrl);
-									evt.type = "rehost";
-									uploadDelegate(evt);
-
-								}
-
-							}, "parentId": addImageContextMenuItem
+							"id": "authenticated.image.album." + album.id,
+							"title": album.title,
+							"contexts": ["image"],
+							"parentId": addImageContextMenuItem
 						});
 
 					}
@@ -381,9 +236,227 @@ function setContextMenus() {
 
 			}
 
-		}
+        }
+
+        
 
     }
+
+
+    chrome.contextMenus.onClicked.addListener(function (obj, tab) {
+    	
+    	if (obj.menuItemId === "unsorted.page") {
+
+    		UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+    			var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+    			evt.type = "capture";
+    			uploadDelegate(evt);
+    		});
+
+    	} else if (obj.menuItemId === "unsorted.view") {
+
+    			chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+    				var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+    			});
+
+    	} else if (obj.menuItemId ===  "unsorted.area") {
+
+    			handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
+    				var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+    			});
+
+    	} else if (obj.menuItemId === "unsorted.rehost") {
+
+    		var evt;
+
+    		if (!!~obj.srcUrl.indexOf('file:')) {
+
+    			showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
+
+    			return;
+
+    			handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
+    				evt = model.unsorted.sendImage(encodeURIComponent(imgData.split(',')[1]));
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+    			});
+
+    		} else {
+
+    			evt = model.unsorted.sendImageURL(obj.srcUrl);
+    			evt.type = "rehost";
+    			uploadDelegate(evt);
+
+    		}
+
+    	} else if (obj.menuItemId === "authenticated.page.thiscomputer") {
+
+    			UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+    				var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+    			});
+
+    	} else if (obj.menuItemId === "authenticated.page.me") {
+
+    			UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+    				var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+    			});
+
+    	} else if (obj.menuItemId === "authenticated.view.thiscomputer") {
+
+    			chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+    				var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+    			});
+
+    	} else if (obj.menuItemId === "authenticated.view.me") {
+
+    			chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+    				var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+    			});
+
+    	} else if (obj.menuItemId === "authenticated.area.thiscomputer") {
+
+    			handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
+    				var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+    			});
+
+    	} else if (obj.menuItemId === "authenticated.area.me") {
+
+    			handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
+    				var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+    			});
+
+    	} else if (obj.menuItemId === "authenticated.image.thiscomputer") {
+
+    			var evt;
+
+    			if (!!~obj.srcUrl.indexOf('file:')) {
+
+    				showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
+
+    				return;
+
+    				handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
+    					evt = model.unsorted.sendImage(encodeURIComponent(imgData.split(',')[1]));
+    					evt.type = "capture";
+    					uploadDelegate(evt);
+    				});
+
+    			} else {
+
+    				evt = model.unsorted.sendImageURL(obj.srcUrl);
+    				evt.type = "rehost";
+    				uploadDelegate(evt);
+    			}
+
+    	} else if (obj.menuItemId === "authenticated.image.me") {
+
+    		var evt;
+
+    		if (!!~obj.srcUrl.indexOf('file:')) {
+
+    			showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
+
+    			return;
+
+    			handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
+    				var evt = model.authenticated.sendImage("_userAlbum", imgData.split(',')[1]);
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+    			});
+
+    		} else {
+
+    			evt = model.authenticated.sendImageURL("_userAlbum", obj.srcUrl);
+    			evt.type = "rehost";
+    			uploadDelegate(evt);
+
+    		}
+
+    	} else {
+			
+    		var parts = obj.menuItemId.split('.');
+    		var albumId = parts.pop();
+    		var cmd = parts.join('.');
+    		
+    		if (cmd === 'authenticated.page.album') {
+
+    			UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+    				var evt = model.authenticated.sendImage(albumId, img.split(',')[1]);
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+    			});
+
+    		} else if (cmd === 'authenticated.view.album') {
+
+    			chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+    				var evt = model.authenticated.sendImage(albumId, img.split(',')[1]);
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+    			});
+
+    		} else if (cmd === 'authenticated.area.album') {
+
+    			var albumIdParts = obj.menuItemId.split('.');
+    			var albumId = albumIdParts[albumIdParts.length - 1];
+
+    			handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
+    				var evt = model.authenticated.sendImage(albumId, img.split(',')[1]);
+    				evt.type = "capture";
+    				uploadDelegate(evt);
+
+    			});
+
+    		} else if (cmd === 'authenticated.image.album') {
+
+    			var albumIdParts = obj.menuItemId.split('.');
+    			var albumId = albumIdParts[albumIdParts.length - 1];
+
+    			var evt;
+
+    			if (!!~obj.srcUrl.indexOf('file:')) {
+
+    				showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
+
+    				return;
+
+    				handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
+    					var evt = model.authenticated.sendImage(albumId, imgData.split(',')[1]);
+    					evt.type = "capture";
+    					uploadDelegate(evt);
+    				});
+
+    			} else {
+
+    				evt = model.authenticated.sendImageURL(albumId, obj.srcUrl);
+    				evt.type = "rehost";
+    				uploadDelegate(evt);
+
+    			}
+
+    		}
+
+    	}
+
+
+
+    })
+
 
     function uploadCompleteNotification(message) {
 
@@ -587,51 +660,61 @@ portMessenger.addEventListener("main.get_user", function () {
 });
 
 
-// Set itself to run
-var ContextMenuSchedule = new function () {
-	var defaultInterval = interval = 900000,
-        currentTimeout;
+function checkContextMenus() {
 
-    function send() {
-        if (model.authenticated.oAuthManager.getAuthStatus()) {
-        	model.authenticated.fetchAlbums().addEventListener('EVENT_SUCCESS', setContextMenus).addEventListener('EVENT_ERROR', function (msg) {
-        		if (msg.status === 400) {
-        			criticalError();
-        		}
-        	});
-        } else {
-            setContextMenus();
-        }
+	if (model.authenticated.oAuthManager.getAuthStatus()) {
 
-        clearTimeout(currentTimeout);
-        currentTimeout = null;
+		model.authenticated.fetchAlbums().addEventListener('EVENT_SUCCESS', setContextMenus).addEventListener('EVENT_ERROR', function (msg) {
+			if (msg.status === 400) {
+				criticalError();
+			}
+		});
 
-        currentTimeout = setTimeout(send, interval);
+	} else {
 
-    }
-    this.ResetInterval = function () {
-        interval = defaultInterval;
-        send()
-    }
-    this.SetInterval = function (newInterval) {
-        interval = newInterval;
-        send()
-    }
-    this.Start = function () {
-        send();
-    };
+		setContextMenus();
 
-    requestMessenger.addEventListener("album_monitor_new", function () {
-        ContextMenuSchedule.SetInterval(5000);
-    });
-
-    requestMessenger.addEventListener("album_monitor_closed", function () {
-        ContextMenuSchedule.ResetInterval();
-    });
-
-    this.Start();
+	}
 
 }
+
+function checkNotifications() {
+
+	if (model.authenticated.oAuthManager.getAuthStatus()) {
+
+		model.authenticated.fetchNotifications().addEventListener("EVENT_SUCCESS", function (notifications) {
+
+			console.log('notifications', notifications);
+
+		});
+
+	}
+
+}
+
+chrome.alarms.onAlarm.addListener(function (alarm) {
+
+	if (alarm.name === "ALARM_NOTIFICATIONS") {
+
+		checkNotifications();
+
+	} else if (alarm.name === "ALARM_CONTEXTMENUS") {
+		
+		checkContextMenus();
+
+	}
+
+});
+
+chrome.alarms.create("ALARM_NOTIFICATIONS", {
+	periodInMinutes: 15
+});
+
+chrome.alarms.create("ALARM_CONTEXTMENUS", {
+	periodInMinutes: 15
+});
+
+checkContextMenus();
 
 // Notifications
 /*
