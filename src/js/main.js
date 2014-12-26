@@ -358,7 +358,7 @@ function makeAlbumItem(imageItem) {
             }
 
             var iFrame = UTILS.DOM.create('iframe');
-            iFrame.src = "http://imgur.com/download/" + imageItem.id;
+            iFrame.src = "http://imgur.com/download/" + imageItem.id + (imageItem.title ? "/" + imageItem.title + ' - ' + imageItem.id : "");
             li.appendChild(iFrame);
 
         };
