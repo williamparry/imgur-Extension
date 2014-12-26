@@ -10,6 +10,8 @@ _gaq.push(['_trackPageview']);
 	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 
+
+
 var port = chrome.extension.connect({ name: "main" }),
     model = new Model(),
     EWrap,
@@ -263,7 +265,7 @@ function makeAlbumItem(imageItem) {
     	if (this.classList.contains('fancybox')) {
     		return;
     	}
-        chrome.tabs.create({ "url": imageItem.link, "selected": true });
+        chrome.tabs.create({ "url": this.href, "selected": true });
     };
     
     imgLink.href = imageItem.link;
@@ -332,10 +334,35 @@ function makeAlbumItem(imageItem) {
             ext = il.pop(),
 			imageName = il.join('.');
 
-        if (imageItem.gifv) {
+        var imageLinkHasH = imageName[imageName.length - 1] === 'h';
+
+    	// imgur thumbnail linking is all sorts of crazy
+    	// A gif may or may not have an "h" for "huge" added to its link
+    	// All gifs have a "gifv" property set even if they are not gifv
+
+    	// If they are a real gif (link doesn't have an h) leave it alone 
+    	// If they are a real gifv (link contains an h but gifv doesn't contain an h), remove the link h
+		// If they are a fake gifv (link contains an h and gifv contains an h) leave it alone
+
+    	// REAL GIF: http://i.imgur.com/8lAgRv1.gif
+    	// THUMB = Link (http://i.imgur.com/8lAgRv1.gif) + "t" = http://i.imgur.com/8lAgRv1t.gif
+    	// REAL GIFV: http://i.imgur.com/KJ0U7nj.gifv
+    	// THUMB = Link (http://i.imgur.com/KJ0U7njh.gif) - "h" + t = http://i.imgur.com/KJ0U7njt.gif
+    	// FAKE GIFV: http://i.imgur.com/9M2WG4h.gifv
+    	// THUMB = Link (http://i.imgur.com/9M2WG4h.gif) + "t" = http://i.imgur.com/9M2WG4ht.gif
+
+        if (imageLinkHasH) {
+
+        	var gifVFixArr = imageItem.gifv.split('.'); gifVFixArr.pop();
+        	var gifVFix = gifVFixArr.join('.');
+        	var realGifV = gifVFix[gifVFix.length - 1] !== 'h';
         	
-        	if (imageName[imageName.length - 1] === 'h') {
+			// Real gifV doesn't have an h
+        	if (realGifV) {
+
         		imageName = imageName.substring(0, imageName.length - 1);
+        		imgLink.href = imageItem.gifv;
+
         	}
         	
         }
@@ -379,7 +406,7 @@ function makeAlbumItem(imageItem) {
         img.src = 'http://i.imgur.com/' + imageItem.cover + 't.jpg';
 
 		// Can't load into iframe
-        imgLink.setAttribute('data-fancybox-href', 'http://i.imgur.com/' + imageItem.cover + '.jpg');
+        imgLink.setAttribute('data-is-album', 'true');
 
     }
 
@@ -642,7 +669,7 @@ function hideStatusBar() {
 
 function makeSlideShow() {
 
-	var images = document.querySelectorAll(".album.active li a.image-link");
+	var images = document.querySelectorAll(".album.active li a.image-link:not([data-is-album='true'])");
 
 	var imageItems = [];
 
@@ -798,7 +825,7 @@ $(document).ready(function () {
 		e.preventDefault();
 
 		var items = makeSlideShow();
-
+		
 		if (items.length === 0) {
 			alert('There are no images in the current album');
 			return;
