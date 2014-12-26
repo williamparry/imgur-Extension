@@ -267,6 +267,9 @@ function makeAlbumItem(imageItem) {
     };
     
     imgLink.href = imageItem.link;
+    if (imageItem.title) {
+		imgLink.title = imageItem.title;
+	}
     imgLink.classList.add('image-link');
     imgLink.appendChild(img);
     inner.appendChild(imgLink);
@@ -637,6 +640,33 @@ function hideStatusBar() {
 	EStatusBar.classList.remove('show');
 }
 
+function makeSlideShow() {
+
+	var images = document.querySelectorAll(".album.active li a.image-link");
+
+	var imageItems = [];
+
+	for (var i = 0, image; i < images.length; i++) {
+
+		var image = images[i];
+		var imageTitle = image.getAttribute('title');
+
+		var imageItem =  {
+			href: image.getAttribute('href')
+		}
+
+		if(imageTitle) {
+			imageItem.title = imageTitle;
+		}
+
+		imageItems.push(imageItem);
+
+	}
+
+	return imageItems;
+
+}
+
 function initAuthenticated() {
     ENavConnect.classList.add('hide');
     ENavSelect.classList.remove('hide');
@@ -761,6 +791,31 @@ $(document).ready(function () {
 
 	ENavSelect.onchange = function () {
 		changeAlbum(this.value);
+	};
+
+	ENavSlideShow.onclick = function (e) {
+
+		e.preventDefault();
+
+		var items = makeSlideShow();
+
+		if (items.length === 0) {
+			alert('There are no images in the current album');
+			return;
+		}
+
+		$.fancybox.open(items, {
+			padding: 0,
+			helpers: {
+				overlay: {
+					css: {
+						'background': '#000'
+					}
+				}
+			}
+		});
+
+
 	};
 
 	ENavDownload.onclick = function (e) {
