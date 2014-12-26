@@ -314,7 +314,7 @@ function makeAlbumItem(imageItem) {
         copyInput.type = 'text';
         copyInput.value = imageItem.link;
 
-        meme.href = "http://www.winmeme.com?url=" + imageItem.link;
+        meme.href = "http://imgur.com/memegen/create/" + imageItem.id;
         meme.innerHTML = "meme";
         meme.classList.add('image-meme');
         meme.classList.add('action');
@@ -330,11 +330,11 @@ function makeAlbumItem(imageItem) {
 			imageName = il.join('.');
 
         if (imageItem.gifv) {
-        	console.log(imageName);
+        	
         	if (imageName[imageName.length - 1] === 'h') {
         		imageName = imageName.substring(0, imageName.length - 1);
         	}
-        	console.log(imageName);
+        	
         }
 
         img.src = imageName + 't.' + ext;
