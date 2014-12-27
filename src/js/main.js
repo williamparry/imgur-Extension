@@ -501,6 +501,8 @@ function fetchImages() {
 
 	setBodyLoading();
 
+	var callback = null;
+
 	(function (EAlbum) {
 
 		if (CurrentAlbum == "_thisComputer") {
@@ -513,8 +515,8 @@ function fetchImages() {
 			// Show immediately
 			constructAlbumImages(model.authenticated.getUserImages(CurrentOffset), EAlbum);
 
-			model.authenticated.fetchUserImages(CurrentOffset)
-                .addEventListener('EVENT_COMPLETE', setBodyFinished)
+			callback = model.authenticated.fetchUserImages(CurrentOffset);
+            callback.addEventListener('EVENT_COMPLETE', setBodyFinished)
                 .addEventListener('EVENT_SUCCESS', function (images) {
 
                 	if (images.length > 0) {
@@ -546,8 +548,8 @@ function fetchImages() {
 			// Show immediately
 			constructAlbumImages(model.authenticated.getFavourites(CurrentOffset), EAlbum);
 
-			model.authenticated.fetchFavourites(CurrentOffset)
-                .addEventListener('EVENT_COMPLETE', setBodyFinished)
+			callback = model.authenticated.fetchFavourites(CurrentOffset);
+			callback.addEventListener('EVENT_COMPLETE', setBodyFinished)
                 .addEventListener('EVENT_SUCCESS', function (images) {
                 	if (images.length > 0) {
                 		constructAlbumImages(images, EAlbum);
@@ -577,8 +579,9 @@ function fetchImages() {
 			// Show immediately
 			constructAlbumImages(model.authenticated.getAlbumImages(CurrentAlbum, CurrentOffset), EAlbum);
 
-			model.authenticated.fetchAlbumImages(CurrentAlbum, CurrentOffset)
-                .addEventListener('EVENT_COMPLETE', setBodyFinished)
+			callback = model.authenticated.fetchAlbumImages(CurrentAlbum, CurrentOffset);
+
+                callback.addEventListener('EVENT_COMPLETE', setBodyFinished)
                 .addEventListener('EVENT_SUCCESS', function (images) {
 
                 	if (images.length > 0) {
@@ -607,6 +610,9 @@ function fetchImages() {
 		}
 
 	})(ECurrentAlbum);
+
+	return callback;
+
 }
 
 // Can be called on init or change, or infinite scroll
@@ -667,7 +673,7 @@ function hideStatusBar() {
 	EStatusBar.classList.remove('show');
 }
 
-function makeSlideShow() {
+function makeSlideShowItems() {
 
 	var images = document.querySelectorAll(".album.active li a.image-link:not([data-is-album='true'])");
 
@@ -752,6 +758,57 @@ port.onMessage.addListener(function (msg) {
     window.location.reload();
 });
 
+function checkForMoreImages() {
+
+	var callback = null;
+	// Could be out of sync with cache, but that's ok
+	if (CurrentAlbum !== "_thisComputer"
+		&& ECurrentAlbum.dataset.end === 'false'
+		&& !isBodyLoading()
+	) {
+
+		CurrentOffset++;
+		callback = fetchImages();
+
+	}
+
+	return callback;
+
+}
+
+function makeSlideShow(startIndex) {
+
+	var items = makeSlideShowItems();
+
+	if (items.length === 0) {
+		alert('There are no images in the current album');
+		return;
+	}
+
+	$.fancybox.open(items, {
+		padding: 0,
+		loop: false,
+		index: startIndex || 0,
+		onPlayEnd: function () {
+			var check = checkForMoreImages();
+			if (check) {
+				check.addEventListener("EVENT_SUCCESS", function () {
+					// Pretty dirty!
+					makeSlideShow(items.length - 1);
+				});
+			}
+		},
+		helpers: {
+			overlay: {
+				css: {
+					'background': '#000'
+				}
+			}
+		}
+	});
+
+}
+
 $(document).ready(function () {
 
 
@@ -824,24 +881,7 @@ $(document).ready(function () {
 
 		e.preventDefault();
 
-		var items = makeSlideShow();
-		
-		if (items.length === 0) {
-			alert('There are no images in the current album');
-			return;
-		}
-
-		$.fancybox.open(items, {
-			padding: 0,
-			helpers: {
-				overlay: {
-					css: {
-						'background': '#000'
-					}
-				}
-			}
-		});
-
+		makeSlideShow();
 
 	};
 
@@ -887,20 +927,14 @@ $(document).ready(function () {
 
 	changeAlbum(model.currentAlbum.get());
 
-	window.onscroll = function () {
+	
 
-		// Could be out of sync with cache, but that's ok
-		if (document.body.scrollTop + window.innerHeight >= (document.body.clientHeight - 100)
-			&& CurrentAlbum !== "_thisComputer"
-			&& ECurrentAlbum.dataset.end === 'false'
-			&& !isBodyLoading()
-		) {
-			
-			CurrentOffset++;
-			fetchImages();
-
+	window.onscroll = function() {
+	
+		if(document.body.scrollTop + window.innerHeight >= (document.body.clientHeight - 100)) {
+			checkForMoreImages();
 		}
-
+		
 	}
 
 	var body = document.body,

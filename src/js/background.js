@@ -537,10 +537,9 @@ function setContextMenus() {
 // Generic handler
 function showError(msg) {
 
+	chrome.browserAction.setBadgeText({ 'text': '' });
+
 	if (typeof msg === "string") {
-
-		chrome.browserAction.setBadgeText({ 'text': '' });
-
 
 		chrome.notifications.create("", {
 
