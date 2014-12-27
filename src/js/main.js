@@ -351,7 +351,7 @@ function makeAlbumItem(imageItem) {
     	// FAKE GIFV: http://i.imgur.com/9M2WG4h.gifv
     	// THUMB = Link (http://i.imgur.com/9M2WG4h.gif) + "t" = http://i.imgur.com/9M2WG4ht.gif
 
-        if (imageLinkHasH) {
+        if (imageItem.gifv && imageLinkHasH) {
 
         	var gifVFixArr = imageItem.gifv.split('.'); gifVFixArr.pop();
         	var gifVFix = gifVFixArr.join('.');
