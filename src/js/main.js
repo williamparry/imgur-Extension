@@ -259,16 +259,34 @@ function makeAlbumItem(imageItem) {
         li.classList.remove('loading');
     };
 
+    imgLink.href = imageItem.link;
     imgLink.onclick = function (e) {
     	e.preventDefault();
 		
     	if (this.classList.contains('fancybox')) {
     		return;
     	}
-        chrome.tabs.create({ "url": this.href, "selected": true });
+
+    	var items = makeSlideShowItems();
+
+    	var index = -1;
+
+    	for (var i = 0; i < items.length; i++) {
+
+    		if (items[i].href === imageItem.link) {
+    			index = i;
+    			break;
+    		}
+    	}
+
+		if(index !== -1) {
+    		makeSlideShow(index, items);
+		} else {
+			chrome.tabs.create({ "url": this.href, "selected": true });
+		}
     };
     
-    imgLink.href = imageItem.link;
+    
     if (imageItem.title) {
 		imgLink.title = imageItem.title;
 	}
@@ -776,9 +794,9 @@ function checkForMoreImages() {
 
 }
 
-function makeSlideShow(startIndex) {
+function makeSlideShow(startIndex, items) {
 
-	var items = makeSlideShowItems();
+	var items = items || makeSlideShowItems();
 
 	if (items.length === 0) {
 		alert('There are no images in the current album');
