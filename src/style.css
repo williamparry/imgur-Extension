@@ -19,10 +19,66 @@ p
     color: #fff;
 }
 
+.hide 
+{
+	display: none;
+}
+
 .fancybox-lock .fancybox-overlay {
 	overflow-y: auto;
 	overflow-x: hidden;
 }
+
+#comments {
+	position: absolute;
+	top: 0;
+	right: 0;
+	background: rgba(0,0,0,0.4);
+	width: 300px;
+	height: 100%;
+	color: #fff;
+	z-index: 999999;
+	overflow: auto;
+}
+
+#comments ul {
+
+}
+
+#comments li {
+
+	margin: 10px;
+	border: 1px solid #333;
+	padding: 5px;
+	font-size: 11px;
+	box-sizing: border-box;
+
+}
+
+#comments li img {
+	display: block;
+	max-width: 100%;
+	margin: 10px 0;
+}
+
+#comments li span {
+
+	display: block;
+	width: 100%;
+
+}
+
+#comments li a {
+	display: block;
+	margin-bottom: 10px;
+	color: #4E76C9;
+	text-decoration: none;
+	width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 
 .disable-hover,
 .disable-hover * {
@@ -148,11 +204,6 @@ header {
 			padding: 8px 20px 5px 5px;
 			margin-top: 4px;
 			margin-right: 10px;
-		}
-		    
-		nav .hide 
-		{
-		   display: none;
 		}
 
 		nav .btn {

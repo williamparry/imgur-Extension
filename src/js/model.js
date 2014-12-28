@@ -714,6 +714,18 @@ function Model() {
     	};
 
 
+    	this.fetchImageComments = function (imageId) {
+
+    		var req = new signedRequest("GET", "https://api.imgur.com/3/gallery/image/" + imageId + "/comments/");
+    		root.requestManager.queue(req);
+
+    		return req.evtD;
+
+    	};
+
+    	
+
+
         
 
     	this.makeAlbum = function (title) {

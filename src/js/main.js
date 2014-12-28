@@ -22,6 +22,7 @@ var port = chrome.extension.connect({ name: "main" }),
 	ENavSlideShow,
 	ENavDelete,
     EAlbums,
+	EComments,
 	CurrentOffset = 0,
     CurrentAlbum,
     ECurrentAlbum,
@@ -424,9 +425,11 @@ function makeAlbumItem(imageItem) {
         img.src = 'http://i.imgur.com/' + imageItem.cover + 't.jpg';
 
 		// Can't load into iframe
-        imgLink.setAttribute('data-is-album', 'true');
-
+        imgLink.dataset['is_album'] = true;
+        
     }
+
+    imgLink.dataset['id'] = imageItem.id;
 
     
     
@@ -693,7 +696,7 @@ function hideStatusBar() {
 
 function makeSlideShowItems() {
 
-	var images = document.querySelectorAll(".album.active li a.image-link:not([data-is-album='true'])");
+	var images = document.querySelectorAll(".album.active li a.image-link:not([data-is_album='true'])");
 
 	var imageItems = [];
 
@@ -703,7 +706,8 @@ function makeSlideShowItems() {
 		var imageTitle = image.getAttribute('title');
 
 		var imageItem =  {
-			href: image.getAttribute('href')
+			href: image.getAttribute('href'),
+			id: image.dataset.id
 		}
 
 		if(imageTitle) {
@@ -794,6 +798,49 @@ function checkForMoreImages() {
 
 }
 
+function hideComments() {
+
+	EComments.classList.add("hide");
+	EComments.innerHTML = "";
+
+}
+
+function showComments(comments) {
+
+	EComments.classList.remove("hide");
+	EComments.scrollTop = 0;
+
+	if(comments.length > 0) {
+
+		var ul = UTILS.DOM.create('ul');
+
+		for (var i = 0; i < comments.length; i++) {
+
+			var li = UTILS.DOM.create('li');
+			var span = UTILS.DOM.create('span');
+
+			span.innerHTML = '<a href="http://imgur.com/user/' + comments[i].author + '">' + comments[i].author + '</a>';
+			span.innerHTML += comments[i].comment.replace(/(http:\/\/\S+(\.png|\.jpg|\.gif))/g, '<img src="$1" />');
+			
+			li.appendChild(span);
+			ul.appendChild(li);
+
+		}
+
+		EComments.appendChild(ul);
+
+	} else {
+
+		var p = UTILS.DOM.create('p');
+		p.innerHTML = "No comments";
+		EComments.appendChild(p);
+
+	}
+
+
+
+}
+
 function makeSlideShow(startIndex, items) {
 
 	var items = items || makeSlideShowItems();
@@ -816,6 +863,29 @@ function makeSlideShow(startIndex, items) {
 				});
 			}
 		},
+
+		beforeShow: function () {
+			hideComments();
+		},
+
+		afterShow: function() {
+
+			if (CurrentAlbum === "_userFavouritesAlbum") {
+
+				model.authenticated.fetchImageComments(items[$.fancybox.current.index].id).addEventListener("EVENT_SUCCESS", function (comments) {
+
+					showComments(comments);
+
+				});
+
+			}
+
+		},
+
+		beforeClose: function() {
+			hideComments();
+		},
+
 		helpers: {
 			overlay: {
 				css: {
@@ -832,7 +902,8 @@ $(document).ready(function () {
 
     $("#nav-options").fancybox();
 
-	EAlbums = UTILS.DOM.id('albums');
+    EAlbums = UTILS.DOM.id('albums');
+    EComments = UTILS.DOM.id('comments');
 	EWrap = UTILS.DOM.id('wrap');
 	ENav = document.getElementsByTagName('nav')[0];
 	ENavConnect = UTILS.DOM.id('nav-connect');
