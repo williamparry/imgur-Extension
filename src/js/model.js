@@ -1,3 +1,16 @@
+/*****************************************
+******************************************
+
+This is a fairly old codebase
+Some of the code could be rewritten
+Read and understand it first
+
+http://www.jwz.org/doc/cadt.html
+
+******************************************
+******************************************/
+
+
 function Model() {
 
 	var root = this;
