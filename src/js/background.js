@@ -11,7 +11,8 @@ _gaq.push(['_setAccount', 'UA-41081662-9']);
 
 var model = new Model(),
     portMessenger = new UTILS.PortMessenger(),
-    requestMessenger = new UTILS.RequestMessenger();
+    requestMessenger = new UTILS.RequestMessenger(),
+    notifications = {}; // notificationId: { type: x }
 
 // ------------------------------------------------------------------
 // Reset refreshing status when loading
@@ -215,8 +216,6 @@ function setContextMenus() {
 							"parentId": captureViewContextMenuItem
 						});
 
-
-
 						chrome.contextMenus.create({
 							"id": "authenticated.area.album." + album.id,
 							"title": album.title,
@@ -412,9 +411,6 @@ function setContextMenus() {
 
     		} else if (cmd === 'authenticated.area.album') {
 
-    			var albumIdParts = obj.menuItemId.split('.');
-    			var albumId = albumIdParts[albumIdParts.length - 1];
-
     			handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
     				var evt = model.authenticated.sendImage(albumId, img.split(',')[1]);
     				evt.type = "capture";
@@ -423,9 +419,6 @@ function setContextMenus() {
     			});
 
     		} else if (cmd === 'authenticated.image.album') {
-
-    			var albumIdParts = obj.menuItemId.split('.');
-    			var albumId = albumIdParts[albumIdParts.length - 1];
 
     			var evt;
 
@@ -461,7 +454,6 @@ function setContextMenus() {
     function uploadCompleteNotification(message) {
 
     	chrome.notifications.create("", {
-
     		type: "basic",
     		iconUrl: "img/logo96.png",
     		title: "Finished",
@@ -677,15 +669,196 @@ function checkContextMenus() {
 
 }
 
+function arrayBufferDataUri(raw) {
+	var base64 = ''; var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'; var bytes = new Uint8Array(raw); var byteLength = bytes.byteLength; var byteRemainder = byteLength % 3; var mainLength = byteLength - byteRemainder; var a, b, c, d; var chunk; for (var i = 0; i < mainLength; i = i + 3) { chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]; a = (chunk & 16515072) >> 18; b = (chunk & 258048) >> 12; c = (chunk & 4032) >> 6; d = chunk & 63; base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d] }
+	if (byteRemainder == 1) { chunk = bytes[mainLength]; a = (chunk & 252) >> 2; b = (chunk & 3) << 4; base64 += encodings[a] + encodings[b] + '=='; }
+	else if (byteRemainder == 2) { chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1]; a = (chunk & 16128) >> 8; b = (chunk & 1008) >> 4; c = (chunk & 15) << 2; base64 += encodings[a] + encodings[b] + encodings[c] + '='; }
+	return "data:image/jpeg;base64," + base64;
+}
+
+function showReplyNotification(reply) {
+
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "http://i.imgur.com/" + reply.content.image_id + ".jpg", true); // file extension is not important
+	xhr.responseType = "arraybuffer";
+	xhr.onload = function () {
+
+		var img = arrayBufferDataUri(xhr.response);
+		
+		chrome.notifications.create(reply.id + "", {
+			type: "image",
+			iconUrl: "img/logo96.png",
+			imageUrl: img,
+			title: "New comment",
+			message: reply.content.comment
+		}, function (notificationId) {
+
+			notifications[notificationId] = { id: reply.id, type: "reply.single", image_id: reply.content.image_id };
+
+		});
+
+	};
+
+	xhr.send(null);
+
+}
+
+function showReplyNotifications(replies) {
+	
+	chrome.notifications.create(replies[0].id + "", {
+		type: "basic",
+		iconUrl: "img/logo96.png",
+		title: "New comments",
+		message: "You have " + replies.length + " replies"
+	}, function (notificationId) {
+
+		notifications[notificationId] = { ids: replies.map(function (item) { return item.id; }), type: "reply.multiple" };
+
+	});
+
+}
+
+function showMessageNotification(message) {
+
+	chrome.notifications.create(message.id + "", {
+		type: "basic",
+		iconUrl: "img/logo96.png",
+		title: "New message from " + message.content.from,
+		message: message.content.last_message
+	}, function (notificationId) {
+
+		notifications[notificationId] = { id: message.id, type: "message.single" };
+
+	});
+
+}
+
+function showMessageNotifications(messages) {
+
+	chrome.notifications.create(messages[0].id + "", {
+		type: "basic",
+		iconUrl: "img/logo96.png",
+		title: "New messages",
+		message: "You have " + messages.length + " messages"
+	}, function (notificationId) {
+		notifications[notificationId] = { ids: messages.map(function(item) { return item.id; }), type: "message.multiple" };
+	});
+
+}
+
+
+function handleNotifications(notifications) {
+
+	if (notifications.replies.length > 1) {
+
+		showReplyNotifications(notifications.replies);
+
+	} else if (notifications.replies.length > 0) {
+
+		showReplyNotification(notifications.replies[0]);
+
+	}
+
+	if (notifications.messages.length > 1) {
+
+		showMessageNotifications(notifications.messages);
+
+	} else if (notifications.messages.length > 0) {
+
+		showMessageNotification(notifications.messages[0]);
+
+	}
+
+
+}
+
+function setNotificationInfoAsRead(notificationInfo) {
+
+	var type = notificationInfo.type;
+
+	switch (type) {
+
+		case "reply.single":
+
+			model.authenticated.setNotificationAsRead(notificationInfo.id);
+
+			break;
+
+		case "reply.multiple":
+
+			model.authenticated.setNotificationsAsRead(notificationInfo.ids);
+
+			break;
+
+		case "message.single":
+
+			model.authenticated.setNotificationAsRead(notificationInfo.id);
+
+			break;
+
+		case "message.multiple":
+
+			model.authenticated.setNotificationsAsRead(notificationInfo.ids);
+
+			break;
+
+	}
+
+	delete notifications[notificationId];
+}
+
+chrome.notifications.onClicked.addListener(function (notificationId) {
+
+	var notificationInfo = notifications[notificationId];
+	var type = notificationInfo.type;
+
+	switch (type) {
+
+		case "reply.single":
+
+			chrome.tabs.create({ url: "http://imgur.com/" + notificationInfo.image_id, selected: true });
+
+			break;
+
+		case "reply.multiple":
+
+			chrome.tabs.create({ url: "http://imgur.com/account/messages/", selected: true });
+
+			break;
+
+		case "message.single":
+
+			chrome.tabs.create({ url: "http://imgur.com/account/messages/", selected: true });
+
+			break;
+
+		case "message.multiple":
+
+			chrome.tabs.create({ url: "http://imgur.com/account/messages/", selected: true });
+
+			break;
+
+	}
+	
+	setNotificationInfoAsRead(notificationInfo);
+
+});
+
+
+
+// Clicking on the item doesn't fire onClosed
+chrome.notifications.onClosed.addListener(function (notificationId) {
+
+	var notificationInfo = notifications[notificationId];
+	setNotificationInfoAsRead(notificationInfo);
+
+});
+
 function checkNotifications() {
 
 	if (model.authenticated.oAuthManager.getAuthStatus()) {
 
-		model.authenticated.fetchNotifications().addEventListener("EVENT_SUCCESS", function (notifications) {
-
-			console.log('notifications', notifications);
-
-		});
+		model.authenticated.fetchNotifications().addEventListener("EVENT_SUCCESS", handleNotifications);
 
 	}
 
@@ -706,7 +879,7 @@ chrome.alarms.onAlarm.addListener(function (alarm) {
 });
 
 chrome.alarms.create("ALARM_NOTIFICATIONS", {
-	periodInMinutes: 15
+	periodInMinutes: 5
 });
 
 chrome.alarms.create("ALARM_CONTEXTMENUS", {
@@ -714,6 +887,84 @@ chrome.alarms.create("ALARM_CONTEXTMENUS", {
 });
 
 checkContextMenus();
+checkNotifications();
+
+/*
+Test notifications
+
+handleNotifications({
+	"replies": [{
+		"id": 4511,
+		"account_id": 384077,
+		"viewed": false,
+		"content": {
+			"album_cover": null,
+			"author": "jasdev",
+			"author_id": 3698510,
+			"children": [],
+			"comment": "Reply test",
+			"datetime": 1406070774,
+			"deleted": false,
+			"downs": 0,
+			"id": 3616,
+			"image_id": "VK9VqcM",
+			"on_album": false,
+			"parent_id": 3615,
+			"points": 1,
+			"ups": 1,
+			"vote": null
+		}
+	}, {
+		"id": 4511,
+		"account_id": 384077,
+		"viewed": false,
+		"content": {
+			"album_cover": null,
+			"author": "jasdev",
+			"author_id": 3698510,
+			"children": [],
+			"comment": "Reply test",
+			"datetime": 1406070774,
+			"deleted": false,
+			"downs": 0,
+			"id": 3616,
+			"image_id": "VK9VqcM",
+			"on_album": false,
+			"parent_id": 3615,
+			"points": 1,
+			"ups": 1,
+			"vote": null
+		}
+	}],
+	"messages": [{
+		"id": 4523,
+		"account_id": 384077,
+		"viewed": false,
+		"content": {
+			"id": "620",
+			"from": "jasdev",
+			"account_id": "384077",
+			"with_account": "3698510",
+			"last_message": "wow. such message.",
+			"message_num": "103",
+			"datetime": 1406935917
+		}
+	}, {
+		"id": 4523,
+		"account_id": 384077,
+		"viewed": false,
+		"content": {
+			"id": "620",
+			"from": "jasdev",
+			"account_id": "384077",
+			"with_account": "3698510",
+			"last_message": "wow. such message.",
+			"message_num": "103",
+			"datetime": 1406935917
+		}
+	}]
+})
+*/
 
 // Notifications
 /*

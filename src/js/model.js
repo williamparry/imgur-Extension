@@ -697,6 +697,15 @@ function Model() {
 
     	}
 
+    	this.setNotificationsAsRead = function (ids) {
+
+    		var req = new signedRequest("PUT", "https://api.imgur.com/3/notification/", "ids=" + ids.join(','));
+    		root.requestManager.queue(req);
+
+    		return req.evtD;
+
+    	}
+
     	this.fetchGalleryProfile = function () {
 
     	    var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/gallery_profile");
