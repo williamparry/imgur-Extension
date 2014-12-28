@@ -17,6 +17,7 @@ var EClear,
     ETabOnRehost,
     ECopyOnCapture,
     ETabOnCapture,
+	EShowImagesInComments,
     ESubmit;
 
 
@@ -33,6 +34,7 @@ window.onload = function () {
     ETabOnRehost = UTILS.DOM.id('tab-on-rehost'),
     ECopyOnCapture = UTILS.DOM.id('copy-on-capture'),
     ETabOnCapture = UTILS.DOM.id('tab-on-capture'),
+	EShowImagesInComments = UTILS.DOM.id('show-images-in-comments'),
     ESubmit = UTILS.DOM.id('submit');
 
     if (!model.authenticated.oAuthManager.getAuthStatus()) {
@@ -48,7 +50,7 @@ window.onload = function () {
 
     ESubmit.disabled = "disabled";
 
-    EConnections.onclick = ECopyOnRehost.onclick = ETabOnRehost.onclick = ECopyOnCapture.onclick = ETabOnCapture.onclick = function () {
+    EConnections.onclick = ECopyOnRehost.onclick = ETabOnRehost.onclick = ECopyOnCapture.onclick = ETabOnCapture.onclick = EShowImagesInComments.onclick = function () {
         ESubmit.removeAttribute("disabled");
     };
 
@@ -57,7 +59,7 @@ window.onload = function () {
     ETabOnRehost.checked = model.preferences.get('tabonrehost');
     ECopyOnCapture.checked = model.preferences.get('copyoncapture');
     ETabOnCapture.checked = model.preferences.get('taboncapture');
-
+    EShowImagesInComments.checked = model.preferences.get('showimagesincomments');
 
     ESubmit.onclick = function () {
 
@@ -69,6 +71,7 @@ window.onload = function () {
         model.preferences.set('tabonrehost', ETabOnRehost.checked);
         model.preferences.set('copyoncapture', ECopyOnCapture.checked);
         model.preferences.set('taboncapture', ETabOnCapture.checked);
+        model.preferences.set('showimagesincomments', EShowImagesInComments.checked);
         setTimeout(function () {
             port.postMessage({ CMD: "sync" });
         }, 1000);

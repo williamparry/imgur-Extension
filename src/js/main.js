@@ -809,21 +809,36 @@ function showComments(comments) {
 
 	EComments.classList.remove("hide");
 	EComments.scrollTop = 0;
+	var showImagesInComments = model.preferences.get('showimagesincomments');
 
 	if(comments.length > 0) {
 
 		var ul = UTILS.DOM.create('ul');
 
+		//comments = comments.slice(0, Math.min(comments.length, 40));
+
 		for (var i = 0; i < comments.length; i++) {
 
-			var li = UTILS.DOM.create('li');
-			var span = UTILS.DOM.create('span');
+			if(!comments[i].deleted) {
 
-			span.innerHTML = '<a href="http://imgur.com/user/' + comments[i].author + '">' + comments[i].author + '</a>';
-			span.innerHTML += comments[i].comment.replace(/(http:\/\/\S+(\.png|\.jpg|\.gif))/g, '<img src="$1" />');
+				var li = UTILS.DOM.create('li');
+				var span = UTILS.DOM.create('span');
+
+				var commentContent = comments[i].comment;
+
+				if(showImagesInComments) {
+					commentContent = commentContent.replace(/(http:\/\/\S+(\.png|\.jpg|\.gif))/g, '<a href="$1" target="_blank"><img src="$1" /></a>')
+				} else {
+					commentContent = commentContent.replace(/(http:\/\/\S+(\.png|\.jpg|\.gif))/g, '<a href="$1" target="_blank">$1</a>')
+				}
+
+				span.innerHTML = '<a href="http://imgur.com/user/' + comments[i].author + '" class="user">' + comments[i].author + '</a>';
+				span.innerHTML += commentContent;
 			
-			li.appendChild(span);
-			ul.appendChild(li);
+				li.appendChild(span);
+				ul.appendChild(li);
+
+			}
 
 		}
 
@@ -866,23 +881,25 @@ function makeSlideShow(startIndex, items) {
 
 		beforeShow: function () {
 			hideComments();
+			this.isClosing = false;
 		},
 
 		afterShow: function() {
-
+			var self = this;
 			if (CurrentAlbum === "_userFavouritesAlbum") {
 
 				model.authenticated.fetchImageComments(items[$.fancybox.current.index].id).addEventListener("EVENT_SUCCESS", function (comments) {
-
-					showComments(comments);
-
+					if(!self.isClosing) {
+						showComments(comments);
+					}
 				});
 
 			}
 
 		},
 
-		beforeClose: function() {
+		beforeClose: function () {
+			this.isClosing = true;
 			hideComments();
 		},
 

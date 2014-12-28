@@ -122,6 +122,18 @@ function Model() {
     	DAL.set("currentVersion", currentVersion);
     }
 
+	// ------------------------------------------------------------------
+	// Upgrade x - 2.1.0
+	// Not sure why the code above is there
+	// It should be < (current version) and not 
+	// ------------------------------------------------------------------
+
+    if (DAL.get('showimagesincomments') == null) {
+
+    	DAL.set("showimagesincomments", false);
+
+    };
+
 
 	function encode(str) {
     	return encodeURIComponent(str).replace(/\!/g, "%21").

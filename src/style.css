@@ -30,7 +30,7 @@ p
 }
 
 #comments {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	right: 0;
 	background: rgba(0,0,0,0.4);
@@ -69,14 +69,21 @@ p
 }
 
 #comments li a {
-	display: block;
-	margin-bottom: 10px;
+	
 	color: #4E76C9;
 	text-decoration: none;
+	
+}
+
+#comments li a.user {
+
+	display: block;
+	margin-bottom: 10px;
 	width: 100%;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+
 }
 
 
