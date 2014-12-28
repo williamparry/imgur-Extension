@@ -808,6 +808,7 @@ function hideComments() {
 function showComments(comments) {
 
 	EComments.classList.remove("hide");
+	EComments.innerHTML = "";
 	EComments.scrollTop = 0;
 	var showImagesInComments = model.preferences.get('showimagesincomments');
 
