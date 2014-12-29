@@ -828,7 +828,8 @@ function showComments(comments) {
 				var commentContent = comments[i].comment;
 
 				if(showImagesInComments) {
-					commentContent = commentContent.replace(/(http:\/\/\S+(\.png|\.jpg|\.gif))/g, '<a href="$1" target="_blank"><img src="$1" /></a>')
+					commentContent = commentContent.replace(/(http:\/\/\S+(\.png|\.jpg|\.gif))/g, '<a href="$1" target="_blank"><img src="$1" /></a>');
+					commentContent = commentContent.replace(/(http:\/\/\S+(\.webm))/g, '<video controls><source src="$1" type="video/webm"></video>')
 				} else {
 					commentContent = commentContent.replace(/(http:\/\/\S+(\.png|\.jpg|\.gif))/g, '<a href="$1" target="_blank">$1</a>')
 				}

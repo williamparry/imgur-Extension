@@ -55,7 +55,8 @@ p
 
 }
 
-#comments li img {
+#comments li img,
+#comments li video {
 	display: block;
 	max-width: 100%;
 	margin: 10px 0;
