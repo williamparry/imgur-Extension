@@ -12,9 +12,9 @@ Any questions flick me an [email](mailto:william@metronomik.com) or [tweet](http
 
 You can enable this under "options" by clicking on the cog on the top right.
 
-* View your images in a slideshow
+* View your favourite images in a slideshow
    * View comments inside the slideshow
-* View albums in a slideshow
+* View your favourite albums in a slideshow
 * Option to view inline images and webm inside comments
 * Option to have your images open in a slideshow context instead of a new tab
 
