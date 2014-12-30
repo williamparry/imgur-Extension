@@ -938,7 +938,7 @@ checkContextMenus();
 toggleNotifications();
 
 
-
+/*
 handleNotifications({
 	"replies": [{
 		"id": 4511,
@@ -1011,7 +1011,7 @@ handleNotifications({
 		}
 	}]
 })
-
+*/
 
 // Notifications
 /*
