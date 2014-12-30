@@ -147,6 +147,21 @@ function Model() {
     	DAL.set("enablenotifications", false);
     	DAL.set("useslideshow", false);
 
+    	// Old schema
+		// Utils 1.3 doesn't have remove item
+    	localStorage.removeItem("notifications.winmeme");
+
+		// Using dot notation affects DAL retrieval
+    	DAL.set("notifications.update-2_1_0", {
+
+    		id: "update-2_1_0",
+			read: false,
+			title: "imgur Extension updated",
+			message: "See what's new in 2.1.0",
+			url: "https://goo.gl/xzQL4z"
+
+    	});
+
     };
 
 
@@ -166,13 +181,13 @@ function Model() {
 
 		var notifications = DAL.get("notifications"),
 			retArr = [];
-		
+
 		if (notifications) {
-
+			
 			for (var notification in notifications) {
-
-				if (!notifications[notification]) {
-					retArr.push(notification);
+				
+				if (!notifications[notification].read) {
+					retArr.push(notifications[notification]);
 				}
 
 			}
@@ -184,7 +199,9 @@ function Model() {
 	}
 
 	this.setNotified = function (key) {
-		DAL.set("notifications." + key, true);
+		var item = DAL.get("notifications." + key);
+		item.read = true;
+		DAL.set("notifications." + key, item);
 	}
 
 	// ------------------------------------------------------------------

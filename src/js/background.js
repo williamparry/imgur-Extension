@@ -791,7 +791,7 @@ function handleNotifications(notifications) {
 
 }
 
-function setNotificationInfoAsRead(notificationInfo) {
+function setNotificationInfoAsRead(notificationId, notificationInfo) {
 
 	var type = notificationInfo.type;
 
@@ -823,6 +823,7 @@ function setNotificationInfoAsRead(notificationInfo) {
 
 	}
 
+	console.log('delete')
 	delete notifications[notificationId];
 }
 
@@ -857,9 +858,15 @@ chrome.notifications.onClicked.addListener(function (notificationId) {
 
 			break;
 
+		case "update.url":
+
+			chrome.tabs.create({ url: notificationInfo.url, selected: true });
+
+			break;
+
 	}
 	
-	setNotificationInfoAsRead(notificationInfo);
+	setNotificationInfoAsRead(notificationId, notificationInfo);
 
 });
 
@@ -869,7 +876,7 @@ chrome.notifications.onClicked.addListener(function (notificationId) {
 chrome.notifications.onClosed.addListener(function (notificationId) {
 
 	var notificationInfo = notifications[notificationId];
-	setNotificationInfoAsRead(notificationInfo);
+	setNotificationInfoAsRead(notificationId, notificationInfo);
 
 });
 
@@ -1014,22 +1021,35 @@ handleNotifications({
 */
 
 // Notifications
-/*
+
 var notifications = model.getNotifications();
 
 if (notifications.length > 0) {
+	
+	for (var i = 0; i < notifications.length; i++) {
+		
+		(function (notification) {
+			
 
-	for (var i = 0; i < notifications.length, notification = notifications[i]; i++) {
+			chrome.notifications.create(notification.id, {
 
+				type: "basic",
+				iconUrl: "img/logo96.png",
+				title: notification.title,
+				message: notification.message
 
+			}, function (notificationId) {
 
-		var popup = webkitNotifications.createHTMLNotification("notifications/" + notification + ".html");
-		popup.show();
+				notifications[notificationId] = { url: notification.url, type: "update.url" };
 
-		model.setNotified(notification);
+				model.setNotified(notification.id);
+
+			});
+
+		})(notifications[i]);
+
 
 	}
 
 
 }
-*/
