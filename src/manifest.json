@@ -37,11 +37,6 @@
 		{
 			"matches": ["https://api.imgur.com/oauth2/pin?pin=*"],
 			"js": ["js/inject/verifier.js"]
-		},
-		{
-			"matches": ["http://*.imgur.com/","https://*.imgur.com/"],
-			"exclude_matches": ["http://www.imgur.com/","https://www.imgur.com/"],
-			"js": ["js/inject/albumMonitor.js"]
 		}
 	]
 }
