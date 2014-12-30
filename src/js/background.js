@@ -33,496 +33,513 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 	});
 });
 
-function setContextMenus() {
-    
-    chrome.contextMenus.removeAll();
+function handleCapture() {
+	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']);
+	chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+		chrome.tabs.getSelected(null, function (tab) {
+			requestMessenger.addEventListener("got_area", function (e) {
+				requestMessenger.removeEventListener("got_area", arguments.callee);
+				var canvas = document.createElement('canvas');
+				canvas.width = e.Data.width;
+				canvas.height = e.Data.height;
+				var ctx = canvas.getContext('2d');
+				var i = new Image();
+				i.src = img;
+				i.onload = function () {
+					ctx.drawImage(i, e.Data.left, e.Data.top, e.Data.width, e.Data.height, 0, 0, e.Data.width, e.Data.height);
+					evtD.dispatchEvent(evtD.EVENT_SUCCESS, canvas.toDataURL("image/png"));
+				};
+			}, true);
 
 
-    function handleCapture() {
-    	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS']);
-    	chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-    		chrome.tabs.getSelected(null, function (tab) {
-    			requestMessenger.addEventListener("got_area", function (e) {
-    				requestMessenger.removeEventListener("got_area", arguments.callee);
-    				var canvas = document.createElement('canvas');
-    				canvas.width = e.Data.width;
-    				canvas.height = e.Data.height;
-    				var ctx = canvas.getContext('2d');
-    				var i = new Image();
-    				i.src = img;
-    				i.onload = function () {
-    					ctx.drawImage(i, e.Data.left, e.Data.top, e.Data.width, e.Data.height, 0, 0, e.Data.width, e.Data.height);
-    					evtD.dispatchEvent(evtD.EVENT_SUCCESS, canvas.toDataURL("image/png"));
-    				};
-    			}, true);
-    			chrome.tabs.executeScript(tab.id, { file: "js/inject/captureArea.js" });
-    		});
-    	});
-    	return evtD;
-    }
+			chrome.tabs.executeScript(tab.id, { file: "js/inject/captureArea.js" }, function (info) {
+				
+				if (typeof info === "undefined") {
+					evtD.dispatchEvent(evtD.EVENT_ERROR, "Page could not be screen captured");
+				}
 
+			});
 
-    function addToClipboard(url) {
-    	var txt = UTILS.DOM.create('input');
-    	document.body.appendChild(txt);
-    	txt.value = url;
-    	txt.select();
-    	document.execCommand('copy');
-    	document.body.removeChild(txt);
-    }
-
-    function handleLocalFile(src) {
-
-    	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS']),
-			canvas = UTILS.DOM.create('canvas'),
-			ctx = canvas.getContext('2d'),
-			img = new Image();
-
-    	img.onload = function () {
-
-    		canvas.width = img.width;
-    		canvas.height = img.height;
-    		ctx.drawImage(img, 0, 0, img.width, img.height);
-
-    		evtD.dispatchEvent("EVENT_SUCCESS", canvas.toDataURL());
-
-    	}
-
-    	img.src = src;
-
-    	return evtD;
-    }
-
-
-    var parentId = chrome.contextMenus.create({ "id": "imgur", "title": "imgur" });
-
-    var capturePageContextMenuItem = chrome.contextMenus.create({
-    	"id": "unsorted.page",
-    	"title": "capture page",
-    	"contexts": ["page"],
-    	"parentId": parentId
-    });
-
-    var captureViewContextMenuItem = chrome.contextMenus.create({
-    	"id": "unsorted.view",
-    	"title": "capture view",
-    	"contexts": ["page"],
-    	"parentId": parentId
-    });
-
-    var captureAreaContextMenuItem = chrome.contextMenus.create({
-    	"id": "unsorted.area",
-    	"title": "capture area",
-    	"contexts": ["page"],
-    	"parentId": parentId
-    });
-
-    var addImageContextMenuItem = chrome.contextMenus.create({
-    	"id": "unsorted.rehost",
-    	"title": "rehost image",
-    	"contexts": ["image"]
-    });
-
-    if(model.authenticated.oAuthManager.getAuthStatus()) {
-        
-        chrome.contextMenus.update(capturePageContextMenuItem, { title: "capture page to" });
-        chrome.contextMenus.update(captureViewContextMenuItem, { title: "capture view to" });
-        chrome.contextMenus.update(captureAreaContextMenuItem, { title: "capture area to" });
-        chrome.contextMenus.update(addImageContextMenuItem, { title: "rehost image to" });
-
-
-        chrome.contextMenus.create({
-        	"id": "authenticated.page.thiscomputer",
-        	"title": "- this computer -",
-        	"contexts": ["page"],
-			"parentId": capturePageContextMenuItem
-        });
-
-
-        chrome.contextMenus.create({
-        	"id": "authenticated.page.me",
-        	"title": model.authenticated.getAccount().url,
-        	"contexts": ["page"],
-            "parentId": capturePageContextMenuItem
-        });
-
-
-        chrome.contextMenus.create({
-        	"id": "authenticated.view.thiscomputer",
-        	"title": "- this computer -",
-        	"contexts": ["page"],
-        	"parentId": captureViewContextMenuItem
-        });
-
-        chrome.contextMenus.create({
-        	"id": "authenticated.view.me",
-        	"title": model.authenticated.getAccount().url,
-        	"contexts": ["page"],
-        	"parentId": captureViewContextMenuItem
-        });
-
-        chrome.contextMenus.create({
-        	"id": "authenticated.area.thiscomputer",
-        	"title": "- this computer -",
-        	"contexts": ["page"],
-        	"parentId": captureAreaContextMenuItem
-        });
-
-        chrome.contextMenus.create({
-        	"id": "authenticated.area.me",
-        	"title": model.authenticated.getAccount().url,
-        	"contexts": ["page"],
-            "parentId": captureAreaContextMenuItem
-        });
-
-        chrome.contextMenus.create({
-        	"id": "authenticated.image.thiscomputer",
-        	"title": "- this computer -",
-        	"contexts": ["image"],
-			"parentId": addImageContextMenuItem
-        });
-
-
-        chrome.contextMenus.create({
-        	"id": "authenticated.image.me.",
-        	"title": model.authenticated.getAccount().url,
-        	"contexts": ["image"],
-        	"parentId": addImageContextMenuItem
-        });
 			
-        var authenticatedAlbums = model.authenticated.getAlbums();
-
-        if (authenticatedAlbums.length > 0) {
-
-			for (var i = 0; i < authenticatedAlbums.length; i++) {
-
-				(function (album) {
-
-					if (album.title) {
-
-						// Extend
-						chrome.contextMenus.create({
-							"id": "authenticated.page.album." + album.id,
-							"title": album.title,
-							"contexts": ["page"],
-							"parentId": capturePageContextMenuItem
-						});
+		});
+	});
+	return evtD;
+}
 
 
-						chrome.contextMenus.create({
-							"id": "authenticated.view.album." + album.id,
-							"title": album.title,
-							"contexts": ["page"],
-							"parentId": captureViewContextMenuItem
-						});
+function addToClipboard(url) {
+	var txt = UTILS.DOM.create('input');
+	document.body.appendChild(txt);
+	txt.value = url;
+	txt.select();
+	document.execCommand('copy');
+	document.body.removeChild(txt);
+}
 
-						chrome.contextMenus.create({
-							"id": "authenticated.area.album." + album.id,
-							"title": album.title,
-							"contexts": ["page"],
-							"parentId": captureAreaContextMenuItem
-						});
+function handleLocalFile(src) {
 
-						chrome.contextMenus.create({
-							"id": "authenticated.image.album." + album.id,
-							"title": album.title,
-							"contexts": ["image"],
-							"parentId": addImageContextMenuItem
-						});
+	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS']),
+		canvas = UTILS.DOM.create('canvas'),
+		ctx = canvas.getContext('2d'),
+		img = new Image();
 
-					}
-				})(authenticatedAlbums[i]);
+	img.onload = function () {
+
+		canvas.width = img.width;
+		canvas.height = img.height;
+		ctx.drawImage(img, 0, 0, img.width, img.height);
+
+		evtD.dispatchEvent("EVENT_SUCCESS", canvas.toDataURL());
+
+	}
+
+	img.src = src;
+
+	return evtD;
+}
+
+chrome.contextMenus.onClicked.addListener(function (obj, tab) {
+
+	if (obj.menuItemId === "unsorted.page") {
+
+		UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+			var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+			evt.type = "capture";
+			uploadDelegate(evt);
+		});
+
+	} else if (obj.menuItemId === "unsorted.view") {
+
+		chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+			var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+			evt.type = "capture";
+			uploadDelegate(evt);
+		});
+
+	} else if (obj.menuItemId === "unsorted.area") {
+
+		handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
+			var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+			evt.type = "capture";
+			uploadDelegate(evt);
+		}).addEventListener('EVENT_ERROR', function (msg) {
+			showError(msg);
+		});
+
+	} else if (obj.menuItemId === "unsorted.rehost") {
+
+		var evt;
+
+		if (!!~obj.srcUrl.indexOf('file:')) {
+
+			showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
+
+			return;
+
+			handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
+				evt = model.unsorted.sendImage(encodeURIComponent(imgData.split(',')[1]));
+				evt.type = "capture";
+				uploadDelegate(evt);
+			});
+
+		} else {
+
+			evt = model.unsorted.sendImageURL(obj.srcUrl);
+			evt.type = "rehost";
+			uploadDelegate(evt);
+
+		}
+
+	} else if (obj.menuItemId === "authenticated.page.thiscomputer") {
+
+		UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+			var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+			evt.type = "capture";
+			uploadDelegate(evt);
+		});
+
+	} else if (obj.menuItemId === "authenticated.page.me") {
+
+		UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+			var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
+			evt.type = "capture";
+			uploadDelegate(evt);
+		});
+
+	} else if (obj.menuItemId === "authenticated.view.thiscomputer") {
+
+		chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+			var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+			evt.type = "capture";
+			uploadDelegate(evt);
+		});
+
+	} else if (obj.menuItemId === "authenticated.view.me") {
+
+		chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+			var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
+			evt.type = "capture";
+			uploadDelegate(evt);
+		});
+
+	} else if (obj.menuItemId === "authenticated.area.thiscomputer") {
+
+		handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
+			var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
+			evt.type = "capture";
+			uploadDelegate(evt);
+		}).addEventListener('EVENT_ERROR', function (msg) {
+			showError(msg);
+		});
+
+	} else if (obj.menuItemId === "authenticated.area.me") {
+
+		handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
+			var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
+			evt.type = "capture";
+			uploadDelegate(evt);
+		}).addEventListener('EVENT_ERROR', function (msg) {
+			showError(msg);
+		});
+
+	} else if (obj.menuItemId === "authenticated.image.thiscomputer") {
+
+		var evt;
+
+		if (!!~obj.srcUrl.indexOf('file:')) {
+
+			showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
+
+			return;
+
+			handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
+				evt = model.unsorted.sendImage(encodeURIComponent(imgData.split(',')[1]));
+				evt.type = "capture";
+				uploadDelegate(evt);
+			});
+
+		} else {
+
+			evt = model.unsorted.sendImageURL(obj.srcUrl);
+			evt.type = "rehost";
+			uploadDelegate(evt);
+		}
+
+	} else if (obj.menuItemId === "authenticated.image.me") {
+
+		var evt;
+
+		if (!!~obj.srcUrl.indexOf('file:')) {
+
+			showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
+
+			return;
+
+			handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
+				var evt = model.authenticated.sendImage("_userAlbum", imgData.split(',')[1]);
+				evt.type = "capture";
+				uploadDelegate(evt);
+			});
+
+		} else {
+
+			evt = model.authenticated.sendImageURL("_userAlbum", obj.srcUrl);
+			evt.type = "rehost";
+			uploadDelegate(evt);
+
+		}
+
+	} else {
+
+		var parts = obj.menuItemId.split('.');
+		var albumId = parts.pop();
+		var cmd = parts.join('.');
+
+		if (cmd === 'authenticated.page.album') {
+
+			UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
+				var evt = model.authenticated.sendImage(albumId, img.split(',')[1]);
+				evt.type = "capture";
+				uploadDelegate(evt);
+			});
+
+		} else if (cmd === 'authenticated.view.album') {
+
+			chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+				var evt = model.authenticated.sendImage(albumId, img.split(',')[1]);
+				evt.type = "capture";
+				uploadDelegate(evt);
+			});
+
+		} else if (cmd === 'authenticated.area.album') {
+
+			handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
+				var evt = model.authenticated.sendImage(albumId, img.split(',')[1]);
+				evt.type = "capture";
+				uploadDelegate(evt);
+
+			}).addEventListener('EVENT_ERROR', function (msg) {
+				showError(msg);
+			});
+
+		} else if (cmd === 'authenticated.image.album') {
+
+			var evt;
+
+			if (!!~obj.srcUrl.indexOf('file:')) {
+
+				showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
+
+				return;
+
+				handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
+					var evt = model.authenticated.sendImage(albumId, imgData.split(',')[1]);
+					evt.type = "capture";
+					uploadDelegate(evt);
+				});
+
+			} else {
+
+				evt = model.authenticated.sendImageURL(albumId, obj.srcUrl);
+				evt.type = "rehost";
+				uploadDelegate(evt);
 
 			}
 
-        }
+		}
 
-        
+	}
 
-    }
 
 
-    chrome.contextMenus.onClicked.addListener(function (obj, tab) {
-    	
-    	if (obj.menuItemId === "unsorted.page") {
+})
 
-    		UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
-    			var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-    			evt.type = "capture";
-    			uploadDelegate(evt);
-    		});
 
-    	} else if (obj.menuItemId === "unsorted.view") {
+function uploadCompleteNotification(message) {
 
-    			chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-    				var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-    			});
+	chrome.notifications.create("imgur.finished", {
+		type: "basic",
+		iconUrl: "img/logo96.png",
+		title: "Finished",
+		message: message
+	}, function (notificationId) {
 
-    	} else if (obj.menuItemId ===  "unsorted.area") {
+		setTimeout(function () {
+			chrome.notifications.clear(notificationId, function () { });
+		}, 3000);
+	});
 
-    			handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
-    				var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-    			});
+}
 
-    	} else if (obj.menuItemId === "unsorted.rehost") {
+function uploadCompleteTab(url) {
+	chrome.tabs.create({ "url": url, "selected": true });
+}
 
-    		var evt;
+function uploadDelegate(evt) {
 
-    		if (!!~obj.srcUrl.indexOf('file:')) {
+	chrome.browserAction.setBadgeText({ 'text': '0' });
 
-    			showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
+	evt.addEventListener(evt.EVENT_PROGRESS, function (e) {
+		chrome.browserAction.setBadgeText({ 'text': String(Math.floor(((e.loaded / e.total) * 100))) });
+	});
 
-    			return;
+	evt.addEventListener(evt.EVENT_COMPLETE, function () {
+		chrome.browserAction.setBadgeText({ 'text': '' });
+	});
 
-    			handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
-    				evt = model.unsorted.sendImage(encodeURIComponent(imgData.split(',')[1]));
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-    			});
+	evt.addEventListener(evt.EVENT_SUCCESS, function (data) {
 
-    		} else {
+		if (evt.type == "capture") {
 
-    			evt = model.unsorted.sendImageURL(obj.srcUrl);
-    			evt.type = "rehost";
-    			uploadDelegate(evt);
+			if (model.preferences.get('copyoncapture')) {
+				addToClipboard(data.link);
+				if (model.preferences.get('taboncapture')) {
+					uploadCompleteNotification("copied to your clipboard");
+				}
+			}
 
-    		}
+			if (model.preferences.get('taboncapture')) {
+				uploadCompleteTab(data.link);
+			} else {
+				uploadCompleteNotification(model.preferences.get('copyoncapture') ? "added to your album and copied to your clipboard" : "added to your album");
+			}
 
-    	} else if (obj.menuItemId === "authenticated.page.thiscomputer") {
+		} else {
 
-    			UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
-    				var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-    			});
+			if (model.preferences.get('copyonrehost')) {
+				addToClipboard(data.link);
+				if (model.preferences.get('tabonrehost')) {
+					uploadCompleteNotification("copied to your clipboard");
+				}
+			}
 
-    	} else if (obj.menuItemId === "authenticated.page.me") {
+			if (model.preferences.get('tabonrehost')) {
+				uploadCompleteTab(data.link);
+			} else {
+				uploadCompleteNotification(model.preferences.get('copyonrehost') ? "rehosted to your album and copied to your clipboard" : "rehosted to your album");
+			}
 
-    			UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
-    				var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-    			});
+		}
 
-    	} else if (obj.menuItemId === "authenticated.view.thiscomputer") {
 
-    			chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-    				var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-    			});
+	});
 
-    	} else if (obj.menuItemId === "authenticated.view.me") {
+	evt.addEventListener(evt.EVENT_ERROR, showError);
 
-    			chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-    				var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-    			});
+}
 
-    	} else if (obj.menuItemId === "authenticated.area.thiscomputer") {
+function setContextMenus() {
+    
+	chrome.contextMenus.removeAll(function () {
 
-    			handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
-    				var evt = model.unsorted.sendImage(encodeURIComponent(img.split(',')[1]));
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-    			});
+		var parentId = chrome.contextMenus.create({ "id": "imgur", "title": "imgur" });
 
-    	} else if (obj.menuItemId === "authenticated.area.me") {
+		var capturePageContextMenuItem = chrome.contextMenus.create({
+			"id": "unsorted.page",
+			"title": "capture page",
+			"contexts": ["page"],
+			"parentId": parentId
+		});
 
-    			handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
-    				var evt = model.authenticated.sendImage("_userAlbum", img.split(',')[1]);
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-    			});
+		var captureViewContextMenuItem = chrome.contextMenus.create({
+			"id": "unsorted.view",
+			"title": "capture view",
+			"contexts": ["page"],
+			"parentId": parentId
+		});
+
+		var captureAreaContextMenuItem = chrome.contextMenus.create({
+			"id": "unsorted.area",
+			"title": "capture area",
+			"contexts": ["page"],
+			"parentId": parentId
+		});
+
+		var addImageContextMenuItem = chrome.contextMenus.create({
+			"id": "unsorted.rehost",
+			"title": "rehost image",
+			"contexts": ["image"]
+		});
+
+		if (model.authenticated.oAuthManager.getAuthStatus()) {
+
+			chrome.contextMenus.update(capturePageContextMenuItem, { title: "capture page to" });
+			chrome.contextMenus.update(captureViewContextMenuItem, { title: "capture view to" });
+			chrome.contextMenus.update(captureAreaContextMenuItem, { title: "capture area to" });
+			chrome.contextMenus.update(addImageContextMenuItem, { title: "rehost image to" });
+
+
+			chrome.contextMenus.create({
+				"id": "authenticated.page.thiscomputer",
+				"title": "- this computer -",
+				"contexts": ["page"],
+				"parentId": capturePageContextMenuItem
+			});
+
+
+			chrome.contextMenus.create({
+				"id": "authenticated.page.me",
+				"title": model.authenticated.getAccount().url,
+				"contexts": ["page"],
+				"parentId": capturePageContextMenuItem
+			});
+
+
+			chrome.contextMenus.create({
+				"id": "authenticated.view.thiscomputer",
+				"title": "- this computer -",
+				"contexts": ["page"],
+				"parentId": captureViewContextMenuItem
+			});
+
+			chrome.contextMenus.create({
+				"id": "authenticated.view.me",
+				"title": model.authenticated.getAccount().url,
+				"contexts": ["page"],
+				"parentId": captureViewContextMenuItem
+			});
+
+			chrome.contextMenus.create({
+				"id": "authenticated.area.thiscomputer",
+				"title": "- this computer -",
+				"contexts": ["page"],
+				"parentId": captureAreaContextMenuItem
+			});
+
+			chrome.contextMenus.create({
+				"id": "authenticated.area.me",
+				"title": model.authenticated.getAccount().url,
+				"contexts": ["page"],
+				"parentId": captureAreaContextMenuItem
+			});
+
+			chrome.contextMenus.create({
+				"id": "authenticated.image.thiscomputer",
+				"title": "- this computer -",
+				"contexts": ["image"],
+				"parentId": addImageContextMenuItem
+			});
+
+
+			chrome.contextMenus.create({
+				"id": "authenticated.image.me.",
+				"title": model.authenticated.getAccount().url,
+				"contexts": ["image"],
+				"parentId": addImageContextMenuItem
+			});
+
+			var authenticatedAlbums = model.authenticated.getAlbums();
+
+			if (authenticatedAlbums.length > 0) {
+
+				for (var i = 0; i < authenticatedAlbums.length; i++) {
+
+					(function (album) {
+
+						if (album.title) {
+
+							// Extend
+							chrome.contextMenus.create({
+								"id": "authenticated.page.album." + album.id,
+								"title": album.title,
+								"contexts": ["page"],
+								"parentId": capturePageContextMenuItem
+							});
+
+
+							chrome.contextMenus.create({
+								"id": "authenticated.view.album." + album.id,
+								"title": album.title,
+								"contexts": ["page"],
+								"parentId": captureViewContextMenuItem
+							});
+
+							chrome.contextMenus.create({
+								"id": "authenticated.area.album." + album.id,
+								"title": album.title,
+								"contexts": ["page"],
+								"parentId": captureAreaContextMenuItem
+							});
+
+							chrome.contextMenus.create({
+								"id": "authenticated.image.album." + album.id,
+								"title": album.title,
+								"contexts": ["image"],
+								"parentId": addImageContextMenuItem
+							});
+
+						}
+					})(authenticatedAlbums[i]);
+
+				}
+
+			}
+
+		}
+
+
+	});
 
-    	} else if (obj.menuItemId === "authenticated.image.thiscomputer") {
-
-    			var evt;
-
-    			if (!!~obj.srcUrl.indexOf('file:')) {
-
-    				showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
-
-    				return;
-
-    				handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
-    					evt = model.unsorted.sendImage(encodeURIComponent(imgData.split(',')[1]));
-    					evt.type = "capture";
-    					uploadDelegate(evt);
-    				});
-
-    			} else {
-
-    				evt = model.unsorted.sendImageURL(obj.srcUrl);
-    				evt.type = "rehost";
-    				uploadDelegate(evt);
-    			}
-
-    	} else if (obj.menuItemId === "authenticated.image.me") {
-
-    		var evt;
-
-    		if (!!~obj.srcUrl.indexOf('file:')) {
-
-    			showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
-
-    			return;
-
-    			handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
-    				var evt = model.authenticated.sendImage("_userAlbum", imgData.split(',')[1]);
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-    			});
-
-    		} else {
-
-    			evt = model.authenticated.sendImageURL("_userAlbum", obj.srcUrl);
-    			evt.type = "rehost";
-    			uploadDelegate(evt);
-
-    		}
-
-    	} else {
-			
-    		var parts = obj.menuItemId.split('.');
-    		var albumId = parts.pop();
-    		var cmd = parts.join('.');
-    		
-    		if (cmd === 'authenticated.page.album') {
-
-    			UTILS.Tab.toImage(null, '/js/inject/Tab.toImage.js').addEventListener('EVENT_COMPLETE', function (img) {
-    				var evt = model.authenticated.sendImage(albumId, img.split(',')[1]);
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-    			});
-
-    		} else if (cmd === 'authenticated.view.album') {
-
-    			chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-    				var evt = model.authenticated.sendImage(albumId, img.split(',')[1]);
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-    			});
-
-    		} else if (cmd === 'authenticated.area.album') {
-
-    			handleCapture().addEventListener('EVENT_SUCCESS', function (img) {
-    				var evt = model.authenticated.sendImage(albumId, img.split(',')[1]);
-    				evt.type = "capture";
-    				uploadDelegate(evt);
-
-    			});
-
-    		} else if (cmd === 'authenticated.image.album') {
-
-    			var evt;
-
-    			if (!!~obj.srcUrl.indexOf('file:')) {
-
-    				showError("Sorry, Chrome Extensions don't let you rehost from your filesystem. Try drag and dropping into the extension page.");
-
-    				return;
-
-    				handleLocalFile(obj.srcUrl).addEventListener('EVENT_SUCCESS', function (imgData) {
-    					var evt = model.authenticated.sendImage(albumId, imgData.split(',')[1]);
-    					evt.type = "capture";
-    					uploadDelegate(evt);
-    				});
-
-    			} else {
-
-    				evt = model.authenticated.sendImageURL(albumId, obj.srcUrl);
-    				evt.type = "rehost";
-    				uploadDelegate(evt);
-
-    			}
-
-    		}
-
-    	}
-
-
-
-    })
-
-
-    function uploadCompleteNotification(message) {
-
-    	chrome.notifications.create("imgur.finished", {
-    		type: "basic",
-    		iconUrl: "img/logo96.png",
-    		title: "Finished",
-    		message: message
-    	}, function (notificationId) {
-
-    		setTimeout(function () {
-    			chrome.notifications.clear(notificationId, function () { });
-    		}, 3000);
-    	});
-
-    }
-
-    function uploadCompleteTab(url) {
-    	chrome.tabs.create({ "url": url, "selected": true });
-    }
-
-    function uploadDelegate(evt) {
-
-        chrome.browserAction.setBadgeText({ 'text': '0' });
-
-        evt.addEventListener(evt.EVENT_PROGRESS, function (e) {
-            chrome.browserAction.setBadgeText({ 'text': String(Math.floor(((e.loaded / e.total) * 100))) });
-        });
-
-        evt.addEventListener(evt.EVENT_COMPLETE, function () {
-        	chrome.browserAction.setBadgeText({ 'text': '' });
-        });
-
-        evt.addEventListener(evt.EVENT_SUCCESS, function (data) {
-
-            if (evt.type == "capture") {
-
-                if (model.preferences.get('copyoncapture')) {
-                    addToClipboard(data.link);
-                    if (model.preferences.get('taboncapture')) {
-                        uploadCompleteNotification("copied to your clipboard");
-                    }
-                }
-
-                if (model.preferences.get('taboncapture')) {
-                    uploadCompleteTab(data.link);
-                } else {
-                    uploadCompleteNotification(model.preferences.get('copyoncapture') ? "added to your album and copied to your clipboard" : "added to your album");
-                }
-
-            } else {
-
-                if (model.preferences.get('copyonrehost')) {
-                    addToClipboard(data.link);
-                    if (model.preferences.get('tabonrehost')) {
-                        uploadCompleteNotification("copied to your clipboard");
-                    }
-                }
-
-                if (model.preferences.get('tabonrehost')) {
-                    uploadCompleteTab(data.link);
-                } else {
-                    uploadCompleteNotification(model.preferences.get('copyonrehost') ? "rehosted to your album and copied to your clipboard" : "rehosted to your album");
-                }
-
-            }
-
-
-        });
-
-        evt.addEventListener(evt.EVENT_ERROR, showError);
-
-    }
 
 }
 
@@ -796,9 +813,10 @@ function handleNotifications(notifications) {
 
 function setNotificationInfoAsRead(notificationId, notificationInfo) {
 
-	var type = notificationInfo.type;
+	if (notificationInfo) {
 
-	if(type) {
+		var type = notificationInfo.type;
+
 
 		switch (type) {
 
