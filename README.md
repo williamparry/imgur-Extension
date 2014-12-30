@@ -10,21 +10,27 @@ Any questions flick me an [email](mailto:william@metronomik.com) or [tweet](http
 
 ### Slideshow ###
 
+You can enable this under "options" by clicking on the cog on the top right.
+
 * View your images in a slideshow
-* View comments inside the slideshow
+   * View comments inside the slideshow
+* View albums in a slideshow
 * Option to view inline images and webm inside comments
 * Option to have your images open in a slideshow context instead of a new tab
 
 ### Notifications (experimental) ###
 
-Receive desktop notifications. This is still very experimental.
+You can enable this under "options" by clicking on the cog on the top right.
+
+Receive desktop notifications for messages and replies,
 
 ### Changes under the hood ###
 
 * Background page is now non-persistent
     * Using chrome.alarms 
-    * Context menu changes
+    * Static context menu handling
 * GifV fix
+* App notifications reimplemented
 
 ###
 
