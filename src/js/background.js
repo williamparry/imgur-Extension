@@ -579,9 +579,11 @@ function syncViews() {
 
 // options page can clear authentication, which needs a sync
 // main page can only sync when it's the result of getting a user
+// options can set notifications
 portMessenger.addEventListener("options.sync", function () {
 	setContextMenus();
-    syncViews();
+	syncViews();
+	toggleNotifications();
 });
 
 portMessenger.addEventListener("main.get_user", function () {
@@ -864,6 +866,36 @@ function checkNotifications() {
 
 }
 
+function startNotifications() {
+
+	checkNotifications();
+
+	chrome.alarms.create("ALARM_NOTIFICATIONS", {
+		periodInMinutes: 5
+	});
+
+}
+
+function stopNotifications() {
+
+	chrome.alarms.clear("ALARM_NOTIFICATIONS");
+	
+}
+
+function toggleNotifications() {
+
+	if (model.preferences.get('enablenotifications')) {
+
+		startNotifications();
+
+	} else {
+
+		stopNotifications();
+
+	}
+
+}
+
 chrome.alarms.onAlarm.addListener(function (alarm) {
 
 	if (alarm.name === "ALARM_NOTIFICATIONS") {
@@ -878,16 +910,16 @@ chrome.alarms.onAlarm.addListener(function (alarm) {
 
 });
 
-chrome.alarms.create("ALARM_NOTIFICATIONS", {
-	periodInMinutes: 5
-});
+
 
 chrome.alarms.create("ALARM_CONTEXTMENUS", {
 	periodInMinutes: 15
 });
 
 checkContextMenus();
-checkNotifications();
+
+toggleNotifications();
+
 
 /*
 Test notifications

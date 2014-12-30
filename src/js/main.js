@@ -263,28 +263,34 @@ function makeAlbumItem(imageItem) {
     imgLink.href = imageItem.link;
     imgLink.onclick = function (e) {
     	e.preventDefault();
-		
+
     	if (this.classList.contains('fancybox')) {
     		return;
     	}
 
-    	var items = makeSlideShowItems();
+    	if (model.preferences.get('useslideshow')) {
+    		var items = makeSlideShowItems();
 
-    	var index = -1;
+    		var index = -1;
 
-    	for (var i = 0; i < items.length; i++) {
+    		for (var i = 0; i < items.length; i++) {
 
-    		if (items[i].href === imageItem.link) {
-    			index = i;
-    			break;
+    			if (items[i].href === imageItem.link) {
+    				index = i;
+    				break;
+    			}
     		}
+
+    		if (index !== -1) {
+    			makeSlideShow(index, items);
+    		} else {
+    			chrome.tabs.create({ "url": this.href, "selected": true });
+    		}
+    	} else {
+    		chrome.tabs.create({ "url": this.href, "selected": true });
     	}
 
-		if(index !== -1) {
-    		makeSlideShow(index, items);
-		} else {
-			chrome.tabs.create({ "url": this.href, "selected": true });
-		}
+    	
     };
     
     

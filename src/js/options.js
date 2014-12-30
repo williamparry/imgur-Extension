@@ -18,6 +18,7 @@ var EClear,
     ECopyOnCapture,
     ETabOnCapture,
 	EShowImagesInComments,
+	EEnableNotifications,
     ESubmit;
 
 
@@ -35,6 +36,8 @@ window.onload = function () {
     ECopyOnCapture = UTILS.DOM.id('copy-on-capture'),
     ETabOnCapture = UTILS.DOM.id('tab-on-capture'),
 	EShowImagesInComments = UTILS.DOM.id('show-images-in-comments'),
+	EEnableNotifications = UTILS.DOM.id('enable-notifications'),
+	EUseSlideShow = UTILS.DOM.id('use-slideshow'),
     ESubmit = UTILS.DOM.id('submit');
 
     if (!model.authenticated.oAuthManager.getAuthStatus()) {
@@ -50,7 +53,7 @@ window.onload = function () {
 
     ESubmit.disabled = "disabled";
 
-    EConnections.onclick = ECopyOnRehost.onclick = ETabOnRehost.onclick = ECopyOnCapture.onclick = ETabOnCapture.onclick = EShowImagesInComments.onclick = function () {
+    EConnections.onclick = ECopyOnRehost.onclick = ETabOnRehost.onclick = ECopyOnCapture.onclick = ETabOnCapture.onclick = EShowImagesInComments.onclick = EEnableNotifications.onclick = EUseSlideShow.onclick = function () {
         ESubmit.removeAttribute("disabled");
     };
 
@@ -60,6 +63,8 @@ window.onload = function () {
     ECopyOnCapture.checked = model.preferences.get('copyoncapture');
     ETabOnCapture.checked = model.preferences.get('taboncapture');
     EShowImagesInComments.checked = model.preferences.get('showimagesincomments');
+    EEnableNotifications.checked = model.preferences.get('enablenotifications');
+    EUseSlideShow.checked = model.preferences.get('useslideshow');
 
     ESubmit.onclick = function () {
 
@@ -72,6 +77,8 @@ window.onload = function () {
         model.preferences.set('copyoncapture', ECopyOnCapture.checked);
         model.preferences.set('taboncapture', ETabOnCapture.checked);
         model.preferences.set('showimagesincomments', EShowImagesInComments.checked);
+        model.preferences.set('enablenotifications', EEnableNotifications.checked);
+        model.preferences.set('useslideshow', EUseSlideShow.checked);
         setTimeout(function () {
             port.postMessage({ CMD: "sync" });
         }, 1000);

@@ -144,6 +144,8 @@ function Model() {
     if (DAL.get('showimagesincomments') == null) {
 
     	DAL.set("showimagesincomments", false);
+    	DAL.set("enablenotifications", false);
+    	DAL.set("useslideshow", false);
 
     };
 
