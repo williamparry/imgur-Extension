@@ -680,6 +680,9 @@ function arrayBufferDataUri(raw) {
 
 function showReplyNotification(reply) {
 
+	/*
+	Not ready yet. Needs to handle gif/gifv files
+
 	var xhr = new XMLHttpRequest();
 	xhr.open("GET", "http://i.imgur.com/" + reply.content.image_id + ".jpg", true); // file extension is not important
 	xhr.responseType = "arraybuffer";
@@ -702,6 +705,20 @@ function showReplyNotification(reply) {
 	};
 
 	xhr.send(null);
+	*/
+
+
+	chrome.notifications.create(reply.id + "", {
+		type: "basic",
+		iconUrl: "img/logo96.png",
+		title: "New comment",
+		message: reply.content.comment
+	}, function (notificationId) {
+
+		notifications[notificationId] = { id: reply.id, type: "reply.single", image_id: reply.content.image_id };
+
+	});
+
 
 }
 
@@ -921,8 +938,6 @@ checkContextMenus();
 toggleNotifications();
 
 
-/*
-Test notifications
 
 handleNotifications({
 	"replies": [{
@@ -996,7 +1011,7 @@ handleNotifications({
 		}
 	}]
 })
-*/
+
 
 // Notifications
 /*
