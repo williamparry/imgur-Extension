@@ -28,6 +28,16 @@ Receive desktop notifications. This is still very experimental.
 
 ###
 
+## How to set up locally ##
+
+1. Clone/download the repository
+2. Go to chrome://extensions
+3. Make sure "Developer mode" is checked
+4. Click "Load unpacked extension..."
+5. Navigate to the repository and choose the *src* folder
+
+While debugging it's a good idea to disable the released version of the extension.
+
 ## How to submit a bug ##
 
 * Disable the existing imgur extension while running this one.
