@@ -453,12 +453,13 @@ function setContextMenus() {
 
     function uploadCompleteNotification(message) {
 
-    	chrome.notifications.create("", {
+    	chrome.notifications.create("imgur.finished", {
     		type: "basic",
     		iconUrl: "img/logo96.png",
     		title: "Finished",
     		message: message
     	}, function (notificationId) {
+
     		setTimeout(function () {
     			chrome.notifications.clear(notificationId, function () { });
     		}, 3000);
@@ -532,14 +533,16 @@ function showError(msg) {
 	chrome.browserAction.setBadgeText({ 'text': '' });
 
 	if (typeof msg === "string") {
-
-		chrome.notifications.create("", {
+		
+		chrome.notifications.create("imgur.failed", {
 
 			type: "basic",
 			iconUrl: "img/logo96.png",
 			title: "imgur failed",
 			message: msg
-		}, function () { });
+		}, function (notificationId) {
+
+		});
 
 	} else {
 
@@ -795,35 +798,38 @@ function setNotificationInfoAsRead(notificationId, notificationInfo) {
 
 	var type = notificationInfo.type;
 
-	switch (type) {
+	if(type) {
 
-		case "reply.single":
+		switch (type) {
 
-			model.authenticated.setNotificationAsRead(notificationInfo.id);
+			case "reply.single":
 
-			break;
+				model.authenticated.setNotificationAsRead(notificationInfo.id);
 
-		case "reply.multiple":
+				break;
 
-			model.authenticated.setNotificationsAsRead(notificationInfo.ids);
+			case "reply.multiple":
 
-			break;
+				model.authenticated.setNotificationsAsRead(notificationInfo.ids);
 
-		case "message.single":
+				break;
 
-			model.authenticated.setNotificationAsRead(notificationInfo.id);
+			case "message.single":
 
-			break;
+				model.authenticated.setNotificationAsRead(notificationInfo.id);
 
-		case "message.multiple":
+				break;
 
-			model.authenticated.setNotificationsAsRead(notificationInfo.ids);
+			case "message.multiple":
 
-			break;
+				model.authenticated.setNotificationsAsRead(notificationInfo.ids);
+
+				break;
+
+		}
 
 	}
 
-	console.log('delete')
 	delete notifications[notificationId];
 }
 
@@ -873,6 +879,7 @@ chrome.notifications.onClicked.addListener(function (notificationId) {
 
 
 // Clicking on the item doesn't fire onClosed
+// You only really need to add to the notifications object if you're going to handle it
 chrome.notifications.onClosed.addListener(function (notificationId) {
 
 	var notificationInfo = notifications[notificationId];
