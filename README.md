@@ -6,16 +6,32 @@ This is the repository for the [imgur Chrome Extension](https://chrome.google.co
 
 Any questions flick me an [email](mailto:william@metronomik.com) or [tweet](https://twitter.com/williamparry)
 
-## Translators ##
+## New features in 2.1.0 ##
 
-We'd really like to get this extension translated into as many languages as we can. If you're willing to help out please send us a message.
+### Slideshow ###
 
-### How to submit a bug ###
+* View your images in a slideshow
+* View comments inside the slideshow
+* Option to view inline images and webm inside comments
+* Option to have your images open in a slideshow context instead of a new tab
+
+### Notifications (experimental) ###
+
+Receive desktop notifications. This is still very experimental.
+
+### Changes under the hood ###
+
+* Background page is now non-persistent
+    * Using chrome.alarms 
+    * Context menu changes
+* GifV fix
+
+###
+
+## How to submit a bug ##
 
 * Disable the existing imgur extension while running this one.
-
 * Please include what operating system you're using, what version of Chrome and any console errors from the [Developer Tools](https://developers.google.com/chrome-developer-tools/).
-
 * Some bugs may cascade and break other functionality, so when something is logged as fixed please reload the extension (refresh the chrome://extensions page) before retesting.
 
 ## Developers ##
