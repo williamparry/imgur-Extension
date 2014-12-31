@@ -32,7 +32,7 @@ You can enable this under "options" by clicking on the cog on the top right.
 
 You can enable this under "options" by clicking on the cog on the top right.
 
-Receive desktop notifications for messages and replies,
+Receive desktop notifications for messages and replies. Scheduled to check every 5 minutes.
 
 ### Changes under the hood ###
 
