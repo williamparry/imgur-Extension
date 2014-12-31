@@ -6,6 +6,16 @@ This is the repository for the [imgur Chrome Extension](https://chrome.google.co
 
 Any questions flick me an [email](mailto:william@metronomik.com) or [tweet](https://twitter.com/williamparry)
 
+## A note about full page screen capture ##
+
+This is flakey due to Chrome not exposing a way for developers to grab the whole page. It's currently achieved by scrolling down the page capturing each visible area and then stitching it all together into a single image.
+
+This means that sites with parallax, fixed headers, infinite scroll etc don't capture very well and there's not a whole lot that can be done about it.
+
+For more info you can read here: https://code.google.com/p/chromium/issues/detail?id=45209
+
+The screen capture code is from an extension utilities library: https://github.com/williamparry/Chrome-Extension-utils
+
 ## New features in 2.1.0 ##
 
 ### Slideshow ###
