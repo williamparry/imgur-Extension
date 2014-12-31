@@ -31,6 +31,7 @@ Receive desktop notifications for messages and replies,
     * Static context menu handling
 * GifV fix
 * App notifications reimplemented
+* Various other code improvements
 
 ###
 
