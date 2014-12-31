@@ -1056,15 +1056,14 @@ handleNotifications({
 
 // Notifications
 
-var notifications = model.getNotifications();
+var appNotifications = model.getNotifications();
 
-if (notifications.length > 0) {
+if (appNotifications.length > 0) {
 	
-	for (var i = 0; i < notifications.length; i++) {
+	for (var i = 0; i < appNotifications.length; i++) {
 		
 		(function (notification) {
 			
-
 			chrome.notifications.create(notification.id, {
 
 				type: "basic",
@@ -1080,7 +1079,7 @@ if (notifications.length > 0) {
 
 			});
 
-		})(notifications[i]);
+		})(appNotifications[i]);
 
 
 	}
