@@ -34,35 +34,44 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 });
 
 function handleCapture() {
+
 	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']);
-	chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-		chrome.tabs.getSelected(null, function (tab) {
-			requestMessenger.addEventListener("got_area", function (e) {
-				requestMessenger.removeEventListener("got_area", arguments.callee);
-				var canvas = document.createElement('canvas');
-				canvas.width = e.Data.width;
-				canvas.height = e.Data.height;
-				var ctx = canvas.getContext('2d');
-				var i = new Image();
-				i.src = img;
-				i.onload = function () {
-					ctx.drawImage(i, e.Data.left, e.Data.top, e.Data.width, e.Data.height, 0, 0, e.Data.width, e.Data.height);
-					evtD.dispatchEvent(evtD.EVENT_SUCCESS, canvas.toDataURL("image/png"));
-				};
-			}, true);
+	
+	chrome.tabs.getSelected(null, function (tab) {
 
-
-			chrome.tabs.executeScript(tab.id, { file: "js/inject/captureArea.js" }, function (info) {
+		chrome.tabs.executeScript(tab.id, { file: "js/inject/captureArea.js" }, function (info) {
 				
-				if (typeof info === "undefined") {
-					evtD.dispatchEvent(evtD.EVENT_ERROR, "Page could not be screen captured");
-				}
+			if (typeof info !== "undefined") {
 
-			});
+				chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+				
+					requestMessenger.addEventListener("got_area", function (e) {
+						requestMessenger.removeEventListener("got_area", arguments.callee);
+						var canvas = document.createElement('canvas');
+						canvas.width = e.Data.width;
+						canvas.height = e.Data.height;
+						var ctx = canvas.getContext('2d');
+						var i = new Image();
+						i.src = img;
+						i.onload = function () {
+							ctx.drawImage(i, e.Data.left, e.Data.top, e.Data.width, e.Data.height, 0, 0, e.Data.width, e.Data.height);
+							evtD.dispatchEvent(evtD.EVENT_SUCCESS, canvas.toDataURL("image/png"));
+						};
+					}, true);
+
+				});
+			
+
+			} else {
+				evtD.dispatchEvent(evtD.EVENT_ERROR, "Access to the page is denied");
+			}
+
+		});
+
+	});
 
 			
-		});
-	});
+		
 	return evtD;
 }
 
