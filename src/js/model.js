@@ -27,6 +27,55 @@ function Model() {
 	// Upgrade information
 	// ------------------------------------------------------------------
 
+	// http://stackoverflow.com/questions/6832596/how-to-compare-software-version-number-using-js-only-number
+
+	function versionCompare(v1, v2, options) {
+		var lexicographical = options && options.lexicographical,
+			zeroExtend = options && options.zeroExtend,
+			v1parts = v1.split('.'),
+			v2parts = v2.split('.');
+
+		function isValidPart(x) {
+			return (lexicographical ? /^\d+[A-Za-z]*$/ : /^\d+$/).test(x);
+		}
+
+		if (!v1parts.every(isValidPart) || !v2parts.every(isValidPart)) {
+			return NaN;
+		}
+
+		if (zeroExtend) {
+			while (v1parts.length < v2parts.length) v1parts.push("0");
+			while (v2parts.length < v1parts.length) v2parts.push("0");
+		}
+
+		if (!lexicographical) {
+			v1parts = v1parts.map(Number);
+			v2parts = v2parts.map(Number);
+		}
+
+		for (var i = 0; i < v1parts.length; ++i) {
+			if (v2parts.length == i) {
+				return 1;
+			}
+
+			if (v1parts[i] == v2parts[i]) {
+				continue;
+			}
+			else if (v1parts[i] > v2parts[i]) {
+				return 1;
+			}
+			else {
+				return -1;
+			}
+		}
+
+		if (v1parts.length != v2parts.length) {
+			return -1;
+		}
+
+		return 0;
+	}
+
 	var checkVersion = DAL.get("currentVersion");
 	var currentVersion = chrome.app.getDetails().version;
     
@@ -123,22 +172,7 @@ function Model() {
     };
 
 	// ------------------------------------------------------------------
-	// Future testing to use this method
-	// ------------------------------------------------------------------
-
-    if (checkVersion !== currentVersion) {
-
-    	if (checkVersion === "2.0.5") {
-    		DAL.set("notifications.winmeme", false);
-    	}
-
-    	DAL.set("currentVersion", currentVersion);
-    }
-
-	// ------------------------------------------------------------------
-	// Upgrade x - 2.1.0
-	// Not sure why the code above is there
-	// It should be < (current version) and not 
+	// 2.1.0 Upgrade DAL
 	// ------------------------------------------------------------------
 
     if (DAL.get('showimagesincomments') == null) {
@@ -147,22 +181,40 @@ function Model() {
     	DAL.set("enablenotifications", false);
     	DAL.set("useslideshow", false);
 
-    	// Old schema
-		// Utils 1.3 doesn't have remove item
-    	localStorage.removeItem("notifications.winmeme");
-
-		// Using dot notation affects DAL retrieval
-    	DAL.set("notifications.update-2_1_0", {
-
-    		id: "update-2_1_0",
-			read: false,
-			title: "imgur Extension updated",
-			message: "See what's new in 2.1.0",
-			url: "https://goo.gl/xzQL4z"
-
-    	});
-
     };
+
+	// ------------------------------------------------------------------
+	// Future testing to use this method
+	// ------------------------------------------------------------------
+    
+    if (checkVersion !== currentVersion) {
+
+    	if (checkVersion === "2.0.5") {
+    		DAL.set("notifications.winmeme", false);
+    	}
+
+    	if (versionCompare("2.1.0", checkVersion) > 0) {
+
+    		// Old schema
+    		// Utils 1.3 doesn't have remove item
+    		localStorage.removeItem("notifications.winmeme");
+
+    		// Using dot notation affects DAL retrieval
+    		DAL.set("notifications.update-2_1_0", {
+
+    			id: "update-2_1_0",
+    			read: false,
+    			title: "imgur Extension updated",
+    			message: "See what's new in 2.1.0",
+    			url: "https://goo.gl/xzQL4z"
+
+    		});
+
+    	}
+
+    	DAL.set("currentVersion", currentVersion);
+    }
+
 
 
 	function encode(str) {

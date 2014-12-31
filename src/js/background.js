@@ -491,7 +491,7 @@ function setContextMenus() {
 
 
 			chrome.contextMenus.create({
-				"id": "authenticated.image.me.",
+				"id": "authenticated.image.me",
 				"title": model.authenticated.getAccount().url,
 				"contexts": ["image"],
 				"parentId": addImageContextMenuItem
