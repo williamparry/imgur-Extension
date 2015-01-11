@@ -187,7 +187,7 @@ function Model() {
 	// Future testing to use this method
 	// ------------------------------------------------------------------
     
-    if (checkVersion !== currentVersion) {
+    if (checkVersion && checkVersion !== currentVersion) {
 
     	if (checkVersion === "2.0.5") {
     		DAL.set("notifications.winmeme", false);
@@ -212,8 +212,9 @@ function Model() {
 
     	}
 
-    	DAL.set("currentVersion", currentVersion);
     }
+
+    DAL.set("currentVersion", currentVersion);
 
 
 
