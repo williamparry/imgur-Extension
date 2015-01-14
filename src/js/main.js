@@ -28,6 +28,10 @@ var port = chrome.extension.connect({ name: "main" }),
     ECurrentAlbum,
     EStatusBar,
 	EStatusBarLink,
+	// imgur doesn't give any information about how many items total are in an album so you keep going until you get nothing
+	// however, they don't do this for albums, where if you increment the page it will return the last set even if it's the same
+	// awesome
+	lastUserImagesSet,
 	localStream;
 
 
@@ -503,8 +507,10 @@ function constructAlbumImages(images, album) {
 	}
 
     if (images && images.length > 0) {
-        for (var i = 0; i < images.length; i++) {
-            if (album.id !== '_thisComputer') {
+
+    	for (var i = 0; i < images.length; i++) {
+
+    		if (album.id === '_userAlbum' || album.id === '_userFavouritesAlbum') {
 
             	if (!!!document.getElementById(images[i].id)) {
             		ul.appendChild(makeAlbumItem(images[i]));
@@ -613,17 +619,24 @@ function fetchImages() {
 
 			// Show immediately
 			constructAlbumImages(model.authenticated.getAlbumImages(CurrentAlbum, CurrentOffset), EAlbum);
-
+			
 			callback = model.authenticated.fetchAlbumImages(CurrentAlbum, CurrentOffset);
 
                 callback.addEventListener('EVENT_COMPLETE', setBodyFinished)
                 .addEventListener('EVENT_SUCCESS', function (images) {
+
+                	if (!!lastUserImagesSet && images[0].id === lastUserImagesSet[0].id) {	
+                		EAlbum.dataset.end = true;
+                		return;
+                	}
 
                 	if (images.length > 0) {
                 		constructAlbumImages(images, EAlbum);
                 	} else {
                 		EAlbum.dataset.end = true;
                 	}
+
+                	lastUserImagesSet = images.slice(0);
 
                 })
                 .addEventListener('EVENT_ERROR', function (msg) {
@@ -798,7 +811,7 @@ function checkForMoreImages() {
 
 	var callback = null;
 	// Could be out of sync with cache, but that's ok
-	if (CurrentAlbum !== "_thisComputer"
+	if ((CurrentAlbum === "_userAlbum" || CurrentAlbum === "_userFavouritesAlbum")
 		&& ECurrentAlbum.dataset.end === 'false'
 		&& !isBodyLoading()
 	) {
