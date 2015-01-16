@@ -239,6 +239,36 @@ function deleteImage(image) {
     }
 }
 
+/*
+Not implemented because the API doesn't handle it
+function unfavourite(image) {
+
+	var elem = document.getElementById(image.id);
+
+	progress = UTILS.DOM.create('progress');
+
+	elem.appendChild(progress);
+
+	var inner = elem.getElementsByClassName('inner')[0],
+        links = inner.getElementsByClassName('action');
+
+	for (var i = 0; i < links.length - 1; i++) {
+		inner.removeChild(links[i]);
+	}
+
+	elem.classList.add('loading');
+	
+	elem.style.cursor = 'progress';
+	model.authenticated.unfavouriteImage(image.id).addEventListener('EVENT_SUCCESS', function (e) {
+		if (elem) {
+			elem.style.cursor = 'default';
+			elem.parentNode.removeChild(elem);
+		}
+	});
+	
+}
+*/
+
 function makeAlbumItem(imageItem) {
 
     var li = UTILS.DOM.create('li'),
@@ -316,11 +346,12 @@ function makeAlbumItem(imageItem) {
 
     if (!imageItem.is_album) {
 
-        var del = UTILS.DOM.create('a'),
+    	var del = UTILS.DOM.create('a'),
             copy = UTILS.DOM.create('a'),
 		    download = UTILS.DOM.create('a'),
 		    meme = UTILS.DOM.create('a'),
-            copyInput = UTILS.DOM.create('input');
+            copyInput = UTILS.DOM.create('input'),
+			unfav = UTILS.DOM.create('a');
 
         del.href = copy.href = "#";
         del.innerHTML = "delete";
@@ -333,6 +364,21 @@ function makeAlbumItem(imageItem) {
             } else {
                 del.innerHTML = 'sure?';
             }
+
+        };
+
+    	// Not implemented because the API doesn't handle it
+        unfav.href = copy.href = "#";
+        unfav.innerHTML = "unfavourite";
+        unfav.classList.add('image-delete');
+        unfav.classList.add('action');
+        unfav.onclick = function (e) {
+        	e.preventDefault();
+        	if (unfav.innerHTML == 'sure?') {
+        		unfavourite(imageItem);
+        	} else {
+        		unfav.innerHTML = 'sure?';
+        	}
 
         };
 
@@ -428,7 +474,14 @@ function makeAlbumItem(imageItem) {
         };
 
         inner.appendChild(copyInput);
-        inner.appendChild(del);
+        if (CurrentAlbum !== "_userFavouritesAlbum") {
+        	inner.appendChild(del);
+        }
+        /* Not implemented because the API doesn't handle it
+        else {
+        	inner.appendChild(unfav);
+        }
+		*/
         inner.appendChild(copy);
         inner.appendChild(meme);
         inner.appendChild(download);

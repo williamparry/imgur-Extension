@@ -877,6 +877,21 @@ function Model() {
     	    return req.evtD;
 
     	};
+		
+    	/*
+		Not implemented because the API doesn't handle it
+
+    	this.unfavouriteImage = function (ID) {
+
+    		_gaq.push(['_trackEvent', 'Image', 'Unfavourite Image', 'Authenticated']);
+
+    		var req = new signedRequest("DELETE", "https://api.imgur.com/3/image/" + ID + "/favorite");
+    		root.requestManager.queue(req);
+
+    		return req.evtD;
+
+    	};
+		*/
 
     	this.sendImageURL = function (album, url) {
 
