@@ -17,7 +17,7 @@ For more info you can read here: https://code.google.com/p/chromium/issues/detai
 The screen capture code is from an extension utilities library: https://github.com/williamparry/Chrome-Extension-utils
 
 ## New features in 2.1.0 ##
-
+*See above for information about full page screen capture*
 ### Slideshow ###
 
 You can enable this under "options" by clicking on the cog on the top right.
