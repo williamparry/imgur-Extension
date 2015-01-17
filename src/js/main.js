@@ -986,6 +986,7 @@ function makeSlideShow(startIndex, items, enableComments, fixedLength) {
 				if (check) {
 					check.addEventListener("EVENT_SUCCESS", function () {
 						// Pretty dirty!
+						hideComments();
 						makeSlideShow(items.length - 1, null, enableComments);
 					});
 				}
