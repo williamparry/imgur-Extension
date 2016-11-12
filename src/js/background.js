@@ -1,14 +1,3 @@
-/// <reference path="model.js" />
-
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-41081662-9']);
-
-(function () {
-	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	ga.src = 'https://ssl.google-analytics.com/ga.js';
-	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
-
 var model = new Model(),
     portMessenger = new UTILS.PortMessenger(),
     requestMessenger = new UTILS.RequestMessenger(),
@@ -77,7 +66,7 @@ function handleCapture() {
 
 
 function addToClipboard(url) {
-	var txt = UTILS.DOM.create('input');
+	var txt = UTILS.D.create('input');
 	document.body.appendChild(txt);
 	txt.value = url;
 	txt.select();
@@ -88,7 +77,7 @@ function addToClipboard(url) {
 function handleLocalFile(src) {
 
 	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS']),
-		canvas = UTILS.DOM.create('canvas'),
+		canvas = UTILS.D.create('canvas'),
 		ctx = canvas.getContext('2d'),
 		img = new Image();
 
@@ -869,25 +858,25 @@ chrome.notifications.onClicked.addListener(function (notificationId) {
 
 		case "reply.single":
 
-			chrome.tabs.create({ url: "http://imgur.com/" + notificationInfo.image_id, selected: true });
+			chrome.tabs.create({ url: "https://imgur.com/" + notificationInfo.image_id, selected: true });
 
 			break;
 
 		case "reply.multiple":
 
-			chrome.tabs.create({ url: "http://imgur.com/account/messages/", selected: true });
+			chrome.tabs.create({ url: "https://imgur.com/account/messages/", selected: true });
 
 			break;
 
 		case "message.single":
 
-			chrome.tabs.create({ url: "http://imgur.com/account/messages/", selected: true });
+			chrome.tabs.create({ url: "https://imgur.com/account/messages/", selected: true });
 
 			break;
 
 		case "message.multiple":
 
-			chrome.tabs.create({ url: "http://imgur.com/account/messages/", selected: true });
+			chrome.tabs.create({ url: "https://imgur.com/account/messages/", selected: true });
 
 			break;
 
@@ -977,82 +966,6 @@ chrome.alarms.create("ALARM_CONTEXTMENUS", {
 checkContextMenus();
 
 toggleNotifications();
-
-
-/*
-handleNotifications({
-	"replies": [{
-		"id": 4511,
-		"account_id": 384077,
-		"viewed": false,
-		"content": {
-			"album_cover": null,
-			"author": "jasdev",
-			"author_id": 3698510,
-			"children": [],
-			"comment": "Reply test",
-			"datetime": 1406070774,
-			"deleted": false,
-			"downs": 0,
-			"id": 3616,
-			"image_id": "VK9VqcM",
-			"on_album": false,
-			"parent_id": 3615,
-			"points": 1,
-			"ups": 1,
-			"vote": null
-		}
-	}, {
-		"id": 4511,
-		"account_id": 384077,
-		"viewed": false,
-		"content": {
-			"album_cover": null,
-			"author": "jasdev",
-			"author_id": 3698510,
-			"children": [],
-			"comment": "Reply test",
-			"datetime": 1406070774,
-			"deleted": false,
-			"downs": 0,
-			"id": 3616,
-			"image_id": "VK9VqcM",
-			"on_album": false,
-			"parent_id": 3615,
-			"points": 1,
-			"ups": 1,
-			"vote": null
-		}
-	}],
-	"messages": [{
-		"id": 4523,
-		"account_id": 384077,
-		"viewed": false,
-		"content": {
-			"id": "620",
-			"from": "jasdev",
-			"account_id": "384077",
-			"with_account": "3698510",
-			"last_message": "wow. such message.",
-			"message_num": "103",
-			"datetime": 1406935917
-		}
-	}, {
-		"id": 4523,
-		"account_id": 384077,
-		"viewed": false,
-		"content": {
-			"id": "620",
-			"from": "jasdev",
-			"account_id": "384077",
-			"with_account": "3698510",
-			"last_message": "wow. such message.",
-			"message_num": "103",
-			"datetime": 1406935917
-		}
-	}]
-})
-*/
 
 // Notifications
 
