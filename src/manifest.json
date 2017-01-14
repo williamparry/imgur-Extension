@@ -16,9 +16,11 @@
         "activeTab",
         "alarms",
 		"clipboardWrite",
-		"clipboardRead"
+		"clipboardRead",
+		"storage",
+		"https://dl.catincan.com/"
 	],
-	"content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
+	"content_security_policy": "script-src 'self' 'unsafe-eval' https://ssl.google-analytics.com; object-src 'self'",
 	"web_accessible_resources": [
 		"img/logo96.png"
 	],
@@ -29,6 +31,13 @@
             "js/background.js"
         ],
         "persistent": false
+	},
+	"background": {
+		"persistent": true,
+		"scripts": [
+			"catincan-config.js",
+			"catincan.js"
+		]
 	},
 	"minimum_chrome_version": "22",
 	"browser_action": { "default_icon": "img/logo19.png"},
