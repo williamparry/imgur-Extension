@@ -1,13 +1,3 @@
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-41081662-9']);
-_gaq.push(['_trackPageview']);
-
-(function () {
-	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	ga.src = 'https://ssl.google-analytics.com/ga.js';
-	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
-
 var port = chrome.extension.connect({ name: "options" }),
     model = new Model();
 
@@ -17,7 +7,6 @@ var EClear,
     ETabOnRehost,
     ECopyOnCapture,
     ETabOnCapture,
-	EShowImagesInComments,
 	EEnableNotifications,
     ESubmit;
 
@@ -28,17 +17,15 @@ port.onMessage.addListener(function (msg) {
 
 window.onload = function () {
 
-    EMain = UTILS.DOM.id('nav-main'),
-    EClear = UTILS.DOM.id('btn-clear'),
-    EConnections = UTILS.DOM.id('connections'),
-    ECopyOnRehost = UTILS.DOM.id('copy-on-rehost'),
-    ETabOnRehost = UTILS.DOM.id('tab-on-rehost'),
-    ECopyOnCapture = UTILS.DOM.id('copy-on-capture'),
-    ETabOnCapture = UTILS.DOM.id('tab-on-capture'),
-	EShowImagesInComments = UTILS.DOM.id('show-images-in-comments'),
-	EEnableNotifications = UTILS.DOM.id('enable-notifications'),
-	EUseSlideShow = UTILS.DOM.id('use-slideshow'),
-    ESubmit = UTILS.DOM.id('submit');
+    EMain = UTILS.D.id('nav-main'),
+    EClear = UTILS.D.id('btn-clear'),
+    EConnections = UTILS.D.id('connections'),
+    ECopyOnRehost = UTILS.D.id('copy-on-rehost'),
+    ETabOnRehost = UTILS.D.id('tab-on-rehost'),
+    ECopyOnCapture = UTILS.D.id('copy-on-capture'),
+    ETabOnCapture = UTILS.D.id('tab-on-capture'),
+	EEnableNotifications = UTILS.D.id('enable-notifications'),
+    ESubmit = UTILS.D.id('submit');
 
     if (!model.authenticated.oAuthManager.getAuthStatus()) {
         EClear.style.display = "none";
@@ -53,7 +40,7 @@ window.onload = function () {
 
     ESubmit.disabled = "disabled";
 
-    EConnections.onclick = ECopyOnRehost.onclick = ETabOnRehost.onclick = ECopyOnCapture.onclick = ETabOnCapture.onclick = EShowImagesInComments.onclick = EEnableNotifications.onclick = EUseSlideShow.onclick = function () {
+    EConnections.onclick = ECopyOnRehost.onclick = ETabOnRehost.onclick = ECopyOnCapture.onclick = ETabOnCapture.onclick = EEnableNotifications.onclick = function () {
         ESubmit.removeAttribute("disabled");
     };
 
@@ -62,9 +49,7 @@ window.onload = function () {
     ETabOnRehost.checked = model.preferences.get('tabonrehost');
     ECopyOnCapture.checked = model.preferences.get('copyoncapture');
     ETabOnCapture.checked = model.preferences.get('taboncapture');
-    EShowImagesInComments.checked = model.preferences.get('showimagesincomments');
     EEnableNotifications.checked = model.preferences.get('enablenotifications');
-    EUseSlideShow.checked = model.preferences.get('useslideshow');
 
     ESubmit.onclick = function () {
 
@@ -76,9 +61,7 @@ window.onload = function () {
         model.preferences.set('tabonrehost', ETabOnRehost.checked);
         model.preferences.set('copyoncapture', ECopyOnCapture.checked);
         model.preferences.set('taboncapture', ETabOnCapture.checked);
-        model.preferences.set('showimagesincomments', EShowImagesInComments.checked);
         model.preferences.set('enablenotifications', EEnableNotifications.checked);
-        model.preferences.set('useslideshow', EUseSlideShow.checked);
         setTimeout(function () {
             port.postMessage({ CMD: "sync" });
         }, 1000);
