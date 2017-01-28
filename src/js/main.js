@@ -562,7 +562,7 @@ function fetchImages() {
 		} else if (CurrentAlbum == "_userAlbum") {
 
 			// Show immediately
-			var immediateImages = model.authenticated.getUserImages(CurrentOffset);
+			var immediateImages = model.authenticated.getUserImages(CurrentOffset) || [];
             constructAlbumImages(immediateImages, EAlbum);
 
 			callback = model.authenticated.fetchUserImages(CurrentOffset);
@@ -583,13 +583,13 @@ function fetchImages() {
                 	if (msg.status === 400) {
                 		criticalError();
                 	}
-                	
+                    
                 	chrome.notifications.create("", {
 
                 		type: "basic",
                 		iconUrl: "img/logo96.png",
                 		title: "Error",
-                		message: msg.text
+                		message: msg.text || "Something went wrong. Try refreshing."
                 	}, function () { });
 
                 });
@@ -598,7 +598,7 @@ function fetchImages() {
 		} else if (CurrentAlbum == "_userFavouritesAlbum") {
 
 			// Show immediately
-            var immediateImages = model.authenticated.getFavourites(CurrentOffset);
+            var immediateImages = model.authenticated.getFavourites(CurrentOffset) || [];
 			constructAlbumImages(immediateImages, EAlbum);
 
 			callback = model.authenticated.fetchFavourites(CurrentOffset);
@@ -623,7 +623,7 @@ function fetchImages() {
                 		type: "basic",
                 		iconUrl: "img/logo96.png",
                 		title: "Error",
-                		message: msg.text
+                		message: msg.text || "Something went wrong. Try refreshing."
                 	}, function () { });
 
                 });
@@ -632,7 +632,7 @@ function fetchImages() {
 		} else {
 
 			// Show immediately
-            var immediateImages = model.authenticated.getAlbumImages(CurrentAlbum, CurrentOffset);
+            var immediateImages = model.authenticated.getAlbumImages(CurrentAlbum, CurrentOffset) || []
 			constructAlbumImages(immediateImages, EAlbum);
 			
 			callback = model.authenticated.fetchAlbumImages(CurrentAlbum, CurrentOffset);
@@ -666,7 +666,7 @@ function fetchImages() {
                 		type: "basic",
                 		iconUrl: "img/logo96.png",
                 		title: "Error",
-                		message: msg.text
+                		message: msg.text || "Something went wrong. Try refreshing."
                 	}, function () { });
 
                 });

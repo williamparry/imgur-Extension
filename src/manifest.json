@@ -22,7 +22,7 @@
 	],
 	"background": {
         "scripts": [
-            "js/lib/utils-1.4-BETA.js",
+            "js/lib/utils-1.4.js",
             "js/model.js",
             "js/background.js"
         ],
