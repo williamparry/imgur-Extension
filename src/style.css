@@ -100,20 +100,6 @@ header {
 		border-bottom: 1px solid #000;
 	}
 
-		header > .inner a.metronomik-logo {
-			background: transparent url('img/main/metronomik-logo.png') no-repeat left center;
-			text-indent: -99999px;
-			width: 23px;
-			height: 41px;
-			margin: 0 15px;
-			display: block;
-			-webkit-transition: all linear 1s;
-		}
-
-			header > .inner a.metronomik-logo:hover {
-				-webkit-filter: brightness(150%); 
-			}
-
 		h1 {
 			background: transparent url('img/main/logo.png') no-repeat left center;
 			text-indent: -99999px;
@@ -121,6 +107,7 @@ header {
 			height: 41px;
 			position: relative;
 			bottom: -2px;
+			margin-left: 10px;
 		}
 
 	nav {

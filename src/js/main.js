@@ -7,7 +7,6 @@ var port = chrome.extension.connect({ name: "main" }),
 	ENavOptions,
 	ENavDelete,
     EAlbums,
-	EComments,
 	CurrentOffset = 0,
     CurrentAlbum,
     ECurrentAlbum,
@@ -817,7 +816,6 @@ function checkForMoreImages() {
 window.onload = function() {
 
     EAlbums = UTILS.D.id('albums');
-    EComments = UTILS.D.id('comments');
 	EWrap = UTILS.D.id('wrap');
 	ENav = document.getElementsByTagName('nav')[0];
 	ENavConnect = UTILS.D.id('nav-connect');
