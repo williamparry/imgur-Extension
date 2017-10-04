@@ -2,7 +2,7 @@
 // Note: There's no way to set who receives what message (the first one who responds handles and discards
 // Init start to assign port id and also set an untilY
 // port id may not be necessary but sending the untilY necessitates this
-chrome.extension.onMessage.addListener(function (data) {
+chrome.runtime.onMessage.addListener(function (data) {
 
 	var body,
 		html,
@@ -17,7 +17,7 @@ chrome.extension.onMessage.addListener(function (data) {
 		buffer;
 
 	ref = arguments.callee;
-	port = chrome.extension.connect({ name: data.portId });
+	port = chrome.runtime.connect({ name: data.portId });
 	origOverflowY = document.body.style.overflowY;
 	document.body.style.overflowY = 'hidden';
 	origOverflowX = document.body.style.overflowX;
@@ -80,7 +80,7 @@ chrome.extension.onMessage.addListener(function (data) {
 		document.body.style.overflowX = origOverflowX;
 		document.body.removeChild(overlay);
 		port.disconnect();
-		chrome.extension.onMessage.removeListener(ref);
+		chrome.runtime.onMessage.removeListener(ref);
 	}
 
 	port.onMessage.addListener(function (data) {

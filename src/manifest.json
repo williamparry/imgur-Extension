@@ -31,10 +31,19 @@
 	"minimum_chrome_version": "22",
 	"browser_action": { "default_icon": "img/logo19.png"},
 	"options_page": "options.html",
+    "options_ui": {
+        "page": "options.html"
+    },
 	"content_scripts": [
 		{
 			"matches": ["https://api.imgur.com/oauth2/pin?pin=*"],
 			"js": ["js/inject/verifier.js"]
 		}
-	]
+	],
+    "applications": {
+        "gecko": {
+            "id": "imgur@community.ext"
+        }
+    }
+
 }

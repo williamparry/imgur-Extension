@@ -1,4 +1,4 @@
-var port = chrome.extension.connect({ name: "main" }),
+var port = chrome.runtime.connect({ name: "main" }),
     model = new Model(),
     EWrap,
     ENav,
@@ -302,7 +302,7 @@ function makeAlbumItem(imageItem) {
 
     imgLink.onclick = function (e) {
     	e.preventDefault();
-    	chrome.tabs.create({ "url": this.href, "selected": true });
+    	chrome.tabs.create({ "url": this.href, "active": true });
     };
     
     

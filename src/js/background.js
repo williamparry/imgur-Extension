@@ -18,7 +18,7 @@ chrome.browserAction.setBadgeBackgroundColor({ color: [85, 85, 85, 155] });
 chrome.browserAction.onClicked.addListener(function (tab) {
 	chrome.tabs.create({
 		url: "main.html",
-		selected: true
+		active: true
 	});
 });
 
@@ -330,7 +330,7 @@ function uploadCompleteNotification(message) {
 }
 
 function uploadCompleteTab(url) {
-	chrome.tabs.create({ "url": url, "selected": true });
+	chrome.tabs.create({ "url": url, "active": true });
 }
 
 function uploadDelegate(evt) {
@@ -620,7 +620,7 @@ portMessenger.addEventListener("main.get_user", function () {
 
     chrome.tabs.create({
     	url: 'https://api.imgur.com/oauth2/authorize?client_id=e5642c924b26904&response_type=pin',
-    	selected: true
+    	active: true
     }, function (tab) {
 
     	authTab = tab.id;
@@ -858,31 +858,31 @@ chrome.notifications.onClicked.addListener(function (notificationId) {
 
 		case "reply.single":
 
-			chrome.tabs.create({ url: "https://imgur.com/" + notificationInfo.image_id, selected: true });
+			chrome.tabs.create({ url: "https://imgur.com/" + notificationInfo.image_id, active: true });
 
 			break;
 
 		case "reply.multiple":
 
-			chrome.tabs.create({ url: "https://imgur.com/account/messages/", selected: true });
+			chrome.tabs.create({ url: "https://imgur.com/account/messages/", active: true });
 
 			break;
 
 		case "message.single":
 
-			chrome.tabs.create({ url: "https://imgur.com/account/messages/", selected: true });
+			chrome.tabs.create({ url: "https://imgur.com/account/messages/", active: true });
 
 			break;
 
 		case "message.multiple":
 
-			chrome.tabs.create({ url: "https://imgur.com/account/messages/", selected: true });
+			chrome.tabs.create({ url: "https://imgur.com/account/messages/", active: true });
 
 			break;
 
 		case "update.url":
 
-			chrome.tabs.create({ url: notificationInfo.url, selected: true });
+			chrome.tabs.create({ url: notificationInfo.url, active: true });
 
 			break;
 

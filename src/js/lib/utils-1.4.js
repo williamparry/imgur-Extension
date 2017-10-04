@@ -196,7 +196,7 @@ var UTILS = (function () {
 			return portName + "." + cmd;
 		}
 
-		chrome.extension.onConnect.addListener(function (port) {
+		chrome.runtime.onConnect.addListener(function (port) {
 
 			// If there is no stored connections for that name
 			// Construct an array
@@ -263,7 +263,7 @@ var UTILS = (function () {
 
 		var self = this;
 
-		chrome.extension.onMessage.addListener(function (msg, sender, responseFunc) {
+		chrome.runtime.onMessage.addListener(function (msg, sender, responseFunc) {
 			// Pass it on to the listener to deal with the response
 			self.dispatchEvent(msg.CMD, {
 				Data: msg.Data,
