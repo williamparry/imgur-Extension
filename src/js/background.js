@@ -77,17 +77,17 @@ function addToClipboard(url) {
                           "    document.removeEventListener(\"copy\", oncopy, true);" +
                           "    evt.stopImmediatePropagation();" +
                           "    evt.preventDefault();" +
-                          "    evt.clipboardData.setData(\"text/plain\", \"" + url + "\")" +
+                          "    evt.clipboardData.setData(\"text/plain\", \"" + url + "\");" +
                           "}" +
                           "document.addEventListener(\"copy\", oncopy, true);" +
                           "document.execCommand(\"copy\");"
-                })
+                });
             } else {
-                console.log("Has browser.runtime.getBrowserInfo but isn't firefox. Don't know what to do with this.")
+                console.log("Has browser.runtime.getBrowserInfo but isn't firefox. Don't know what to do with this.");
             }
         }).catch(function(err) {
             console.log("Failed to get browser info: " + err);
-        })
+        });
     } else {
         var txt = UTILS.D.create('input');
         document.body.appendChild(txt);
