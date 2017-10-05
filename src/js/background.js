@@ -393,7 +393,11 @@ function setContextMenus() {
     
 	chrome.contextMenus.removeAll(function () {
 
-		var parentId = chrome.contextMenus.create({ "id": "imgur", "title": "imgur" });
+		var parentId = chrome.contextMenus.create({
+            "id": "imgur",
+            "title": "imgur",
+            "contexts": ["page"]
+        });
 
 		var capturePageContextMenuItem = chrome.contextMenus.create({
 			"id": "unsorted.page",
