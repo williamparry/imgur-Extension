@@ -1,4 +1,4 @@
-var port = chrome.extension.connect({ name: "options" }),
+var port = chrome.runtime.connect({ name: "options" }),
     model = new Model();
 
 var EClear,

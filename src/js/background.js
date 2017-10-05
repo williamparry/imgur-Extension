@@ -18,7 +18,7 @@ chrome.browserAction.setBadgeBackgroundColor({ color: [85, 85, 85, 155] });
 chrome.browserAction.onClicked.addListener(function (tab) {
 	chrome.tabs.create({
 		url: "main.html",
-		selected: true
+		active: true
 	});
 });
 
@@ -26,7 +26,10 @@ function handleCapture() {
 
 	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']);
 	
-	chrome.tabs.getSelected(null, function (tab) {
+    chrome.tabs.query({
+				active: true,
+				currentWindow: true
+            }, function (tab) {
 
 		chrome.tabs.executeScript(tab.id, { file: "js/inject/captureArea.js" }, function (info) {
 				
@@ -66,12 +69,33 @@ function handleCapture() {
 
 
 function addToClipboard(url) {
-	var txt = UTILS.D.create('input');
-	document.body.appendChild(txt);
-	txt.value = url;
-	txt.select();
-	document.execCommand('copy');
-	document.body.removeChild(txt);
+    if (typeof browser != "undefined" && browser.runtime.getBrowserInfo) {
+        browser.runtime.getBrowserInfo().then(function(info) {
+            if (info.name == "Firefox") {
+                browser.tabs.executeScript({
+                    code: "function oncopy(evt) {" +
+                          "    document.removeEventListener(\"copy\", oncopy, true);" +
+                          "    evt.stopImmediatePropagation();" +
+                          "    evt.preventDefault();" +
+                          "    evt.clipboardData.setData(\"text/plain\", \"" + url + "\");" +
+                          "}" +
+                          "document.addEventListener(\"copy\", oncopy, true);" +
+                          "document.execCommand(\"copy\");"
+                });
+            } else {
+                console.log("Has browser.runtime.getBrowserInfo but isn't firefox. Don't know what to do with this.");
+            }
+        }).catch(function(err) {
+            console.log("Failed to get browser info: " + err);
+        });
+    } else {
+        var txt = UTILS.D.create('input');
+        document.body.appendChild(txt);
+        txt.value = url;
+        txt.select();
+        document.execCommand('copy');
+        document.body.removeChild(txt);
+    }
 }
 
 function handleLocalFile(src) {
@@ -330,7 +354,7 @@ function uploadCompleteNotification(message) {
 }
 
 function uploadCompleteTab(url) {
-	chrome.tabs.create({ "url": url, "selected": true });
+	chrome.tabs.create({ "url": url, "active": true });
 }
 
 function uploadDelegate(evt) {
@@ -390,7 +414,11 @@ function setContextMenus() {
     
 	chrome.contextMenus.removeAll(function () {
 
-		var parentId = chrome.contextMenus.create({ "id": "imgur", "title": "imgur" });
+		var parentId = chrome.contextMenus.create({
+            "id": "imgur",
+            "title": "imgur",
+            "contexts": ["page"]
+        });
 
 		var capturePageContextMenuItem = chrome.contextMenus.create({
 			"id": "unsorted.page",
@@ -620,7 +648,7 @@ portMessenger.addEventListener("main.get_user", function () {
 
     chrome.tabs.create({
     	url: 'https://api.imgur.com/oauth2/authorize?client_id=e5642c924b26904&response_type=pin',
-    	selected: true
+    	active: true
     }, function (tab) {
 
     	authTab = tab.id;
@@ -858,31 +886,31 @@ chrome.notifications.onClicked.addListener(function (notificationId) {
 
 		case "reply.single":
 
-			chrome.tabs.create({ url: "https://imgur.com/" + notificationInfo.image_id, selected: true });
+			chrome.tabs.create({ url: "https://imgur.com/" + notificationInfo.image_id, active: true });
 
 			break;
 
 		case "reply.multiple":
 
-			chrome.tabs.create({ url: "https://imgur.com/account/messages/", selected: true });
+			chrome.tabs.create({ url: "https://imgur.com/account/messages/", active: true });
 
 			break;
 
 		case "message.single":
 
-			chrome.tabs.create({ url: "https://imgur.com/account/messages/", selected: true });
+			chrome.tabs.create({ url: "https://imgur.com/account/messages/", active: true });
 
 			break;
 
 		case "message.multiple":
 
-			chrome.tabs.create({ url: "https://imgur.com/account/messages/", selected: true });
+			chrome.tabs.create({ url: "https://imgur.com/account/messages/", active: true });
 
 			break;
 
 		case "update.url":
 
-			chrome.tabs.create({ url: notificationInfo.url, selected: true });
+			chrome.tabs.create({ url: notificationInfo.url, active: true });
 
 			break;
 

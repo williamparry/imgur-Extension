@@ -1,4 +1,4 @@
-var port = chrome.extension.connect({ name: "main" }),
+var port = chrome.runtime.connect({ name: "main" }),
     model = new Model(),
     EWrap,
     ENav,
@@ -302,7 +302,7 @@ function makeAlbumItem(imageItem) {
 
     imgLink.onclick = function (e) {
     	e.preventDefault();
-    	chrome.tabs.create({ "url": this.href, "selected": true });
+    	chrome.tabs.create({ "url": this.href, "active": true });
     };
     
     
@@ -877,6 +877,9 @@ window.onload = function() {
 
 		e.preventDefault();
 		var dialog = UTILS.D.create('dialog');
+        if (!dialog.showModal) {
+            dialogPolyfill.registerDialog(dialog);
+        }
 		var iframe = UTILS.D.create('iframe');
 		var close = UTILS.D.create('button');
 		
@@ -938,7 +941,10 @@ window.onload = function() {
 
 	window.onscroll = function() {
 	
-		if(document.body.scrollTop + window.innerHeight >= (document.body.clientHeight - 100)) {
+        var scrollTop = (document.documentElement.scrollTop
+                    || document.body.parentNode.scrollTop
+                    || document.body.scrollTop);
+		if(scrollTop + window.innerHeight >= (document.body.clientHeight - 100)) {
 			checkForMoreImages();
 		}
 		

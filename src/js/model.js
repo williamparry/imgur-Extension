@@ -77,7 +77,7 @@ function Model() {
 	}
 
 	var checkVersion = DAL.get("currentVersion");
-	var currentVersion = chrome.app.getDetails().version;
+	var currentVersion = chrome.runtime.getManifest().version;
     
 	// ------------------------------------------------------------------
 	// Upgrade -1 ~ 0.5 - 1.0.3

@@ -54,7 +54,7 @@ overlay.onmousemove = function (e) {
 overlay.onmouseup = function (e) {
     if (isDragging) {
 
-    	chrome.extension.sendMessage({
+    	chrome.runtime.sendMessage({
             CMD: 'got_area',
             Data: {
                 left:   dragArea.style.left.split('px')[0],
