@@ -26,7 +26,10 @@ function handleCapture() {
 
 	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']);
 	
-	chrome.tabs.getSelected(null, function (tab) {
+    chrome.tabs.query({
+				active: true,
+				currentWindow: true
+            }, function (tab) {
 
 		chrome.tabs.executeScript(tab.id, { file: "js/inject/captureArea.js" }, function (info) {
 				
