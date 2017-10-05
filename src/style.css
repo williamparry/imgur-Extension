@@ -419,6 +419,10 @@ a#nav-options {
 		background: rgba(0, 0, 0, 0.8);
 	}
 
+    .options-dialog + .backdrop {
+        background: rgba(0, 0, 0, 0.8);
+    }
+
 	.options-dialog iframe {
 		width: 100%;
 		height: 100%;

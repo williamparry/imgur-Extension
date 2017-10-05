@@ -877,6 +877,9 @@ window.onload = function() {
 
 		e.preventDefault();
 		var dialog = UTILS.D.create('dialog');
+        if (!dialog.showModal) {
+            dialogPolyfill.registerDialog(dialog);
+        }
 		var iframe = UTILS.D.create('iframe');
 		var close = UTILS.D.create('button');
 		
