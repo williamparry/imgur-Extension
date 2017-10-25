@@ -1,4 +1,12 @@
 {
 	"version": "2.1.3",
-	"minimum_chrome_version": "22"
+	"minimum_chrome_version": "22",
+	"background": {
+        "scripts": [
+            "lib/utils-1.4.js",
+            "js/model.js",
+            "js/background.js"
+		],
+		"persistent": false
+	}
 }

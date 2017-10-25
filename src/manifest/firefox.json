@@ -4,5 +4,12 @@
         "gecko": {
             "id": "imgur@community.ext"
         }
-    }
+    },
+    "background": {
+        "scripts": [
+            "lib/utils-1.4.js",
+            "js/model.js",
+            "js/background.js"
+		]
+	}
 }
