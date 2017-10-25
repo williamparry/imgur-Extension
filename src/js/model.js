@@ -10,12 +10,15 @@ http://www.jwz.org/doc/cadt.html
 ******************************************
 ******************************************/
 
+var __PLATFORM__ = "{%PLATFORM%}"
+var __CLIENT_ID__ = "{%CLIENT_ID%}"
 
 function Model() {
 
 	var root = this;
-
-	var clientId = "e5642c924b26904";
+	
+	this.isChrome = __PLATFORM__ == "chrome";
+	this.client_id = __CLIENT_ID__;
 
 	// ------------------------------------------------------------------
 	// Data Access Layer
@@ -481,58 +484,15 @@ function Model() {
 
     		this.getAuthStatus = function () {
     			return DAL.get('OAuth2.access_token') != null;
-    		};
-
-    		this.getToken = function (pin) {
-    			
-    			var evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE', 'EVENT_SUCCESS', 'EVENT_ERROR']),
-					xhr = new XMLHttpRequest();
-    			
-    			xhr.open("POST", "https://api.imgur.com/metronomik/token", true);
-    			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    			xhr.onreadystatechange = function () {
-
-    				if (xhr.readyState == 4) {
-
-    					evtD.dispatchEvent("EVENT_COMPLETE");
-
-    					try {
-
-    						var resp = JSON.parse(xhr.responseText);
-
-    						if (xhr.status === 200) {
-    							
-    								authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
-    								evtD.dispatchEvent("EVENT_SUCCESS");
-
-    						} else {
-    							
-    							console.warn('other error', xhr.status);
-    							evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
-
-    						}
-
-    					} catch (ex) {
-    						alert('ex');
-    						console.log('imgur borked');
-    						evtD.dispatchEvent("EVENT_ERROR", "imgur API error. Please try again later.");
-
-    					}
-
-
-    				}
-    			};
-    			xhr.send("grant_type=pin&response_type=pin&pin=" + pin);
-    			return evtD;
-    		};
-
+			};
+			
 			// This is only consumed in the context of the request manager
     		this.refreshToken = function () {
 
     			var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']),
 					xhr = new XMLHttpRequest();
 
-    			xhr.open("POST", "https://api.imgur.com/metronomik/token", true);
+    			xhr.open("POST", "https://api.imgur.com/oauth2/authorize", true);
     			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
     			xhr.onreadystatechange = function () {
@@ -566,7 +526,7 @@ function Model() {
 
     			}
 
-    			xhr.send("grant_type=refresh_token&refresh_token=" + DAL.get('OAuth2.refresh_token'));
+    			xhr.send("client_id=" + root.client_id + " &grant_type=refresh_token&refresh_token=" + DAL.get('OAuth2.refresh_token'));
 
     			return evtD;
 
@@ -827,13 +787,8 @@ function Model() {
 
     		return req.evtD;
 
-    	};
-
-    	
-
-
-        
-
+		};
+		
     	this.makeAlbum = function (title) {
     		
     		var req = new signedRequest("POST", "https://api.imgur.com/3/album/", "title=" + title);
@@ -934,7 +889,7 @@ function Model() {
     			var xhr = new XMLHttpRequest();
 
     			xhr.open(method, url, true);
-    			xhr.setRequestHeader('Authorization', 'Client-ID ' + clientId);
+    			xhr.setRequestHeader('Authorization', 'Client-ID ' + root.client_id);
 
     			if (postStr) {
     				xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');

@@ -1,8 +1,18 @@
 # imgur Community Extension
 
+* Chrome
+* Firefox 57+
+
 **Licensed under BSD License**
 
 This is the repository for the [imgur Community Extension](https://chrome.google.com/webstore/detail/imgur-community-extension/ehoopddfhgaehhmphfcooacjdpmbjlao).
+
+## Running
+
+	npm install
+	gulp [--platform=firefox]
+
+Will build to build/(platform)
 
 ## Notice
 

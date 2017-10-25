@@ -69,25 +69,17 @@ function handleCapture() {
 
 
 function addToClipboard(url) {
-    if (typeof browser != "undefined" && browser.runtime.getBrowserInfo) {
-        browser.runtime.getBrowserInfo().then(function(info) {
-            if (info.name == "Firefox") {
-                browser.tabs.executeScript({
-                    code: "function oncopy(evt) {" +
-                          "    document.removeEventListener(\"copy\", oncopy, true);" +
-                          "    evt.stopImmediatePropagation();" +
-                          "    evt.preventDefault();" +
-                          "    evt.clipboardData.setData(\"text/plain\", \"" + url + "\");" +
-                          "}" +
-                          "document.addEventListener(\"copy\", oncopy, true);" +
-                          "document.execCommand(\"copy\");"
-                });
-            } else {
-                console.log("Has browser.runtime.getBrowserInfo but isn't firefox. Don't know what to do with this.");
-            }
-        }).catch(function(err) {
-            console.log("Failed to get browser info: " + err);
-        });
+	if(!model.isChrome) {
+		browser.tabs.executeScript({
+			code: "function oncopy(evt) {" +
+				  "    document.removeEventListener(\"copy\", oncopy, true);" +
+				  "    evt.stopImmediatePropagation();" +
+				  "    evt.preventDefault();" +
+				  "    evt.clipboardData.setData(\"text/plain\", \"" + url + "\");" +
+				  "}" +
+				  "document.addEventListener(\"copy\", oncopy, true);" +
+				  "document.execCommand(\"copy\");"
+		});
     } else {
         var txt = UTILS.D.create('input');
         document.body.appendChild(txt);
@@ -634,68 +626,46 @@ portMessenger.addEventListener("options.sync", function () {
 
 portMessenger.addEventListener("main.get_user", function () {
 
-	var authTab,
-        req = new XMLHttpRequest();
+	function validate(url) {
+console.log(url);
+		var obj = url.split("#")[1].split("&").reduce(function(prev, curr, i, arr) {
+			var p = curr.split("=");
+			prev[decodeURIComponent(p[0])] = decodeURIComponent(p[1]);
+			return prev;
+		}, {});
 
-    function sendAuthAbortedMessage(tabId) {
-        if (tabId == authTab) {
-            requestMessenger.removeAllEventListeners("oauth_verified");
-            portMessenger.sendMessage("main", {
-            	Name: "get_user_aborted"
-            });
-        }
-    }
+		console.log(obj);
 
-    chrome.tabs.create({
-    	url: 'https://api.imgur.com/oauth2/authorize?client_id=e5642c924b26904&response_type=pin',
-    	active: true
-    }, function (tab) {
+		model.authenticated.oAuthManager.set(obj.access_token, obj.refresh_token, obj.account_username);
 
-    	authTab = tab.id;
-    	chrome.tabs.onRemoved.addListener(sendAuthAbortedMessage);
+		model.authenticated.fetchUser().addEventListener('EVENT_SUCCESS', function () {
 
-    	requestMessenger.addEventListener("oauth_verified", function (verifier) {
-    		
-    		requestMessenger.removeEventListener("oauth_verified", arguments.callee);
+			model.authenticated.fetchAlbums().addEventListener('EVENT_SUCCESS', function () {
 
-    		chrome.tabs.remove(tab.id);
+				setContextMenus();
+				syncViews();
 
-    		model.authenticated.oAuthManager.getToken(verifier.Data).addEventListener('EVENT_COMPLETE', function () {
-    			
-    			authTab = -1;
-    			chrome.tabs.onRemoved.removeListener(sendAuthAbortedMessage);
+			}).addEventListener('EVENT_ERROR', function (error) {
 
-    		}).addEventListener('EVENT_SUCCESS', function () {
+				showError(error);
 
-    			model.authenticated.fetchUser().addEventListener('EVENT_SUCCESS', function () {
+			});
+		});
+	}
 
-    				model.authenticated.fetchAlbums().addEventListener('EVENT_SUCCESS', function () {
+	var obj = {
+		url: "https://api.imgur.com/oauth2/authorize?client_id=" + model.client_id + "&response_type=token",
+		interactive: true	
+	};
 
-    					setContextMenus();
-    					syncViews();
-
-    				}).addEventListener('EVENT_ERROR', function (error) {
-
-    					showError(error);
-
-    				});
-    			});
-
-    		}).addEventListener('EVENT_ERROR', function (error) {
-    			
-    			showError(error);
-
-    		});
-
-
-    	});
-
-    });
-
-
-
-
-
+	if(model.isChrome) {
+		obj.url += "&redirect_uri=" + encodeURIComponent(chrome.identity.getRedirectURL());
+		chrome.identity.launchWebAuthFlow(obj, validate);
+	} else {
+		obj.url += "&redirect_uri=" + encodeURIComponent(browser.identity.getRedirectURL());
+		browser.identity.launchWebAuthFlow(obj).then(validate);
+	}
+	
 });
 
 

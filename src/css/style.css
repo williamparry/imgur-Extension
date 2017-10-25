@@ -48,7 +48,7 @@ p
 }
 
 .btn {
-	background-image: -webkit-linear-gradient(#2b2b2b, #121211);
+	background-image: linear-gradient(#2b2b2b, #121211);
 	border: 2px solid #2b2b2b;
 	color: #fff;
 	padding: 5px 10px;
@@ -61,23 +61,23 @@ p
 }
 		
 .btn:hover {
-	background-image: -webkit-linear-gradient(#444442, #131312);
+	background-image: linear-gradient(#444442, #131312);
 }
 		
 .btn:focus {
-	-webkit-box-shadow: 0 0 1px 1px #2b2b2b;
+	box-shadow: 0 0 1px 1px #2b2b2b;
 	outline: none;
 }
         
 .btn[disabled] {
-	background-image: -webkit-linear-gradient(#444, #333);
+	background-image: linear-gradient(#444, #333);
     border: 2px solid #444;
 	outline: none;
 }
 
 .btn-inline
 {
-    background-image: -webkit-linear-gradient(#2b2b2b, #121211);
+    background-image: linear-gradient(#2b2b2b, #121211);
 }
 
 h3
@@ -101,7 +101,7 @@ header {
 	}
 
 		h1 {
-			background: transparent url('img/main/logo.png') no-repeat left center;
+			background: transparent url('/img/main/logo.png') no-repeat left center;
 			text-indent: -99999px;
 			width: 71px;
 			height: 41px;
@@ -117,8 +117,8 @@ header {
 		nav select {
 			font-weight: bold;
 			outline: none;
-			background: #121210 url('img/main/dropdown.png') no-repeat right center;
-			-webkit-appearance:none;
+			background: #121210 url('/img/main/dropdown.png') no-repeat right center;
+			appearance:none;
 			border: none;
 			display: table-cell;
 			vertical-align: middle;
@@ -159,12 +159,12 @@ a#nav-options {
 }
 
 	a#nav-options .inner {
-		background: transparent url('img/main/options.png') no-repeat center center;
+		background: transparent url('/img/main/options.png') no-repeat center center;
 		text-indent: -99999px;
 		display: block;
 		width: 100%;
 		height: 100%;
-		-webkit-transition: all linear 1s;
+		transition: all linear 1s;
 	}
 
 #albums
@@ -202,10 +202,10 @@ a#nav-options {
 */
 .album ul {
 
-	display: -webkit-flex;
-    -webkit-flex-flow: row wrap;
-	-webkit-justify-content: space-around; /* Horizontal */
-	-webkit-align-content: space-between; /* vertical */
+	display: flex;
+    flex-flow: row wrap;
+	justify-content: space-around; /* Horizontal */
+	align-content: space-between; /* vertical */
 }
     
 .album li 
@@ -377,7 +377,7 @@ a#nav-options {
 
 }
 
-@-webkit-keyframes copynotificationanim {
+@keyframes copynotificationanim {
     from {
         bottom: 20px;
         opacity: 1;
@@ -393,11 +393,11 @@ a#nav-options {
     position: absolute;
     bottom: 20px;
     right: 10px;
-    -webkit-animation-name: copynotificationanim;
-    -webkit-animation-duration: 1s;
-    -webkit-animation-iteration-count: 1;
+    animation-name: copynotificationanim;
+    animation-duration: 1s;
+    animation-iteration-count: 1;
     font-size: 9px;
-    background-image: -webkit-linear-gradient(#2b2b2b, #121211);
+    background-image: linear-gradient(#2b2b2b, #121211);
 	border: 2px solid #bbb;
 	color: #fff;
 	padding: 2px 5px;
@@ -514,7 +514,7 @@ a#nav-options {
 	width: 100%;
 	opacity: 0;
 	height: 30px;
-	-webkit-transition: opacity 1s linear;
+	transition: opacity 1s linear;
 }
 
 #status-bar .content {

@@ -22,7 +22,7 @@ window.onload = function() {
 
 	function transformNode(node) {
 	
-		node.querySelectorAll('a[href$=".gif"], a[href$=".jpg"], a[href$=".png"').forEach(link => {
+		node.querySelectorAll('a[href$=".gif"], a[href$=".jpg"], a[href$=".png"').forEach(function(link) {
 			var img = document.createElement('img');
 			img.src = link.innerText;
 			img.style.display = "block";
@@ -31,7 +31,7 @@ window.onload = function() {
 		});
 
 
-		node.querySelectorAll('a[href$=".gifv"]').forEach(link => {
+		node.querySelectorAll('a[href$=".gifv"]').forEach(function(link) {
 			var video = document.createElement('video');
 			video.src = link.innerText.replace(".gifv", ".mp4");
 			video.style.display = "block";
@@ -42,7 +42,7 @@ window.onload = function() {
 			link.parentNode.replaceChild(video, link);
 		});
 
-		node.querySelectorAll('a[href*="www.youtube.com/watch?"]').forEach(link => {
+		node.querySelectorAll('a[href*="www.youtube.com/watch?"]').forEach(function(link) {
 			var iframe = document.createElement('iframe');
 			iframe.src = link.innerText.replace("www.youtube.com/watch?v=", "www.youtube.com/embed/");
 			iframe.width = "640";
@@ -57,7 +57,7 @@ window.onload = function() {
 		return document.querySelectorAll("#comments-container .children span:last-child > div");
 	}
 
-	var initInterval = setInterval(() => {
+	var initInterval = setInterval(function() {
 		
 		var comments = getComments();
 

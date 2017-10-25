@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<link href="js/lib/reset-min.css" rel="stylesheet">
-        <link href="js/lib/dialog-polyfill.css", rel="stylesheet">
-		<link href="style.css" rel="stylesheet">
+		<link href="lib/reset-min.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+		{%CSS%}
 		<title>imgur Extension</title>
 	</head>
 <body>
@@ -40,10 +40,11 @@
 		<span>Close</span>
 	</div>
 
-	<script src="js/lib/utils-1.4.js"></script>
-    <script src="js/model.js"></script>
+	<script src="lib/utils-1.4.js"></script>
+	<script src="js/model.js"></script>
+	{%JS%}
     <script src="js/main.js"></script>
-    <script src="js/lib/dialog-polyfill.js"></script>
+    
 
 </body>
 </html>

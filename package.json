@@ -1,0 +1,32 @@
+{
+  "name": "imgur-extension",
+  "version": "1.0.0",
+  "description": "**Licensed under BSD License**",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/williamparry/imgur-Extension.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/williamparry/imgur-Extension/issues"
+  },
+  "homepage": "https://github.com/williamparry/imgur-Extension#readme",
+  "dependencies": {
+    "del": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^4.0.0",
+    "gulp-cached": "^1.1.1",
+    "gulp-clean-css": "^3.9.0",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-merge-json": "^1.2.0",
+    "gulp-replace": "^0.6.1",
+    "gulp-uglify": "^3.0.0",
+    "pump": "^1.0.2",
+    "yargs": "^10.0.3"
+  }
+}
