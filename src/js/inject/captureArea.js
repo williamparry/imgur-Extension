@@ -4,8 +4,6 @@
     startPos;
 
 overlay.style.position = "absolute";
-overlay.style.top = body.scrollTop + "px";
-overlay.style.left = "0px";
 overlay.style.width = "100%";
 overlay.style.height = "100%";
 overlay.style.zIndex = "999999999";
@@ -14,21 +12,22 @@ overlay.style.cursor = "crosshair";
 var dragArea = document.createElement('div');
 dragArea.style.backgroundColor = "#555";
 dragArea.style.opacity = "0.25";
-dragArea.style.position = "relative";
+dragArea.style.position = "absolute";
 dragArea.style.display = "block";
 dragArea.style.width = 0;
 dragArea.style.border = "1px solid #000";
 
 overlay.appendChild(dragArea);
-body.appendChild(overlay);
+body.insertBefore(overlay, body.firstChild);
+body.prevOverflow = body.style.overflowY;
+body.style.overflowY = 'hidden';
+overlay.style.top = window.pageYOffset + 'px';
 
 overlay.onmousedown = function (e) {
     isDragging = true;
     startPos = [e.clientX, e.clientY];
     dragArea.style.left = startPos[0] + 'px';
     dragArea.style.top = startPos[1] + 'px';
-
-    return false;
 };
 
 overlay.onmousemove = function (e) {
@@ -53,7 +52,6 @@ overlay.onmousemove = function (e) {
 
 overlay.onmouseup = function (e) {
     if (isDragging) {
-
     	chrome.runtime.sendMessage({
             CMD: 'got_area',
             Data: {
@@ -67,6 +65,7 @@ overlay.onmouseup = function (e) {
         overlay.style.display = 'none';
         isDragging = false;
 
+        body.style.overflowY = body.prevOverflow;
         body.removeChild(overlay);
 
     }
