@@ -131,10 +131,10 @@
     function submit() {
 
         var obj = {
-            left: parseInt(dragArea.style.left),
-            top: parseInt(dragArea.style.top),
-            width: parseInt(dragArea.style.width),
-            height: parseInt(dragArea.style.height)
+            left: parseInt(dragArea.style.left) * window.devicePixelRatio,
+            top: parseInt(dragArea.style.top) * window.devicePixelRatio,
+            width: parseInt(dragArea.style.width) * window.devicePixelRatio,
+            height: parseInt(dragArea.style.height) * window.devicePixelRatio
         }
 
         removeOverlay();
