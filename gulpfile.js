@@ -103,8 +103,7 @@ gulp.task("lib", function(cb) {
 gulp.task("manifest", function(cb) {
 
 	pump([
-		gulp.src([srcBase + "manifest/base.json", srcBase + "manifest/" + platform + ".json"]),
-		cache('manifest'),
+		gulp.src([srcBase + "manifest/" + platform + ".json", srcBase + "manifest/base.json"]),
 		merge({
 			fileName: "manifest.json",		
 		}),

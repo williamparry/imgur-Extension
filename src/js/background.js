@@ -27,9 +27,9 @@ function handleCapture() {
 	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']);
 	
     chrome.tabs.query({
-				active: true,
-				currentWindow: true
-            }, function (tab) {
+		active: true,
+		currentWindow: true
+	}, function (tab) {
 
 		chrome.tabs.executeScript(tab.id, { file: "js/inject/captureArea.js" }, function (info) {
 				
@@ -61,12 +61,9 @@ function handleCapture() {
 		});
 
 	});
-
-			
-		
+	
 	return evtD;
 }
-
 
 function addToClipboard(url) {
 	if(!model.isChrome) {
@@ -687,42 +684,7 @@ function checkContextMenus() {
 
 }
 
-function arrayBufferDataUri(raw) {
-	var base64 = ''; var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'; var bytes = new Uint8Array(raw); var byteLength = bytes.byteLength; var byteRemainder = byteLength % 3; var mainLength = byteLength - byteRemainder; var a, b, c, d; var chunk; for (var i = 0; i < mainLength; i = i + 3) { chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]; a = (chunk & 16515072) >> 18; b = (chunk & 258048) >> 12; c = (chunk & 4032) >> 6; d = chunk & 63; base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d] }
-	if (byteRemainder == 1) { chunk = bytes[mainLength]; a = (chunk & 252) >> 2; b = (chunk & 3) << 4; base64 += encodings[a] + encodings[b] + '=='; }
-	else if (byteRemainder == 2) { chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1]; a = (chunk & 16128) >> 8; b = (chunk & 1008) >> 4; c = (chunk & 15) << 2; base64 += encodings[a] + encodings[b] + encodings[c] + '='; }
-	return "data:image/jpeg;base64," + base64;
-}
-
 function showReplyNotification(reply) {
-
-	/*
-	Not ready yet. Needs to handle gif/gifv files
-
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "http://i.imgur.com/" + reply.content.image_id + ".jpg", true); // file extension is not important
-	xhr.responseType = "arraybuffer";
-	xhr.onload = function () {
-
-		var img = arrayBufferDataUri(xhr.response);
-		
-		chrome.notifications.create(reply.id + "", {
-			type: "image",
-			iconUrl: "img/logo96.png",
-			imageUrl: img,
-			title: "New comment",
-			message: reply.content.comment
-		}, function (notificationId) {
-
-			notifications[notificationId] = { id: reply.id, type: "reply.single", image_id: reply.content.image_id };
-
-		});
-
-	};
-
-	xhr.send(null);
-	*/
-
 
 	chrome.notifications.create(reply.id + "", {
 		type: "basic",
@@ -734,7 +696,6 @@ function showReplyNotification(reply) {
 		notifications[notificationId] = { id: reply.id, type: "reply.single", image_id: reply.content.image_id };
 
 	});
-
 
 }
 

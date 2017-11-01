@@ -213,7 +213,12 @@ function Model() {
 
     		});
 
-    	}
+		}
+		if(versionCompare("2.1.3", checkVersion) > 0) {
+			chrome.permissions.remove({
+				permissions: ['<all_urls>', 'clipboardWrite', 'clipboardRead', 'tabs']
+			});
+		}
 
     }
 

@@ -8,13 +8,9 @@
 	},
 	"permissions": [
 		"contextMenus",
-		"tabs",
+		"activeTab",
 		"notifications",
-		"<all_urls>",
-        "activeTab",
         "alarms",
-		"clipboardWrite",
-		"clipboardRead",
 		"identity"
 	],
 	"web_accessible_resources": [
