@@ -536,6 +536,7 @@ function changeAlbum(albumID) {
     ECurrentAlbum = UTILS.D.id(CurrentAlbum);
     ECurrentAlbum.classList.add('active');
     ECurrentAlbum.dataset.end = false;
+    ECurrentAlbum.querySelectorAll('ul')[0].innerHTML = "";
 
     var currentOffset = 0;
     window.onscroll = null;
@@ -565,79 +566,69 @@ function changeAlbum(albumID) {
 
 function fetchImages(albumID, EAlbum, currentOffset) {
 
-    setBodyLoading();
+    if(albumID == "_thisComputer") {
+        constructAlbumImages(model.unsorted.get(), EAlbum);
+        return;
+    }
 
     var callback;
+    //var immediateImages;
+
+    setBodyLoading();
 
     switch(albumID) {
 
-        case "_thisComputer":
-
-        constructAlbumImages(model.unsorted.get(), EAlbum);
-        setBodyFinished();
-
-        return;
-
-        break;
-
         case "_userAlbum":
 
-        var immediateImages = model.authenticated.getUserImages(currentOffset) || [];
-        constructAlbumImages(immediateImages, EAlbum);
-
-        callback = model.authenticated.fetchUserImages(currentOffset).addEventListener('EVENT_SUCCESS', function (images) {
-            if (images.length > 0) {
-                if(!albumEquals(images, immediateImages)) {
-                    constructAlbumImages(images, EAlbum);
-                }
-            } else {
-                EAlbum.dataset.end = true;
-            }
-        });
+        //immediateImages = model.authenticated.getUserImages(currentOffset) || [];
+        callback = model.authenticated.fetchUserImages(currentOffset);
 
         break;
 
         case "_userFavouritesAlbum":
 
-        var immediateImages = model.authenticated.getFavourites(currentOffset) || [];
-        constructAlbumImages(immediateImages, EAlbum);
-
-        callback = model.authenticated.fetchFavourites(currentOffset).addEventListener('EVENT_SUCCESS', function (images) {
-            if (images.length > 0) {
-                if(!albumEquals(images, immediateImages)) {
-                    constructAlbumImages(images, EAlbum);
-                }
-            } else {
-                EAlbum.dataset.end = true;
-            }
-        });
+        //immediateImages = model.authenticated.getFavourites(currentOffset) || [];
+        callback = model.authenticated.fetchFavourites(currentOffset);
 
         break;
 
         default:
         
-        var immediateImages = model.authenticated.getAlbumImages(albumID, currentOffset) || []
-        constructAlbumImages(immediateImages, EAlbum);
-
-        callback = model.authenticated.fetchAlbumImages(albumID, currentOffset).addEventListener('EVENT_SUCCESS', function (images) {
-            if (images.length > 0) {
-                if(!albumEquals(images, immediateImages)) {
-                    constructAlbumImages(images, EAlbum);
-                }
-            } else {
-                EAlbum.dataset.end = true;
-            }
-        });
+        //immediateImages = model.authenticated.getAlbumImages(albumID, currentOffset) || []
+        callback = model.authenticated.fetchAlbumImages(albumID, currentOffset);
 
         break;
 
     }
 
-    callback.addEventListener('EVENT_ERROR', function (msg) {
+    /*
+    This is buggy when dealing with uploading files e.g. drag and drop
+    callback.addEventListener('EVENT_SUCCESS', function (images) {
+
+        constructAlbumImages(immediateImages, EAlbum);
+        
+        if (images.length > 0) {
+            if(!albumEquals(images, immediateImages)) {
+                constructAlbumImages(images, EAlbum);
+            }
+        } else {
+            EAlbum.dataset.end = true;
+        }
+    })
+    */
+
+    callback.addEventListener('EVENT_SUCCESS', function (images) {
+        // This is buggy when dealing with uploading files e.g. drag and drop
+        if (images.length > 0) {
+            constructAlbumImages(images, EAlbum);
+        } else {
+            EAlbum.dataset.end = true;
+        }
+    }).addEventListener('EVENT_ERROR', function (msg) {
         if (msg.status === 400) {
             criticalError(msg);
         }
-    }).addEventListener('EVENT_SUCCESS', setBodyFinished);
+    }).addEventListener('EVENT_COMPLETE', setBodyFinished);
 
 	return callback;
 
