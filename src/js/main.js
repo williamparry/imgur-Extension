@@ -7,25 +7,11 @@ var port = chrome.runtime.connect({ name: "main" }),
 	ENavOptions,
 	ENavDelete,
     EAlbums,
-	CurrentOffset = 0,
     CurrentAlbum,
     ECurrentAlbum,
     EStatusBar,
-	EStatusBarLink,
-	// imgur doesn't give any information about how many items total are in an album so you keep going until you get nothing
-	// however, they don't do this for albums, where if you increment the page it will return the last set even if it's the same
-	// awesome
-	lastUserImagesSet;
-
-
-// Send async call to get the album images
-// This will always be different to the count because on change of album it will be set to 0 and will be async
-
-
-// Current Offset needs to start at 0 because it needs to append the items sequentially
-// In theory because of the async nature, the current album could be End inbetween setting the changeAlbum
-// CurrentOffset could also have this problem
-
+	EStatusBarLink;
+    
 function uploadFiles(e) {
     
     var noImages = ECurrentAlbum.querySelectorAll('.no-images')[0];
@@ -78,7 +64,9 @@ function makeImage(fileData) {
 
 }
 
-function friendlyNumber(n,d){x=(''+n).length,p=Math.pow,d=p(10,d);x-=x%3;return Math.round(n*d/p(10,x))/d+" kMGTPE"[x/3]}
+function friendlyNumber(n,d){
+    x=(''+n).length,p=Math.pow,d=p(10,d);x-=x%3;return Math.round(n*d/p(10,x))/d+" kMGTPE"[x/3]
+}
 
 function albumEquals(a1, a2) {
 
@@ -209,7 +197,6 @@ function makeURLItem(URL) {
     });
 }
 
-
 function deleteImage(image) {
 
     var elem = document.getElementById(image.id);
@@ -243,36 +230,6 @@ function deleteImage(image) {
     }
 }
 
-/*
-Not implemented because the API doesn't handle it
-function unfavourite(image) {
-
-	var elem = document.getElementById(image.id);
-
-	progress = UTILS.D.create('progress');
-
-	elem.appendChild(progress);
-
-	var inner = elem.getElementsByClassName('inner')[0],
-        links = inner.getElementsByClassName('action');
-
-	for (var i = 0; i < links.length - 1; i++) {
-		inner.removeChild(links[i]);
-	}
-
-	elem.classList.add('loading');
-	
-	elem.style.cursor = 'progress';
-	model.authenticated.unfavouriteImage(image.id).addEventListener('EVENT_SUCCESS', function (e) {
-		if (elem) {
-			elem.style.cursor = 'default';
-			elem.parentNode.removeChild(elem);
-		}
-	});
-	
-}
-*/
-
 function makeAlbumItem(imageItem) {
 
     var li = UTILS.D.create('li'),
@@ -280,7 +237,6 @@ function makeAlbumItem(imageItem) {
         img = UTILS.D.create('img'),
         imgLink = UTILS.D.create('a');
        
-
     li.id = imageItem.id;
     li.classList.add('loading');
 
@@ -305,14 +261,12 @@ function makeAlbumItem(imageItem) {
     	chrome.tabs.create({ "url": this.href, "active": true });
     };
     
-    
     if (imageItem.title) {
 		imgLink.title = imageItem.title;
 	}
     imgLink.classList.add('image-link');
     imgLink.appendChild(img);
     inner.appendChild(imgLink);
-    
 
     if (!imageItem.is_album) {
 
@@ -456,8 +410,6 @@ function makeAlbumItem(imageItem) {
         
     }
 
-    
-    
     return li;
 
 }
@@ -497,239 +449,31 @@ function makeAlbum(album) {
 
 }
 
-function criticalError() {
-	//window.location.reload();
-}
-// Set a flag or set on the current album element
-function constructAlbumImages(images, album) {
-
-	hideStatusBar();
-
-	var ul = album.querySelectorAll('ul')[0];
-    
-	if(CurrentOffset === 0) {
-
-		ul.innerHTML = "";
-
-	}
-
-    if (images && images.length > 0) {
-
-    	for (var i = 0; i < images.length; i++) {
-
-    		if (album.id === '_userAlbum' || album.id === '_userFavouritesAlbum') {
-
-            	if (!!!document.getElementById(images[i].id)) {
-            		ul.appendChild(makeAlbumItem(images[i]));
-            	}
-
-            } else {
-                ul.insertBefore(makeAlbumItem(images[i]), ul.firstChild);
-            }
-            
-        }
-    } else if(CurrentOffset === 0) {
-        showStatusBar("You have no images in this album. You can drag and drop images onto this page or print screen and paste straight onto this page to upload your images.");
-    }
+function criticalError(msg) {
+    chrome.notifications.create("", {
+        type: "basic",
+        iconUrl: "img/logo96.png",
+        title: "Error",
+        message: msg.text || "Something went wrong. Try refreshing."
+    }, function () { });
 }
 
 function setBodyLoading() {
     document.body.classList.add('loading');
+    ENavSelect.setAttribute('disabled', 'disabled');
 }
 
 function setBodyFinished() {
     document.body.classList.remove('loading');
+    ENavSelect.removeAttribute('disabled');
 }
 
 function isBodyLoading() {
 	return document.body.classList.contains('loading');
 }
 
-function fetchImages() {
-
-	setBodyLoading();
-
-	var callback = null;
-
-	(function (EAlbum) {
-
-		if (CurrentAlbum == "_thisComputer") {
-
-			constructAlbumImages(model.unsorted.get(), EAlbum);
-			setBodyFinished();
-
-		} else if (CurrentAlbum == "_userAlbum") {
-
-			// Show immediately
-			var immediateImages = model.authenticated.getUserImages(CurrentOffset) || [];
-            constructAlbumImages(immediateImages, EAlbum);
-
-			callback = model.authenticated.fetchUserImages(CurrentOffset);
-            callback.addEventListener('EVENT_COMPLETE', setBodyFinished)
-                .addEventListener('EVENT_SUCCESS', function (images) {
-
-                	if (images.length > 0) {
-                        if(!albumEquals(images, immediateImages)) {
-                		    constructAlbumImages(images, EAlbum);
-                        }
-                	} else {
-                		EAlbum.dataset.end = true;
-                	}
-
-                })
-                .addEventListener('EVENT_ERROR', function (msg) {
-
-                	if (msg.status === 400) {
-                		criticalError();
-                	}
-                    
-                	chrome.notifications.create("", {
-
-                		type: "basic",
-                		iconUrl: "img/logo96.png",
-                		title: "Error",
-                		message: msg.text || "Something went wrong. Try refreshing."
-                	}, function () { });
-
-                });
-
-
-		} else if (CurrentAlbum == "_userFavouritesAlbum") {
-
-			// Show immediately
-            var immediateImages = model.authenticated.getFavourites(CurrentOffset) || [];
-			constructAlbumImages(immediateImages, EAlbum);
-
-			callback = model.authenticated.fetchFavourites(CurrentOffset);
-			callback.addEventListener('EVENT_COMPLETE', setBodyFinished)
-                .addEventListener('EVENT_SUCCESS', function (images) {
-                	if (images.length > 0) {
-                        if(!albumEquals(images, immediateImages)) {
-                		    constructAlbumImages(images, EAlbum);
-                        }
-                	} else {
-                		EAlbum.dataset.end = true;
-                	}
-                })
-                .addEventListener('EVENT_ERROR', function (msg) {
-
-                	if (msg.status === 400) {
-                		criticalError();
-                	}
-
-                	chrome.notifications.create("", {
-
-                		type: "basic",
-                		iconUrl: "img/logo96.png",
-                		title: "Error",
-                		message: msg.text || "Something went wrong. Try refreshing."
-                	}, function () { });
-
-                });
-
-
-		} else {
-
-			// Show immediately
-            var immediateImages = model.authenticated.getAlbumImages(CurrentAlbum, CurrentOffset) || []
-			constructAlbumImages(immediateImages, EAlbum);
-			
-			callback = model.authenticated.fetchAlbumImages(CurrentAlbum, CurrentOffset);
-
-                callback.addEventListener('EVENT_COMPLETE', setBodyFinished)
-                .addEventListener('EVENT_SUCCESS', function (images) {
-
-                	if (!!lastUserImagesSet && images[0].id === lastUserImagesSet[0].id) {	
-                		EAlbum.dataset.end = true;
-                		return;
-                	}
-
-                	if (images.length > 0) {
-                        if(!albumEquals(images, immediateImages)) {
-                		    constructAlbumImages(images, EAlbum);
-                        }
-                	} else {
-                		EAlbum.dataset.end = true;
-                	}
-
-                	lastUserImagesSet = images.slice(0);
-
-                })
-                .addEventListener('EVENT_ERROR', function (msg) {
-                	if (msg.status === 400) {
-                		criticalError();
-                	}
-
-                	chrome.notifications.create("", {
-
-                		type: "basic",
-                		iconUrl: "img/logo96.png",
-                		title: "Error",
-                		message: msg.text || "Something went wrong. Try refreshing."
-                	}, function () { });
-
-                });
-
-
-		}
-
-	})(ECurrentAlbum);
-
-	return callback;
-
-}
-
-// Can be called on init or change, or infinite scroll
-function changeAlbum(albumID) {
-
-    if (albumID == '_newAlbum') {
-
-        var albumTitle = prompt('Album title');
-
-        if (albumTitle == "" || !albumTitle) {
-            ENavSelect.value = CurrentAlbum;
-        } else {
-        	model.authenticated.makeAlbum(albumTitle).addEventListener('EVENT_COMPLETE', function (album) {
-        		model.currentAlbum.set(album.id);
-                window.location.reload();
-            });
-        }
-
-        return;
-    }
-
-    
-   
-    if (albumID !== "_thisComputer") {
-    	CurrentOffset = 0;
-    	CurrentAlbumEnd = false;
-    	//CurrentLimit = model.authenticated.getAlbum(albumID).images_count;
-    }
-
-    model.currentAlbum.set(albumID);
-
-    ENavSelect.value = albumID;
-
-    if (ECurrentAlbum) {
-    	ECurrentAlbum.classList.remove('active')
-    }
-
-    CurrentAlbum = albumID;
-    ECurrentAlbum = UTILS.D.id(CurrentAlbum);
-    ECurrentAlbum.classList.add('active')
-	ECurrentAlbum.dataset.end = false;
-
-    fetchImages();
-
-}
-
-function showStatusBar(text, showClose) {
+function showStatusBar(text) {
 	EStatusBar.querySelectorAll('.content')[0].innerHTML = text;
-	if (showClose) {
-		EStatusBarLink.style.display = "block";
-	} else {
-		EStatusBarLink.style.display = "none";
-	}
 	EStatusBar.classList.add('show');
 }
 
@@ -737,81 +481,234 @@ function hideStatusBar() {
 	EStatusBar.classList.remove('show');
 }
 
-function initAuthenticated() {
-    ENavConnect.classList.add('hide');
-    ENavSelect.classList.remove('hide');
-    var albums = model.authenticated.getAlbums();
+function clearAlbumImages(album) {
+    var ul = album.querySelectorAll('ul')[0];
+    ul.innerHTML = "";
+}
 
-    var unsortedOpt = UTILS.D.create('option');
-    unsortedOpt.value = '_thisComputer';
-    unsortedOpt.text = 'This Computer';
-    ENavSelect.appendChild(unsortedOpt);
+function constructAlbumImages(images, album) {
+    
+	var ul = album.querySelectorAll('ul')[0];
+    
+    if (images.length > 0) {
+        // TODO: Optimise
+    	for (var i = 0; i < images.length; i++) {
+            
+    		if (album.id === '_userAlbum' || album.id === '_userFavouritesAlbum') {
 
-    var defaultAlbumOpt = UTILS.D.create('option');
-    defaultAlbumOpt.value = '_userAlbum';
-    defaultAlbumOpt.text = model.authenticated.getAccount().url;
-    ENavSelect.appendChild(defaultAlbumOpt);
+            	ul.appendChild(makeAlbumItem(images[i]));
 
-    var EUserAlbum = makeAlbum({ id: '_userAlbum' });
-    EAlbums.appendChild(EUserAlbum);
+            } else {
+                ul.insertBefore(makeAlbumItem(images[i]), ul.firstChild);
+            }
+            
+        }
+    }
+}
 
-    var favouritesOpt = UTILS.D.create('option');
-    favouritesOpt.value = '_userFavouritesAlbum';
-    favouritesOpt.text = 'My Favourites';
-    ENavSelect.appendChild(favouritesOpt);
+function changeAlbum(albumID) {
 
-    var EUserFavouritesAlbum = makeAlbum({ id: '_userFavouritesAlbum' });
-    EAlbums.appendChild(EUserFavouritesAlbum);
+    if (albumID == "_newAlbum") {
 
-    if (albums) {
+        var albumTitle = prompt('Album title');
 
-        var albumsOptGroup = UTILS.D.create('optgroup');
-        albumsOptGroup.setAttribute('label', 'Albums');
-
-        for (var i = 0; i < albums.length; i++) {
-
-            var EAlbum = makeAlbum(albums[i]);
-
-            var opt = UTILS.D.create('option');
-            opt.value = albums[i].id;
-            opt.text = albums[i].title || "(API processing)";
-
-            albumsOptGroup.appendChild(opt);
-            EAlbums.appendChild(EAlbum);
+        if (albumTitle == "" || !albumTitle) {
+            ENavSelect.value = CurrentAlbum;
+        } else {
+            model.authenticated.makeAlbum(albumTitle).addEventListener('EVENT_COMPLETE', function (album) {
+                model.currentAlbum.set(album.id);
+                window.location.reload();
+            });
         }
 
-        ENavSelect.appendChild(albumsOptGroup);
+        return;
     }
-	
-    var newAlbumOpt = UTILS.D.create('option');
-    newAlbumOpt.value = '_newAlbum';
-    newAlbumOpt.text = '<New Album>';
-    albumsOptGroup.appendChild(newAlbumOpt);
+    
+    model.currentAlbum.set(albumID);
 
+    ENavSelect.value = albumID;
+
+    if (ECurrentAlbum) {
+        ECurrentAlbum.classList.remove('active');
+    }
+
+    CurrentAlbum = albumID;
+    ECurrentAlbum = UTILS.D.id(CurrentAlbum);
+    ECurrentAlbum.classList.add('active');
+    ECurrentAlbum.dataset.end = false;
+
+    var currentOffset = 0;
+    window.onscroll = null;
+
+    if(CurrentAlbum !== "_thisComputer") {
+        
+        fetchImages(CurrentAlbum, ECurrentAlbum, 0).addEventListener('EVENT_SUCCESS', function(images) {
+            if(images.length == 0) {
+                showStatusBar("You have no images in this album. You can drag and drop images onto this page or print screen and paste straight onto this page to upload your images.");
+            } else {
+                hideStatusBar();
+            }
+            window.onscroll = function() {
+                var scrollTop = (document.documentElement.scrollTop || document.body.parentNode.scrollTop || document.body.scrollTop);
+                if(scrollTop + window.innerHeight >= (document.body.clientHeight - 100)) {
+                    if (ECurrentAlbum.dataset.end === "false" && !isBodyLoading()) {
+                        fetchImages(CurrentAlbum, ECurrentAlbum, ++currentOffset);
+                    }
+                }
+            }
+        });
+    } else {
+        fetchImages(CurrentAlbum, ECurrentAlbum);
+    }
+
+}
+
+function fetchImages(albumID, EAlbum, currentOffset) {
+
+    setBodyLoading();
+
+    var callback;
+
+    switch(albumID) {
+
+        case "_thisComputer":
+
+        constructAlbumImages(model.unsorted.get(), EAlbum);
+        setBodyFinished();
+
+        return;
+
+        break;
+
+        case "_userAlbum":
+
+        var immediateImages = model.authenticated.getUserImages(currentOffset) || [];
+        constructAlbumImages(immediateImages, EAlbum);
+
+        callback = model.authenticated.fetchUserImages(currentOffset).addEventListener('EVENT_SUCCESS', function (images) {
+            if (images.length > 0) {
+                if(!albumEquals(images, immediateImages)) {
+                    constructAlbumImages(images, EAlbum);
+                }
+            } else {
+                EAlbum.dataset.end = true;
+            }
+        });
+
+        break;
+
+        case "_userFavouritesAlbum":
+
+        var immediateImages = model.authenticated.getFavourites(currentOffset) || [];
+        constructAlbumImages(immediateImages, EAlbum);
+
+        callback = model.authenticated.fetchFavourites(currentOffset).addEventListener('EVENT_SUCCESS', function (images) {
+            if (images.length > 0) {
+                if(!albumEquals(images, immediateImages)) {
+                    constructAlbumImages(images, EAlbum);
+                }
+            } else {
+                EAlbum.dataset.end = true;
+            }
+        });
+
+        break;
+
+        default:
+        
+        var immediateImages = model.authenticated.getAlbumImages(albumID, currentOffset) || []
+        constructAlbumImages(immediateImages, EAlbum);
+
+        callback = model.authenticated.fetchAlbumImages(albumID, currentOffset).addEventListener('EVENT_SUCCESS', function (images) {
+            if (images.length > 0) {
+                if(!albumEquals(images, immediateImages)) {
+                    constructAlbumImages(images, EAlbum);
+                }
+            } else {
+                EAlbum.dataset.end = true;
+            }
+        });
+
+        break;
+
+    }
+
+    callback.addEventListener('EVENT_ERROR', function (msg) {
+        if (msg.status === 400) {
+            criticalError(msg);
+        }
+    }).addEventListener('EVENT_SUCCESS', setBodyFinished);
+
+	return callback;
+
+}
+
+
+
+
+function initAuthenticated() {
+
+    ENavConnect.classList.add('hide');
+    
+    model.authenticated.fetchAlbums().addEventListener('EVENT_SUCCESS', function(albums) {
+        
+        ENavSelect.classList.remove('hide');
+
+        var unsortedOpt = UTILS.D.create('option');
+        unsortedOpt.value = '_thisComputer';
+        unsortedOpt.text = 'This Computer';
+        ENavSelect.appendChild(unsortedOpt);
+    
+        var defaultAlbumOpt = UTILS.D.create('option');
+        defaultAlbumOpt.value = '_userAlbum';
+        defaultAlbumOpt.text = model.authenticated.getAccount().url;
+        ENavSelect.appendChild(defaultAlbumOpt);
+    
+        var EUserAlbum = makeAlbum({ id: '_userAlbum' });
+        EAlbums.appendChild(EUserAlbum);
+    
+        var favouritesOpt = UTILS.D.create('option');
+        favouritesOpt.value = '_userFavouritesAlbum';
+        favouritesOpt.text = 'My Favourites';
+        ENavSelect.appendChild(favouritesOpt);
+    
+        var EUserFavouritesAlbum = makeAlbum({ id: '_userFavouritesAlbum' });
+        EAlbums.appendChild(EUserFavouritesAlbum);
+    
+        if (albums) {
+    
+            var albumsOptGroup = UTILS.D.create('optgroup');
+            albumsOptGroup.setAttribute('label', 'Albums');
+    
+            for (var i = 0; i < albums.length; i++) {
+    
+                var EAlbum = makeAlbum(albums[i]);
+    
+                var opt = UTILS.D.create('option');
+                opt.value = albums[i].id;
+                opt.text = albums[i].title || "(API processing)";
+    
+                albumsOptGroup.appendChild(opt);
+                EAlbums.appendChild(EAlbum);
+            }
+    
+            ENavSelect.appendChild(albumsOptGroup);
+        }
+        
+        var newAlbumOpt = UTILS.D.create('option');
+        newAlbumOpt.value = '_newAlbum';
+        newAlbumOpt.text = '<New Album>';
+        albumsOptGroup.appendChild(newAlbumOpt);
+
+        changeAlbum(model.currentAlbum.get());
+
+    });
 }
 
 port.onMessage.addListener(function (msg) {
     // Only gets one message
     window.location.reload();
 });
-
-function checkForMoreImages() {
-
-	var callback = null;
-	// Could be out of sync with cache, but that's ok
-	if ((CurrentAlbum === "_userAlbum" || CurrentAlbum === "_userFavouritesAlbum")
-		&& ECurrentAlbum.dataset.end === 'false'
-		&& !isBodyLoading()
-	) {
-
-		CurrentOffset++;
-		callback = fetchImages();
-
-	}
-
-	return callback;
-
-}
 
 window.onload = function() {
 
@@ -847,9 +744,8 @@ window.onload = function() {
 	document.documentElement.ondragexit = document.documentElement.ondragleave = function (e) {
 		hideStatusBar();
 		return false;
-	};
-
-
+    };
+    
 	document.documentElement.onpaste = function (e) {
 		var items = e.clipboardData.items;
 		for (var i = 0; i < items.length; ++i) {
@@ -898,10 +794,8 @@ window.onload = function() {
 		}
 		
 		body.appendChild(dialog);
-		dialog.showModal();
-
-		
-
+        dialog.showModal();
+        
 	};
 
 	ENavSelect.onchange = function () {
@@ -932,23 +826,9 @@ window.onload = function() {
 	if (model.authenticated.oAuthManager.getAuthStatus()) {
 		initAuthenticated();
 	} else {
-		ENavConnect.classList.remove('hide');
-	}
-
-	changeAlbum(model.currentAlbum.get());
-
-	
-
-	window.onscroll = function() {
-	
-        var scrollTop = (document.documentElement.scrollTop
-                    || document.body.parentNode.scrollTop
-                    || document.body.scrollTop);
-		if(scrollTop + window.innerHeight >= (document.body.clientHeight - 100)) {
-			checkForMoreImages();
-		}
-		
-	}
+        ENavConnect.classList.remove('hide');
+        changeAlbum("_thisComputer");
+    }
 
 	var body = document.body,
 		timer;
