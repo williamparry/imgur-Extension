@@ -261,6 +261,10 @@ a#nav-options {
     vertical-align: middle;
 }
 
+.album ul li div.inner .image-link {
+	display: block;
+}
+
 .album ul li img,
 .album ul li canvas 
 {

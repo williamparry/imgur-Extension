@@ -10,7 +10,8 @@ var port = chrome.runtime.connect({ name: "main" }),
     CurrentAlbum,
     ECurrentAlbum,
     EStatusBar,
-	EStatusBarLink;
+    EStatusBarLink,
+    NoImagesMessage = "You have no images in this album. You can drag and drop images onto this page or print screen and paste straight onto this page to upload your images."
     
 function uploadFiles(e) {
     
@@ -197,9 +198,9 @@ function makeURLItem(URL) {
     });
 }
 
-function deleteImage(image) {
+function deleteImage(imageId) {
 
-    var elem = document.getElementById(image.id);
+    var elem = document.getElementById(imageId);
 
     progress = UTILS.D.create('progress');
 
@@ -221,7 +222,7 @@ function deleteImage(image) {
         });
     } else {
         elem.style.cursor = 'progress';
-        model.authenticated.deleteImage(image.id).addEventListener('EVENT_SUCCESS', function (e) {
+        model.authenticated.deleteImage(imageId).addEventListener('EVENT_SUCCESS', function (e) {
             if (elem) {
                 elem.style.cursor = 'default';
                 elem.parentNode.removeChild(elem);
@@ -256,15 +257,11 @@ function makeAlbumItem(imageItem) {
 
     imgLink.href = imageItem.link;
 
-    imgLink.onclick = function (e) {
-    	e.preventDefault();
-    	chrome.tabs.create({ "url": this.href, "active": true });
-    };
-    
     if (imageItem.title) {
 		imgLink.title = imageItem.title;
 	}
     imgLink.classList.add('image-link');
+    imgLink.dataset.action = "image-link";
     imgLink.appendChild(img);
     inner.appendChild(imgLink);
 
@@ -280,18 +277,12 @@ function makeAlbumItem(imageItem) {
         del.href = copy.href = "#";
         del.innerHTML = "delete";
         del.classList.add('image-delete');
+        del.dataset.imageid = imageItem.id;
+        del.dataset.action = "image-delete";
         del.classList.add('action');
-        del.onclick = function (e) {
-            e.preventDefault();
-            if (del.innerHTML == 'sure?') {
-                deleteImage(imageItem);
-            } else {
-                del.innerHTML = 'sure?';
-            }
 
-        };
-
-    	// Not implemented because the API doesn't handle it
+        // Not implemented because the API doesn't handle it
+        /*
         unfav.href = copy.href = "#";
         unfav.innerHTML = "unfavourite";
         unfav.classList.add('image-delete');
@@ -305,23 +296,14 @@ function makeAlbumItem(imageItem) {
         	}
 
         };
+        */
 
         copy.innerHTML = "copy link";
         copy.classList.add('image-copy');
         copy.classList.add('action');
-        copy.onclick = function (e) {
-            e.preventDefault();
-            copyInput.select();
-            document.execCommand("Copy");
-            var copyNotification = UTILS.D.create('span');
-
-            copyNotification.innerHTML = 'copied';
-            copyNotification.classList.add('copy-notification');
-            li.appendChild(copyNotification);
-            setTimeout(function () {
-                li.removeChild(copyNotification);
-            }, 1000);
-        };
+        copy.dataset.action = "image-copy";
+        copy.copyInput = copyInput;
+        copy.li = li;
 
         copyInput.type = 'text';
         copyInput.value = imageItem.link;
@@ -330,10 +312,7 @@ function makeAlbumItem(imageItem) {
         meme.innerHTML = "meme";
         meme.classList.add('image-meme');
         meme.classList.add('action');
-        meme.onclick = function (e) {
-            e.preventDefault();
-            chrome.tabs.create({ url: this.href });
-        };
+        meme.dataset.action = "image-meme";
 
         img.id = 'image-' + imageItem.id;
 
@@ -545,7 +524,7 @@ function changeAlbum(albumID) {
         
         fetchImages(CurrentAlbum, ECurrentAlbum, 0).addEventListener('EVENT_SUCCESS', function(images) {
             if(images.length == 0) {
-                showStatusBar("You have no images in this album. You can drag and drop images onto this page or print screen and paste straight onto this page to upload your images.");
+                showStatusBar(NoImagesMessage);
             } else {
                 hideStatusBar();
             }
@@ -559,7 +538,12 @@ function changeAlbum(albumID) {
             }
         });
     } else {
-        fetchImages(CurrentAlbum, ECurrentAlbum);
+        var images = fetchImages(CurrentAlbum, ECurrentAlbum);
+        if(images.length == 0) {
+            showStatusBar(NoImagesMessage);
+        } else {
+            hideStatusBar();
+        }
     }
 
 }
@@ -567,8 +551,9 @@ function changeAlbum(albumID) {
 function fetchImages(albumID, EAlbum, currentOffset) {
 
     if(albumID == "_thisComputer") {
-        constructAlbumImages(model.unsorted.get(), EAlbum);
-        return;
+        var images = model.unsorted.get();
+        constructAlbumImages(images, EAlbum);
+        return images;
     }
 
     var callback;
@@ -623,6 +608,7 @@ function fetchImages(albumID, EAlbum, currentOffset) {
             constructAlbumImages(images, EAlbum);
         } else {
             EAlbum.dataset.end = true;
+            window.onscroll = null;
         }
     }).addEventListener('EVENT_ERROR', function (msg) {
         if (msg.status === 400) {
@@ -801,7 +787,7 @@ window.onload = function() {
 			var images = ECurrentAlbum.querySelectorAll('li');
 
 			for (var i = 0; i < images.length; i++) {
-				deleteImage(images[i])
+				deleteImage(images[i].id)
 			}
 
 		}
@@ -820,6 +806,64 @@ window.onload = function() {
         ENavConnect.classList.remove('hide');
         changeAlbum("_thisComputer");
     }
+
+    EAlbums.addEventListener("click", function(e) {
+       
+        var el = e.target;
+        var actions = ["image-link", "image-delete", "image-copy", "image-meme"]
+        var action;
+        
+        while(el !== this && !action) {
+            action = actions.find(function(a) {
+                return el.dataset && (el.dataset.action == a);
+            });
+            if(!action) {
+                el = el.parentNode;
+            }
+        }
+
+        if(action) {
+            e.preventDefault();
+            switch(action) {
+    
+                case "image-link":
+                    chrome.tabs.create({ "url": el.href, "active": true });
+                break;
+
+                case "image-meme":
+                    chrome.tabs.create({ "url": el.href, "active": true });
+                break;
+    
+                case "image-delete":
+                
+                    if (el.innerHTML == 'sure?') {
+                        deleteImage(el.dataset.imageid);
+                    } else {
+                        el.innerHTML = 'sure?';
+                    }
+    
+                break;
+    
+                case "image-copy":
+    
+                    el.copyInput.select();
+                    document.execCommand("Copy");
+                    var copyNotification = UTILS.D.create('span');
+    
+                    copyNotification.innerHTML = 'copied';
+                    copyNotification.classList.add('copy-notification');
+                    el.li.appendChild(copyNotification);
+                    setTimeout(function () {
+                        el.li.removeChild(copyNotification);
+                    }, 1000);
+    
+                break;
+            }
+        }
+
+        
+
+    })
 
 	var body = document.body,
 		timer;
