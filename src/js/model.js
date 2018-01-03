@@ -497,7 +497,7 @@ function Model() {
     			var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']),
 					xhr = new XMLHttpRequest();
 
-    			xhr.open("POST", "https://api.imgur.com/oauth2/token", true);
+    			xhr.open("POST", "https://api.imgur.com/metronomik/token", true);
     			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
     			xhr.onreadystatechange = function () {
