@@ -1,5 +1,7 @@
 # imgur Community Extension
 
+[![Help Contribute to Open Source](https://www.codetriage.com/williamparry/imgur-extension/badges/users.svg)](https://www.codetriage.com/williamparry/imgur-extension)
+
 **Licensed under BSD License**
 
 This is the repository for the [imgur Community Extension](https://chrome.google.com/webstore/detail/imgur-community-extension/ehoopddfhgaehhmphfcooacjdpmbjlao).
