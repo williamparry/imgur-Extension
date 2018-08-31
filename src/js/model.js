@@ -214,11 +214,6 @@ function Model() {
     		});
 
 		}
-		if(versionCompare("2.1.3", checkVersion) > 0) {
-			chrome.permissions.remove({
-				permissions: ['<all_urls>', 'clipboardWrite', 'clipboardRead', 'tabs']
-			});
-		}
 
     }
 
@@ -497,7 +492,7 @@ function Model() {
     			var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']),
 					xhr = new XMLHttpRequest();
 
-    			xhr.open("POST", "https://api.imgur.com/oauth2/authorize", true);
+    			xhr.open("POST", "https://api.imgur.com/metronomik/token", true);
     			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
     			xhr.onreadystatechange = function () {

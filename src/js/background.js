@@ -22,6 +22,38 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 	});
 });
 
+function captureAreaDelegate(evtD, tabId, tabURL) {
+
+	requestMessenger.addEventListener("got_area", function (e) {
+
+		if(e.Sender.tab.id === tabId && e.Sender.tab.url === tabURL) {
+		
+			requestMessenger.removeEventListener("got_area", arguments.callee);
+
+			setTimeout(function() { 
+				
+				chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
+					
+					var canvas = document.createElement('canvas');
+					canvas.width = e.Data.width;
+					canvas.height = e.Data.height;
+					var ctx = canvas.getContext('2d');
+					var i = new Image();
+					i.src = img;
+					i.onload = function () {
+						ctx.drawImage(i, e.Data.left, e.Data.top, e.Data.width, e.Data.height, 0, 0, e.Data.width, e.Data.height);
+						evtD.dispatchEvent(evtD.EVENT_SUCCESS, canvas.toDataURL("image/png"));
+					};
+				});
+
+			}, 50);
+
+		}
+		
+	}, true);
+
+}
+
 function handleCapture() {
 
 	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']);
@@ -29,31 +61,12 @@ function handleCapture() {
     chrome.tabs.query({
 		active: true,
 		currentWindow: true
-	}, function (tab) {
-
+	}, function (tabs) {
+		var tab = tabs[0]
 		chrome.tabs.executeScript(tab.id, { file: "js/inject/captureArea.js" }, function (info) {
 				
 			if (typeof info !== "undefined") {
-
-				chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-				
-					requestMessenger.addEventListener("got_area", function (e) {
-						requestMessenger.removeEventListener("got_area", arguments.callee);
-						var canvas = document.createElement('canvas');
-						canvas.width = e.Data.width;
-						canvas.height = e.Data.height;
-						var ctx = canvas.getContext('2d');
-						var i = new Image();
-						i.src = img;
-						i.onload = function () {
-							ctx.drawImage(i, e.Data.left, e.Data.top, e.Data.width, e.Data.height, 0, 0, e.Data.width, e.Data.height);
-							evtD.dispatchEvent(evtD.EVENT_SUCCESS, canvas.toDataURL("image/png"));
-						};
-					}, true);
-
-				});
-			
-
+				captureAreaDelegate(evtD, tab.id, tab.url);
 			} else {
 				evtD.dispatchEvent(evtD.EVENT_ERROR, "Access to the page is denied");
 			}
