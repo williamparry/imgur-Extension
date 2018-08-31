@@ -11,5 +11,9 @@
             "js/model.js",
             "js/background.js"
 		]
-	}
+	},
+    "optional_permissions": [
+        "clipboardWrite",
+        "<all_urls>"
+    ]
 }
