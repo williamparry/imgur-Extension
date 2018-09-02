@@ -492,8 +492,15 @@ function Model() {
     			var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']),
 					xhr = new XMLHttpRequest();
 
-    			xhr.open("POST", "https://api.imgur.com/metronomik/token", true);
-    			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                if (model.isChrome) {
+                    xhr.open("POST", "https://api.imgur.com/metronomik/token", true);
+                    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                } else {
+                    // AWS Lambda service for adding client_secret to token requests
+                    xhr.open("POST", "https://bboekn8uf5.execute-api.us-west-2.amazonaws.com/default/ImgurRefreshToken", true);
+                    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    xhr.setRequestHeader("x-api-key", "9nNKbbdDkYal7YhwqcDKS1M7VOZDjmWiachvl2ZP");
+                }
 
     			xhr.onreadystatechange = function () {
 
