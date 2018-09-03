@@ -326,8 +326,14 @@ var UTILS = (function () {
 									CMD: 'STOP'
 								}, tab);
 
-								canvas.width = injectData.width * window.devicePixelRatio;
-								canvas.height = injectData.height * window.devicePixelRatio;
+                                if (model.isChrome) {
+                                    canvas.width = injectData.width * window.devicePixelRatio;
+                                    canvas.height = injectData.height * window.devicePixelRatio;
+                                } else {
+                                    canvas.width = injectData.width;
+                                    canvas.height = injectData.height;
+                                }
+
 
 								function drawImage(imgData, callback) {
 

@@ -1,6 +1,6 @@
 {
-	"dev_client_id": "d83322266d47f94",
-	"prod_client_id": "",
+	"dev_client_id": "41333d7aa5bb3c5",
+	"prod_client_id": "41333d7aa5bb3c5",
 	"css": [
 		"lib/dialog-polyfill.css"
 	],

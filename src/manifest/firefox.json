@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0",
+    "version": "1.1.0",
 	"applications": {
         "gecko": {
             "id": "imgur@community.ext"
@@ -11,5 +11,9 @@
             "js/model.js",
             "js/background.js"
 		]
-	}
+	},
+    "optional_permissions": [
+        "clipboardWrite",
+        "<all_urls>"
+    ]
 }

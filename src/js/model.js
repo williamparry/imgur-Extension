@@ -492,8 +492,15 @@ function Model() {
     			var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']),
 					xhr = new XMLHttpRequest();
 
-    			xhr.open("POST", "https://api.imgur.com/metronomik/token", true);
-    			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                if (model.isChrome) {
+                    xhr.open("POST", "https://api.imgur.com/metronomik/token", true);
+                    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                } else {
+                    // AWS Lambda service for adding client_secret to token requests
+                    xhr.open("POST", "https://bboekn8uf5.execute-api.us-west-2.amazonaws.com/default/ImgurRefreshToken", true);
+                    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    xhr.setRequestHeader("x-api-key", "9nNKbbdDkYal7YhwqcDKS1M7VOZDjmWiachvl2ZP");
+                }
 
     			xhr.onreadystatechange = function () {
 
@@ -886,68 +893,38 @@ function Model() {
 
     		this.handler = function () {
 
-    			var xhr = new XMLHttpRequest();
+                var init = { method: method,
+                             headers: new Headers(),
+                             credentials: 'omit' };
 
-    			xhr.open(method, url, true);
-    			xhr.setRequestHeader('Authorization', 'Client-ID ' + root.client_id);
+                init.headers.append('Authorization', 'Client-ID ' + root.client_id);
+                if (postStr) {
+                    init.headers.append('Content-Type', 'application/x-www-form-urlencoded');
+                    init.body = postStr;
+                }
+                self.evtD.dispatchEvent('EVENT_LOADING');
+                fetch(url, init).then(function(response) {
+                    response.json().then(function (resp) {
 
-    			if (postStr) {
-    				xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    			}
+                        if (response.status === 200) {
 
-    			var upload = xhr.upload;
-    			upload.addEventListener("progress", function (ev) {
-    				if (ev.lengthComputable) {
-    					self.evtD.dispatchEvent('EVENT_PROGRESS', { loaded: ev.loaded, total: ev.total });
-    				}
-    			}, false);
+                            self.evtD.dispatchEvent('EVENT_COMPLETE', resp.data);
+                            if (resp.success) {
+                                self.evtD.dispatchEvent('EVENT_SUCCESS', resp.data);
+                            } else {
+                                self.evtD.dispatchEvent('EVENT_ERROR', resp.error);
+                            }
 
-    			xhr.onreadystatechange = function () {
+                        } else {
+                            console.warn('other error', response.status);
+                            self.evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
+                        }
 
-    			    if (xhr.readyState === 2) {
-
-    			        self.evtD.dispatchEvent('EVENT_LOADING');
-
-    			    } else if (xhr.readyState === 4) {
-    					
-    					try {
-
-    						var resp = JSON.parse(xhr.responseText);
-
-    						if (xhr.status === 200) {
-
-    							var resp = JSON.parse(xhr.responseText);
-    						
-    							self.evtD.dispatchEvent('EVENT_COMPLETE', resp.data);
-
-    							if (resp.success) {
-
-    								self.evtD.dispatchEvent('EVENT_SUCCESS', resp.data);
-
-    							} else {
-
-    								self.evtD.dispatchEvent('EVENT_ERROR', resp.error);
-
-    							}
-
-    						}  else {
-
-    							console.warn('other error', xhr.status);
-    							self.evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
-
-    						}
-    					
-    					} catch (ex) {
-
-    						self.evtD.dispatchEvent("EVENT_ERROR", "imgur API error. Please try again later.");
-
-    					}
-
-    				}
-    			};
-
-    			xhr.send(postStr);
-
+                    }); // I'm not sure if I need a catch after this one or if it propogates out.
+                })
+                .catch(function(error) {
+                    self.evtD.dispatchEvent('EVENT_ERROR', "imgur API error. Please try again later.")
+                });
     		};
 
     		return this;

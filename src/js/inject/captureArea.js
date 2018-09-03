@@ -130,11 +130,20 @@
 
     function submit() {
 
-        var obj = {
-            left: parseInt(dragArea.style.left) * window.devicePixelRatio,
-            top: parseInt(dragArea.style.top) * window.devicePixelRatio,
-            width: parseInt(dragArea.style.width) * window.devicePixelRatio,
-            height: parseInt(dragArea.style.height) * window.devicePixelRatio
+        if ("{%PLATFORM%}" == "chrome") {
+            var obj = {
+                left: parseInt(dragArea.style.left) * window.devicePixelRatio,
+                top: parseInt(dragArea.style.top) * window.devicePixelRatio,
+                width: parseInt(dragArea.style.width) * window.devicePixelRatio,
+                height: parseInt(dragArea.style.height) * window.devicePixelRatio
+            }
+        } else {
+            var obj = {
+                left: parseInt(dragArea.style.left),
+                top: parseInt(dragArea.style.top),
+                width: parseInt(dragArea.style.width),
+                height: parseInt(dragArea.style.height)
+            }
         }
 
         removeOverlay();

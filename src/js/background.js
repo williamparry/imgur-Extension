@@ -79,25 +79,12 @@ function handleCapture() {
 }
 
 function addToClipboard(url) {
-	if(!model.isChrome) {
-		browser.tabs.executeScript({
-			code: "function oncopy(evt) {" +
-				  "    document.removeEventListener(\"copy\", oncopy, true);" +
-				  "    evt.stopImmediatePropagation();" +
-				  "    evt.preventDefault();" +
-				  "    evt.clipboardData.setData(\"text/plain\", \"" + url + "\");" +
-				  "}" +
-				  "document.addEventListener(\"copy\", oncopy, true);" +
-				  "document.execCommand(\"copy\");"
-		});
-    } else {
-        var txt = UTILS.D.create('input');
-        document.body.appendChild(txt);
-        txt.value = url;
-        txt.select();
-        document.execCommand('copy');
-        document.body.removeChild(txt);
-    }
+    var txt = UTILS.D.create('input');
+    document.body.appendChild(txt);
+    txt.value = url;
+    txt.select();
+    document.execCommand('copy');
+    document.body.removeChild(txt);
 }
 
 function handleLocalFile(src) {
@@ -123,6 +110,19 @@ function handleLocalFile(src) {
 }
 
 chrome.contextMenus.onClicked.addListener(function (obj, tab) {
+
+    if (!model.isChrome) {
+        // Firefox requires clipboardWrite to write to the clipboard from the background
+        if (model.preferences.get('copyoncapture') || model.preferences.get('copyonrehost')) {
+            browser.permissions.request({permissions: ["clipboardWrite"]})
+        }
+        // Firefox requires all urls permission to capture pages
+        if (obj.menuItemId.includes('page') ||
+                obj.menuItemId.includes('view') ||
+                obj.menuItemId.includes('area')) {
+            browser.permissions.request({origins: ["<all_urls>"]})
+        }
+    }
 
 	if (obj.menuItemId === "unsorted.page") {
 
